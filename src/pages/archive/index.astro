@@ -1,0 +1,624 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const items = (
+  await getCollection("archive", ({ data }) => !data.private)
+).sort(
+  (a, b) =>
+    b.data.dateFound.getTime() - a.data.dateFound.getTime()
+);
+
+const mediums = [
+  "all",
+  "photography",
+  "graphic design",
+  "typography",
+  "illustration",
+  "fashion",
+  "beauty",
+  "architecture",
+  "interior",
+  "product",
+  "packaging",
+  "ephemera",
+  "craft",
+  "website",
+  "film",
+  "object",
+];
+
+const types = [
+  "all",
+  "inspiration",
+  "reference",
+  "research",
+  "observation",
+  "want to make",
+  "want to learn",
+  "place",
+  "object",
+  "idea",
+];
+---
+
+<BaseLayout title="archive — ping's archive">
+
+  <section class="page-heading">
+
+    <div>
+      <p class="page-label">archive</p>
+      <h1 class="page-title">all findings</h1>
+    </div>
+
+    <p class="page-count" data-result-count>
+      {String(items.length).padStart(4, "0")} objects
+    </p>
+
+  </section>
+
+
+  <section class="archive-toolbar" data-archive-controls>
+
+    <div class="archive-search-row">
+
+      <label for="archive-search">
+        search
+      </label>
+
+      <input
+        id="archive-search"
+        type="search"
+        placeholder="search the archive..."
+        disabled={items.length === 0}
+      />
+
+    </div>
+
+
+    <div class="archive-toolbar-row">
+
+      <div class="view-control">
+
+        <span class="control-label">
+          view
+        </span>
+
+        <button
+          class="view-button is-active"
+          type="button"
+          data-view-button="grid"
+          aria-pressed="true"
+        >
+          grid
+        </button>
+
+        <button
+          class="view-button"
+          type="button"
+          data-view-button="index"
+          aria-pressed="false"
+        >
+          index
+        </button>
+
+      </div>
+
+
+      <div class="sort-control">
+
+        <label class="control-label" for="archive-sort">
+          sort
+        </label>
+
+        <select
+          id="archive-sort"
+          disabled={items.length === 0}
+        >
+          <option value="newest">newest found</option>
+          <option value="oldest">oldest found</option>
+          <option value="az">a–z</option>
+          <option value="za">z–a</option>
+        </select>
+
+      </div>
+
+    </div>
+
+
+    <details class="archive-filters" open>
+
+      <summary>
+        filter archive
+      </summary>
+
+
+      <div class="filter-grid">
+
+        <div class="filter-field">
+
+          <label for="filter-medium">
+            medium
+          </label>
+
+          <select
+            id="filter-medium"
+            disabled={items.length === 0}
+          >
+            {mediums.map((medium) => (
+              <option value={medium}>
+                {medium}
+              </option>
+            ))}
+          </select>
+
+        </div>
+
+
+        <div class="filter-field">
+
+          <label for="filter-type">
+            type
+          </label>
+
+          <select
+            id="filter-type"
+            disabled={items.length === 0}
+          >
+            {types.map((type) => (
+              <option value={type}>
+                {type}
+              </option>
+            ))}
+          </select>
+
+        </div>
+
+
+        <div class="filter-field">
+
+          <label for="filter-collection">
+            collection
+          </label>
+
+          <select
+            id="filter-collection"
+            disabled={items.length === 0}
+          >
+            <option value="all">
+              all collections
+            </option>
+          </select>
+
+        </div>
+
+
+        <div class="filter-field">
+
+          <label for="filter-location">
+            location
+          </label>
+
+          <select
+            id="filter-location"
+            disabled={items.length === 0}
+          >
+            <option value="all">
+              all locations
+            </option>
+          </select>
+
+        </div>
+
+
+        <div class="filter-field">
+
+          <label for="filter-color">
+            color
+          </label>
+
+          <select
+            id="filter-color"
+            disabled={items.length === 0}
+          >
+            <option value="all">
+              all colors
+            </option>
+          </select>
+
+        </div>
+
+      </div>
+
+    </details>
+
+  </section>
+
+
+  <section
+    class="archive-results"
+    data-archive
+    data-view="grid"
+  >
+
+    {items.map((item, index) => (
+
+      <a
+        href={`/archive/${item.id}/`}
+        class="archive-entry"
+
+        data-title={item.data.title.toLowerCase()}
+        data-search={[
+          item.data.title,
+          item.data.creator,
+          item.data.summary,
+          item.data.location,
+          ...item.data.tags,
+          ...item.data.collections
+        ].filter(Boolean).join(" ").toLowerCase()}
+
+        data-medium={(item.data.medium || "").toLowerCase()}
+        data-type={(item.data.type || "").toLowerCase()}
+
+        data-collections={item.data.collections
+          .map((value) => value.toLowerCase())
+          .join("|")}
+
+        data-location={(item.data.location || "").toLowerCase()}
+
+        data-colors={item.data.colors
+          .map((value) => value.toLowerCase())
+          .join("|")}
+
+        data-date={item.data.dateFound.toISOString()}
+      >
+
+        <div class="archive-entry-image">
+
+          <img
+            src={item.data.image}
+            alt={item.data.alt}
+            loading="lazy"
+          />
+
+        </div>
+
+
+        <div class="archive-entry-information">
+
+          <span class="archive-accession">
+
+            NO. {
+              item.data.accession ||
+              String(index + 1).padStart(4, "0")
+            }
+
+          </span>
+
+
+          <h2>
+            {item.data.title}
+          </h2>
+
+
+          <p class="archive-entry-meta">
+
+            {
+              [
+                item.data.medium,
+                item.data.location
+              ]
+                .filter(Boolean)
+                .join(" / ")
+            }
+
+          </p>
+
+
+          <time datetime={item.data.dateFound.toISOString()}>
+
+            {item.data.dateFound.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric"
+            })}
+
+          </time>
+
+        </div>
+
+      </a>
+
+    ))}
+
+  </section>
+
+
+  {
+    items.length === 0 && (
+
+      <div class="archive-empty-state">
+
+        <span>0000</span>
+
+        <p>
+          the archive is empty.
+        </p>
+
+        <small>
+          structure first. objects later.
+        </small>
+
+      </div>
+
+    )
+  }
+
+
+  <div
+    class="archive-no-results"
+    data-no-results
+    hidden
+  >
+
+    <p>
+      no objects match these filters.
+    </p>
+
+  </div>
+
+
+  <script>
+
+    const archive =
+      document.querySelector<HTMLElement>("[data-archive]");
+
+    const search =
+      document.querySelector<HTMLInputElement>("#archive-search");
+
+    const medium =
+      document.querySelector<HTMLSelectElement>("#filter-medium");
+
+    const type =
+      document.querySelector<HTMLSelectElement>("#filter-type");
+
+    const collection =
+      document.querySelector<HTMLSelectElement>("#filter-collection");
+
+    const location =
+      document.querySelector<HTMLSelectElement>("#filter-location");
+
+    const color =
+      document.querySelector<HTMLSelectElement>("#filter-color");
+
+    const sort =
+      document.querySelector<HTMLSelectElement>("#archive-sort");
+
+    const count =
+      document.querySelector<HTMLElement>("[data-result-count]");
+
+    const noResults =
+      document.querySelector<HTMLElement>("[data-no-results]");
+
+    const entries =
+      Array.from(
+        document.querySelectorAll<HTMLElement>(".archive-entry")
+      );
+
+
+    function containsValue(
+      source: string | undefined,
+      selected: string
+    ) {
+
+      if (selected === "all") return true;
+
+      return (source || "")
+        .split("|")
+        .includes(selected);
+
+    }
+
+
+    function applyFilters() {
+
+      const query =
+        search?.value.trim().toLowerCase() || "";
+
+      let visible = 0;
+
+
+      entries.forEach((entry) => {
+
+        const matchesSearch =
+          !query ||
+          (entry.dataset.search || "").includes(query);
+
+
+        const matchesMedium =
+          !medium ||
+          medium.value === "all" ||
+          entry.dataset.medium === medium.value;
+
+
+        const matchesType =
+          !type ||
+          type.value === "all" ||
+          entry.dataset.type === type.value;
+
+
+        const matchesCollection =
+          !collection ||
+          containsValue(
+            entry.dataset.collections,
+            collection.value
+          );
+
+
+        const matchesLocation =
+          !location ||
+          location.value === "all" ||
+          entry.dataset.location === location.value;
+
+
+        const matchesColor =
+          !color ||
+          containsValue(
+            entry.dataset.colors,
+            color.value
+          );
+
+
+        const show =
+          matchesSearch &&
+          matchesMedium &&
+          matchesType &&
+          matchesCollection &&
+          matchesLocation &&
+          matchesColor;
+
+
+        entry.hidden = !show;
+
+
+        if (show) {
+          visible++;
+        }
+
+      });
+
+
+      if (count) {
+
+        count.textContent =
+          `${String(visible).padStart(4, "0")} objects`;
+
+      }
+
+
+      if (noResults) {
+
+        noResults.hidden =
+          visible !== 0 || entries.length === 0;
+
+      }
+
+    }
+
+
+    [
+      search,
+      medium,
+      type,
+      collection,
+      location,
+      color
+    ].forEach((control) => {
+
+      control?.addEventListener(
+        control instanceof HTMLInputElement
+          ? "input"
+          : "change",
+        applyFilters
+      );
+
+    });
+
+
+    sort?.addEventListener("change", () => {
+
+      if (!archive) return;
+
+
+      const sorted = [...entries];
+
+
+      sorted.sort((a, b) => {
+
+        if (sort.value === "oldest") {
+
+          return (
+            new Date(a.dataset.date || "").getTime() -
+            new Date(b.dataset.date || "").getTime()
+          );
+
+        }
+
+
+        if (sort.value === "az") {
+
+          return (a.dataset.title || "")
+            .localeCompare(b.dataset.title || "");
+
+        }
+
+
+        if (sort.value === "za") {
+
+          return (b.dataset.title || "")
+            .localeCompare(a.dataset.title || "");
+
+        }
+
+
+        return (
+          new Date(b.dataset.date || "").getTime() -
+          new Date(a.dataset.date || "").getTime()
+        );
+
+      });
+
+
+      sorted.forEach((entry) => {
+        archive.appendChild(entry);
+      });
+
+    });
+
+
+    const viewButtons =
+      document.querySelectorAll<HTMLButtonElement>(
+        "[data-view-button]"
+      );
+
+
+    viewButtons.forEach((button) => {
+
+      button.addEventListener("click", () => {
+
+        if (!archive) return;
+
+
+        const view =
+          button.dataset.viewButton || "grid";
+
+
+        archive.dataset.view = view;
+
+
+        viewButtons.forEach((otherButton) => {
+
+          const active =
+            otherButton === button;
+
+
+          otherButton.classList.toggle(
+            "is-active",
+            active
+          );
+
+
+          otherButton.setAttribute(
+            "aria-pressed",
+            String(active)
+          );
+
+        });
+
+      });
+
+    });
+
+  </script>
+
+</BaseLayout>

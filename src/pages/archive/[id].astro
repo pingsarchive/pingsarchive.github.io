@@ -1,0 +1,730 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+
+export async function getStaticPaths() {
+
+  const items = (
+    await getCollection(
+      "archive",
+      ({ data }) => !data.private
+    )
+  ).sort(
+    (a, b) =>
+      b.data.dateFound.getTime() -
+      a.data.dateFound.getTime()
+  );
+
+
+  return items.map((item, index) => {
+
+    const previous =
+      index < items.length - 1
+        ? items[index + 1]
+        : null;
+
+
+    const next =
+      index > 0
+        ? items[index - 1]
+        : null;
+
+
+    const related = items
+      .filter((candidate) => candidate.id !== item.id)
+
+      .map((candidate) => {
+
+        let score = 0;
+
+
+        candidate.data.collections.forEach(
+          (collection) => {
+
+            if (
+              item.data.collections.includes(collection)
+            ) {
+              score += 3;
+            }
+
+          }
+        );
+
+
+        candidate.data.tags.forEach(
+          (tag) => {
+
+            if (
+              item.data.tags.includes(tag)
+            ) {
+              score += 1;
+            }
+
+          }
+        );
+
+
+        if (
+          candidate.data.medium &&
+          candidate.data.medium === item.data.medium
+        ) {
+          score += 2;
+        }
+
+
+        if (
+          candidate.data.location &&
+          candidate.data.location === item.data.location
+        ) {
+          score += 1;
+        }
+
+
+        return {
+          item: candidate,
+          score,
+        };
+
+      })
+
+      .filter(({ score }) => score > 0)
+
+      .sort((a, b) => b.score - a.score)
+
+      .slice(0, 4)
+
+      .map(({ item }) => item);
+
+
+    return {
+
+      params: {
+        id: item.id,
+      },
+
+      props: {
+        item,
+        previous,
+        next,
+        related,
+        number:
+          item.data.accession ||
+          String(index + 1).padStart(4, "0"),
+      },
+
+    };
+
+  });
+
+}
+
+
+const {
+  item,
+  previous,
+  next,
+  related,
+  number,
+} = Astro.props;
+
+
+const { Content } = await render(item);
+---
+
+<BaseLayout title={`${item.data.title} — ping's archive`}>
+
+  <article class="object-file">
+
+
+    <div class="object-topline">
+
+      <a
+        href="/archive"
+        class="object-back"
+      >
+        ← archive
+      </a>
+
+
+      <span>
+        object no. {number}
+      </span>
+
+    </div>
+
+
+    <section class="object-hero">
+
+
+      <div class="object-image-wrap">
+
+        <img
+          src={item.data.image}
+          alt={item.data.alt}
+          class="object-image"
+        />
+
+      </div>
+
+
+      <div class="object-introduction">
+
+        <p class="object-accession">
+          pa / obj / {number}
+        </p>
+
+
+        <h1 class="object-title">
+          {item.data.title}
+        </h1>
+
+
+        {
+          item.data.summary && (
+
+            <p class="object-summary">
+              {item.data.summary}
+            </p>
+
+          )
+        }
+
+      </div>
+
+
+    </section>
+
+
+
+    <section class="object-metadata">
+
+
+      {
+        item.data.creator && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              creator
+            </span>
+
+            <span class="metadata-value">
+              {item.data.creator}
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.originalDate && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              date
+            </span>
+
+            <span class="metadata-value">
+              {item.data.originalDate}
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      <div class="metadata-row">
+
+        <span class="metadata-label">
+          found
+        </span>
+
+        <span class="metadata-value">
+
+          {
+            item.data.dateFound.toLocaleDateString(
+              "en-US",
+              {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              }
+            )
+          }
+
+        </span>
+
+      </div>
+
+
+      {
+        item.data.location && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              location
+            </span>
+
+            <span class="metadata-value">
+              {item.data.location}
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.medium && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              medium
+            </span>
+
+            <span class="metadata-value">
+              {item.data.medium}
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.type && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              type
+            </span>
+
+            <span class="metadata-value">
+              {item.data.type}
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.collections.length > 0 && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              collections
+            </span>
+
+            <span class="metadata-value">
+
+              {
+                item.data.collections.join(" / ")
+              }
+
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.tags.length > 0 && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              tags
+            </span>
+
+            <span class="metadata-value">
+
+              {
+                item.data.tags.join(" / ")
+              }
+
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.colors.length > 0 && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              color
+            </span>
+
+            <span class="metadata-value">
+
+              {
+                item.data.colors.join(" / ")
+              }
+
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+    </section>
+
+{
+  item.data.gallery.length > 0 && (
+
+    <section class="object-gallery">
+
+      <div class="object-section-heading">
+
+        <span>
+          additional views
+        </span>
+
+        <span>
+          {String(item.data.gallery.length).padStart(2, "0")}
+        </span>
+
+      </div>
+
+
+      <div class="object-gallery-grid">
+
+        {
+          item.data.gallery.map((photo, index) => (
+
+            <figure class="gallery-item">
+
+              <div class="gallery-image">
+
+                <img
+                  src={photo.image}
+                  alt={photo.alt}
+                  loading="lazy"
+                />
+
+              </div>
+
+
+              <figcaption>
+
+                <span class="gallery-number">
+                  VIEW {String(index + 1).padStart(2, "0")}
+                </span>
+
+
+                {
+                  photo.caption && (
+
+                    <span class="gallery-caption">
+                      {photo.caption}
+                    </span>
+
+                  )
+                }
+
+
+                {
+                  photo.credit && (
+
+                    <span class="gallery-credit">
+                      {photo.credit}
+                    </span>
+
+                  )
+                }
+
+
+                {
+                  photo.sourceUrl && (
+
+                    <a
+                      href={photo.sourceUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      class="gallery-source"
+                    >
+                      source ↗
+                    </a>
+
+                  )
+                }
+
+              </figcaption>
+
+            </figure>
+
+          ))
+        }
+
+      </div>
+
+    </section>
+
+  )
+}
+
+    <section class="object-notes">
+
+      <div class="object-section-label">
+        notes
+      </div>
+
+
+      <div class="object-body">
+
+        <Content />
+
+      </div>
+
+    </section>
+
+
+
+    {
+      (item.data.sourceName ||
+        item.data.sourceUrl) && (
+
+        <section class="object-source">
+
+          <span class="metadata-label">
+            source
+          </span>
+
+
+          {
+            item.data.sourceUrl ? (
+
+              <a
+                href={item.data.sourceUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+
+                {
+                  item.data.sourceName ||
+                  "original source"
+                }
+
+                {" ↗"}
+
+              </a>
+
+            ) : (
+
+              <span>
+                {item.data.sourceName}
+              </span>
+
+            )
+          }
+
+        </section>
+
+      )
+    }
+
+
+{
+  item.data.attachments.length > 0 && (
+
+    <section class="object-attachments">
+
+      <div class="object-section-heading">
+
+        <span>
+          attachments
+        </span>
+
+        <span>
+          {String(item.data.attachments.length).padStart(2, "0")}
+        </span>
+
+      </div>
+
+
+      <div class="attachment-list">
+
+        {
+          item.data.attachments.map((attachment, index) => (
+
+            <a
+              href={attachment.file}
+              target="_blank"
+              class="attachment-row"
+            >
+
+              <span class="attachment-number">
+                FILE {String(index + 1).padStart(2, "0")}
+              </span>
+
+
+              <span class="attachment-title">
+                {attachment.title}
+              </span>
+
+
+              <span class="attachment-description">
+                {attachment.description || ""}
+              </span>
+
+
+              <span class="attachment-open">
+                ↗
+              </span>
+
+            </a>
+
+          ))
+        }
+
+      </div>
+
+    </section>
+
+  )
+}
+    {
+      related.length > 0 && (
+
+        <section class="related-section">
+
+          <div class="object-section-heading">
+
+            <span>
+              related objects
+            </span>
+
+            <span>
+              {String(related.length).padStart(2, "0")}
+            </span>
+
+          </div>
+
+
+          <div class="related-grid">
+
+            {
+              related.map((relatedItem) => (
+
+                <a
+                  href={`/archive/${relatedItem.id}/`}
+                  class="related-item"
+                >
+
+                  <div class="related-image">
+
+                    <img
+                      src={relatedItem.data.image}
+                      alt={relatedItem.data.alt}
+                      loading="lazy"
+                    />
+
+                  </div>
+
+
+                  <span>
+                    {relatedItem.data.title}
+                  </span>
+
+                </a>
+
+              ))
+            }
+
+          </div>
+
+        </section>
+
+      )
+    }
+
+
+
+    <nav class="object-pagination">
+
+
+      <div>
+
+        {
+          previous ? (
+
+            <a href={`/archive/${previous.id}/`}>
+
+              <span class="pagination-label">
+                previous
+              </span>
+
+              <span>
+                ← {previous.data.title}
+              </span>
+
+            </a>
+
+          ) : (
+
+            <span class="pagination-empty">
+              previous / —
+            </span>
+
+          )
+        }
+
+      </div>
+
+
+      <div class="pagination-next">
+
+        {
+          next ? (
+
+            <a href={`/archive/${next.id}/`}>
+
+              <span class="pagination-label">
+                next
+              </span>
+
+              <span>
+                {next.data.title} →
+              </span>
+
+            </a>
+
+          ) : (
+
+            <span class="pagination-empty">
+              next / —
+            </span>
+
+          )
+        }
+
+      </div>
+
+
+    </nav>
+
+
+  </article>
+
+</BaseLayout>

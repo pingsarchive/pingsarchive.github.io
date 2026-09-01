@@ -1,0 +1,151 @@
+---
+import "../styles/global.css";
+
+const {
+  title = "ping's archive",
+  description = "an ongoing collection of things worth remembering"
+} = Astro.props;
+---
+
+<!doctype html>
+
+<html lang="en">
+
+  <head>
+
+    <meta charset="UTF-8" />
+
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0"
+    />
+
+    <title>{title}</title>
+
+    <meta
+      name="description"
+      content={description}
+    />
+
+  </head>
+
+
+  <body>
+
+    <header class="site-header">
+
+      <div class="document-code">
+
+        <span>
+          PA / NYC
+        </span>
+
+        <span>
+          EST. 2026
+        </span>
+
+      </div>
+
+
+      <div class="masthead">
+
+        <div class="masthead-copy">
+
+          <a
+            class="site-title"
+            href="/"
+          >
+            ping's archive
+          </a>
+
+          <p class="site-description">
+            an ongoing collection of things worth remembering
+          </p>
+
+        </div>
+
+
+        <div class="archive-plate">
+
+          <div class="archive-plate-top">
+            PING'S ARCHIVE
+          </div>
+
+          <div class="archive-plate-main">
+            CREATIVE FINDINGS
+          </div>
+
+          <div class="archive-plate-bottom">
+
+            <span>
+              INDEX
+            </span>
+
+            <span>
+              2026—
+            </span>
+
+          </div>
+
+        </div>
+
+      </div>
+
+
+      <nav class="site-nav">
+
+        <a href="/">
+          index
+        </a>
+
+        <a href="/archive">
+          archive
+        </a>
+
+        <a href="/collections">
+          collections
+        </a>
+
+        <a href="/notes">
+          notes
+        </a>
+
+        <a href="/about">
+          about
+        </a>
+
+        <a href="/random">
+          random ↗
+        </a>
+
+      </nav>
+
+    </header>
+
+
+    <main class="site-main">
+
+      <slot />
+
+    </main>
+
+
+    <footer class="site-footer">
+
+      <span>
+        ping's archive
+      </span>
+
+      <span>
+        new york
+      </span>
+
+      <span>
+        continually updated
+      </span>
+
+    </footer>
+
+  </body>
+
+</html>

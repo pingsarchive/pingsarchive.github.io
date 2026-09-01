@@ -1,0 +1,412 @@
+media:
+  - name: images
+    label: Archive Images
+    input: public/images/archive
+    output: /images/archive
+    rename: safe
+    extensions:
+      - jpg
+      - jpeg
+      - png
+      - webp
+      - gif
+
+  - name: documents
+    label: Archive Files
+    input: public/files/archive
+    output: /files/archive
+    rename: safe
+    categories:
+      - document
+      - spreadsheet
+      - compressed
+
+
+content:
+
+  # ==========================================
+  # ARCHIVE
+  # ==========================================
+
+  - name: archive
+    label: Archive
+    type: collection
+    path: src/content/archive
+    format: yaml-frontmatter
+
+    filename:
+      template: "{title}.md"
+      field: false
+
+    view:
+      fields:
+        - title
+        - dateFound
+        - medium
+        - type
+        - featured
+
+      primary: title
+
+      sort:
+        - dateFound
+        - title
+
+      search:
+        - title
+        - creator
+        - summary
+        - location
+
+      default:
+        sort: dateFound
+        order: desc
+
+    fields:
+
+      - name: accession
+        label: Archive Number
+        type: string
+        description: "Optional. Leave blank and the website can number objects automatically."
+
+      - name: title
+        label: Title
+        type: string
+        required: true
+
+      - name: dateFound
+        label: Date Found
+        type: date
+        required: true
+
+      - name: originalDate
+        label: Original Date / Era
+        type: string
+        description: "Optional. Example: 1998, c. 1970, early 2000s."
+
+      - name: creator
+        label: Creator
+        type: string
+        description: "Optional. Artist, architect, designer, brand, author, etc."
+
+
+      # COVER IMAGE
+
+      - name: image
+        label: Cover Image
+        type: image
+        required: true
+        options:
+          media: images
+
+      - name: alt
+        label: Cover Image Description
+        type: text
+        required: true
+        description: "Briefly describe what is visible in the image."
+
+
+      # ADDITIONAL VIEWS
+
+      - name: gallery
+        label: Additional Views
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "View {index}: {caption}"
+
+        fields:
+
+          - name: image
+            label: Image
+            type: image
+            required: true
+            options:
+              media: images
+
+          - name: alt
+            label: Image Description
+            type: text
+            required: true
+
+          - name: caption
+            label: Caption
+            type: string
+            description: "Optional. Example: south elevation or packaging detail."
+
+          - name: credit
+            label: Credit
+            type: string
+            description: "Optional photographer, archive, artist, etc."
+
+          - name: sourceUrl
+            label: Image Source URL
+            type: string
+
+
+      # YOUR OBSERVATION
+
+      - name: summary
+        label: Quick Observation
+        type: text
+        description: "The short note that can appear in the archive grid."
+
+
+      # ORGANIZATION
+
+      - name: location
+        label: Location
+        type: string
+
+      - name: medium
+        label: Medium
+        type: select
+        options:
+          values:
+            - photography
+            - graphic design
+            - typography
+            - illustration
+            - fashion
+            - beauty
+            - architecture
+            - interior
+            - product
+            - packaging
+            - ephemera
+            - craft
+            - website
+            - film
+            - object
+            - signage
+            - other
+
+      - name: type
+        label: Why I Saved It
+        type: select
+        options:
+          values:
+            - inspiration
+            - reference
+            - research
+            - observation
+            - want to make
+            - want to learn
+            - place
+            - object
+            - idea
+
+      - name: collections
+        label: Collections
+        type: string
+        list: true
+        description: "Example: queens, typography, public space."
+
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+
+      - name: colors
+        label: Colors
+        type: string
+        list: true
+
+
+      # ORIGINAL SOURCE
+
+      - name: sourceName
+        label: Source Name
+        type: string
+        description: "Example: my photograph, museum archive, book title."
+
+      - name: sourceUrl
+        label: Original Source URL
+        type: string
+
+
+      # FILE ATTACHMENTS
+
+      - name: attachments
+        label: Attachments
+        type: object
+        list:
+          collapsible:
+            collapsed: true
+            summary: "File {index}: {title}"
+
+        fields:
+
+          - name: file
+            label: File
+            type: file
+            required: true
+            options:
+              media: documents
+
+          - name: title
+            label: File Title
+            type: string
+            required: true
+
+          - name: description
+            label: Description
+            type: text
+
+
+      # WEBSITE BEHAVIOR
+
+      - name: featured
+        label: Feature on Homepage
+        type: boolean
+        default: false
+
+      - name: favorite
+        label: Favorite
+        type: boolean
+        default: false
+
+      - name: private
+        label: Keep Private
+        type: boolean
+        default: false
+
+
+      # LONGER WRITING
+
+      - name: body
+        label: Longer Notes
+        type: rich-text
+        options:
+          format: markdown
+          media: images
+          switcher: true
+
+
+
+  # ==========================================
+  # NOTES
+  # ==========================================
+
+  - name: notes
+    label: Notes
+    type: collection
+    path: src/content/notes
+    format: yaml-frontmatter
+
+    filename:
+      template: "{title}.md"
+      field: false
+
+    view:
+      fields:
+        - title
+        - date
+        - featured
+
+      primary: title
+
+      sort:
+        - date
+        - title
+
+      default:
+        sort: date
+        order: desc
+
+    fields:
+
+      - name: title
+        label: Title
+        type: string
+        required: true
+
+      - name: date
+        label: Date
+        type: date
+        required: true
+
+      - name: summary
+        label: Summary
+        type: text
+
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+
+      - name: featured
+        label: Featured
+        type: boolean
+        default: false
+
+      - name: body
+        label: Writing
+        type: rich-text
+        options:
+          format: markdown
+          media: images
+          switcher: true
+
+
+
+  # ==========================================
+  # COLLECTIONS
+  # ==========================================
+
+  - name: curatedCollections
+    label: Collections
+    type: collection
+    path: src/content/collections
+    format: yaml-frontmatter
+
+    filename:
+      template: "{title}.md"
+      field: false
+
+    view:
+      fields:
+        - title
+        - order
+        - featured
+
+      primary: title
+
+      sort:
+        - order
+        - title
+
+    fields:
+
+      - name: title
+        label: Collection Name
+        type: string
+        required: true
+
+      - name: description
+        label: Description
+        type: text
+
+      - name: coverImage
+        label: Cover Image
+        type: image
+        options:
+          media: images
+
+      - name: order
+        label: Display Order
+        type: number
+
+      - name: featured
+        label: Featured
+        type: boolean
+        default: false
+
+      - name: body
+        label: Collection Notes
+        type: rich-text
+        options:
+          format: markdown
+          media: images
+          switcher: true
