@@ -24,7 +24,6 @@ export async function getStaticPaths() {
         ? items[index + 1]
         : null;
 
-
     const next =
       index > 0
         ? items[index - 1]
@@ -32,18 +31,22 @@ export async function getStaticPaths() {
 
 
     const related = items
-      .filter((candidate) => candidate.id !== item.id)
+      .filter(
+        (candidate) =>
+          candidate.id !== item.id
+      )
 
       .map((candidate) => {
 
         let score = 0;
 
-
         candidate.data.collections.forEach(
           (collection) => {
 
             if (
-              item.data.collections.includes(collection)
+              item.data.collections.includes(
+                collection
+              )
             ) {
               score += 3;
             }
@@ -52,30 +55,30 @@ export async function getStaticPaths() {
         );
 
 
-        candidate.data.tags.forEach(
-          (tag) => {
+        candidate.data.tags.forEach((tag) => {
 
-            if (
-              item.data.tags.includes(tag)
-            ) {
-              score += 1;
-            }
-
+          if (
+            item.data.tags.includes(tag)
+          ) {
+            score += 1;
           }
-        );
+
+        });
 
 
         if (
-          candidate.data.medium &&
-          candidate.data.medium === item.data.medium
+          candidate.data.kind &&
+          candidate.data.kind ===
+            item.data.kind
         ) {
           score += 2;
         }
 
 
         if (
-          candidate.data.location &&
-          candidate.data.location === item.data.location
+          candidate.data.city &&
+          candidate.data.city ===
+            item.data.city
         ) {
           score += 1;
         }
@@ -90,7 +93,10 @@ export async function getStaticPaths() {
 
       .filter(({ score }) => score > 0)
 
-      .sort((a, b) => b.score - a.score)
+      .sort(
+        (a, b) =>
+          b.score - a.score
+      )
 
       .slice(0, 4)
 
@@ -108,6 +114,7 @@ export async function getStaticPaths() {
         previous,
         next,
         related,
+
         number:
           item.data.accession ||
           String(index + 1).padStart(4, "0"),
@@ -130,9 +137,27 @@ const {
 
 
 const { Content } = await render(item);
+
+const hasNotes =
+  Boolean(item.body?.trim());
+
+
+const placeDisplay =
+  item.data.location ||
+  [
+    item.data.venue,
+    item.data.neighborhood,
+    item.data.city,
+    item.data.region,
+    item.data.country,
+  ]
+    .filter(Boolean)
+    .join(", ");
 ---
 
-<BaseLayout title={`${item.data.title} — ping's archive`}>
+<BaseLayout
+  title={`${item.data.title} — ping's archive`}
+>
 
   <article class="object-file">
 
@@ -146,7 +171,6 @@ const { Content } = await render(item);
         ← archive
       </a>
 
-
       <span>
         object no. {number}
       </span>
@@ -154,8 +178,8 @@ const { Content } = await render(item);
     </div>
 
 
-    <section class="object-hero">
 
+    <section class="object-hero">
 
       <div class="object-image-wrap">
 
@@ -174,11 +198,9 @@ const { Content } = await render(item);
           pa / obj / {number}
         </p>
 
-
         <h1 class="object-title">
           {item.data.title}
         </h1>
-
 
         {
           item.data.archiveDescription && (
@@ -191,7 +213,6 @@ const { Content } = await render(item);
         }
 
       </div>
-
 
     </section>
 
@@ -263,7 +284,7 @@ const { Content } = await render(item);
 
 
       {
-        item.data.location && (
+        placeDisplay && (
 
           <div class="metadata-row">
 
@@ -272,7 +293,7 @@ const { Content } = await render(item);
             </span>
 
             <span class="metadata-value">
-              {item.data.location}
+              {placeDisplay}
             </span>
 
           </div>
@@ -282,16 +303,16 @@ const { Content } = await render(item);
 
 
       {
-        item.data.medium && (
+        item.data.kind && (
 
           <div class="metadata-row">
 
             <span class="metadata-label">
-              medium
+              what is it
             </span>
 
             <span class="metadata-value">
-              {item.data.medium}
+              {item.data.kind}
             </span>
 
           </div>
@@ -301,16 +322,16 @@ const { Content } = await render(item);
 
 
       {
-        item.data.type && (
+        item.data.reason && (
 
           <div class="metadata-row">
 
             <span class="metadata-label">
-              type
+              why saved
             </span>
 
             <span class="metadata-value">
-              {item.data.type}
+              {item.data.reason}
             </span>
 
           </div>
@@ -329,11 +350,7 @@ const { Content } = await render(item);
             </span>
 
             <span class="metadata-value">
-
-              {
-                item.data.collections.join(" / ")
-              }
-
+              {item.data.collections.join(" / ")}
             </span>
 
           </div>
@@ -352,11 +369,7 @@ const { Content } = await render(item);
             </span>
 
             <span class="metadata-value">
-
-              {
-                item.data.tags.join(" / ")
-              }
-
+              {item.data.tags.join(" / ")}
             </span>
 
           </div>
@@ -375,11 +388,7 @@ const { Content } = await render(item);
             </span>
 
             <span class="metadata-value">
-
-              {
-                item.data.colors.join(" / ")
-              }
-
+              {item.data.colors.join(" / ")}
             </span>
 
           </div>
@@ -390,120 +399,134 @@ const { Content } = await render(item);
 
     </section>
 
-{
-  item.data.gallery.length > 0 && (
-
-    <section class="object-gallery">
-
-      <div class="object-section-heading">
-
-        <span>
-          additional views
-        </span>
-
-        <span>
-          {String(item.data.gallery.length).padStart(2, "0")}
-        </span>
-
-      </div>
 
 
-      <div class="object-gallery-grid">
+    {
+      item.data.gallery.length > 0 && (
 
-        {
-          item.data.gallery.map((photo, index) => (
+        <section class="object-gallery">
 
-            <figure class="gallery-item">
+          <div class="object-section-heading">
 
-              <div class="gallery-image">
+            <span>
+              additional views
+            </span>
 
-                <img
-                  src={photo.image}
-                  alt={photo.caption || item.data.title}
-                  loading="lazy"
-                />
+            <span>
+              {String(item.data.gallery.length).padStart(2, "0")}
+            </span>
 
-              </div>
-
-
-              <figcaption>
-
-                <span class="gallery-number">
-                  VIEW {String(index + 1).padStart(2, "0")}
-                </span>
+          </div>
 
 
-                {
-                  photo.caption && (
+          <div class="object-gallery-grid">
 
-                    <span class="gallery-caption">
-                      {photo.caption}
-                    </span>
+            {
+              item.data.gallery.map(
+                (photo, index) => (
 
-                  )
-                }
+                  <figure class="gallery-item">
 
+                    <div class="gallery-image">
 
-                {
-                  photo.credit && (
+                      <img
+                        src={photo.image}
+                        alt={
+                          photo.caption ||
+                          item.data.title
+                        }
+                        loading="lazy"
+                      />
 
-                    <span class="gallery-credit">
-                      {photo.credit}
-                    </span>
-
-                  )
-                }
-
-
-                {
-                  photo.sourceUrl && (
-
-                    <a
-                      href={photo.sourceUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      class="gallery-source"
-                    >
-                      source ↗
-                    </a>
-
-                  )
-                }
-
-              </figcaption>
-
-            </figure>
-
-          ))
-        }
-
-      </div>
-
-    </section>
-
-  )
-}
-
-    <section class="object-notes">
-
-      <div class="object-section-label">
-        notes
-      </div>
+                    </div>
 
 
-      <div class="object-body">
+                    <figcaption>
 
-        <Content />
+                      <span class="gallery-number">
+                        VIEW {String(index + 1).padStart(2, "0")}
+                      </span>
 
-      </div>
 
-    </section>
+                      {
+                        photo.caption && (
+
+                          <span class="gallery-caption">
+                            {photo.caption}
+                          </span>
+
+                        )
+                      }
+
+
+                      {
+                        photo.credit && (
+
+                          <span class="gallery-credit">
+                            {photo.credit}
+                          </span>
+
+                        )
+                      }
+
+
+                      {
+                        photo.sourceUrl && (
+
+                          <a
+                            href={photo.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            class="gallery-source"
+                          >
+                            source ↗
+                          </a>
+
+                        )
+                      }
+
+                    </figcaption>
+
+                  </figure>
+
+                )
+              )
+            }
+
+          </div>
+
+        </section>
+
+      )
+    }
 
 
 
     {
-      (item.data.sourceName ||
-        item.data.sourceUrl) && (
+      hasNotes && (
+
+        <section class="object-notes">
+
+          <div class="object-section-label">
+            notes
+          </div>
+
+          <div class="object-body">
+            <Content />
+          </div>
+
+        </section>
+
+      )
+    }
+
+
+
+    {
+      (
+        item.data.sourceName ||
+        item.data.sourceUrl
+      ) && (
 
         <section class="object-source">
 
@@ -520,14 +543,11 @@ const { Content } = await render(item);
                 target="_blank"
                 rel="noopener noreferrer"
               >
-
                 {
                   item.data.sourceName ||
                   "original source"
                 }
-
                 {" ↗"}
-
               </a>
 
             ) : (
@@ -545,65 +565,65 @@ const { Content } = await render(item);
     }
 
 
-{
-  item.data.attachments.length > 0 && (
 
-    <section class="object-attachments">
+    {
+      item.data.attachments.length > 0 && (
 
-      <div class="object-section-heading">
+        <section class="object-attachments">
 
-        <span>
-          attachments
-        </span>
+          <div class="object-section-heading">
 
-        <span>
-          {String(item.data.attachments.length).padStart(2, "0")}
-        </span>
+            <span>
+              attachments
+            </span>
 
-      </div>
+            <span>
+              {String(item.data.attachments.length).padStart(2, "0")}
+            </span>
 
-
-      <div class="attachment-list">
-
-        {
-          item.data.attachments.map((attachment, index) => (
-
-            <a
-              href={attachment.file}
-              target="_blank"
-              class="attachment-row"
-            >
-
-              <span class="attachment-number">
-                FILE {String(index + 1).padStart(2, "0")}
-              </span>
+          </div>
 
 
-              <span class="attachment-title">
-                {attachment.title}
-              </span>
+          <div class="attachment-list">
+
+            {
+              item.data.attachments.map(
+                (attachment, index) => (
+
+                  <a
+                    href={attachment.file}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="attachment-row"
+                  >
+
+                    <span class="attachment-number">
+                      FILE {String(index + 1).padStart(2, "0")}
+                    </span>
+
+                    <span class="attachment-title">
+                      {attachment.title}
+                    </span>
+
+                    <span class="attachment-open">
+                      ↗
+                    </span>
+
+                  </a>
+
+                )
+              )
+            }
+
+          </div>
+
+        </section>
+
+      )
+    }
 
 
-              <span class="attachment-description">
-                {attachment.description || ""}
-              </span>
 
-
-              <span class="attachment-open">
-                ↗
-              </span>
-
-            </a>
-
-          ))
-        }
-
-      </div>
-
-    </section>
-
-  )
-}
     {
       related.length > 0 && (
 
@@ -636,12 +656,14 @@ const { Content } = await render(item);
 
                     <img
                       src={relatedItem.data.image}
-                      alt={relatedItem.data.alt}
+                      alt={
+                        relatedItem.data.alt ||
+                        relatedItem.data.title
+                      }
                       loading="lazy"
                     />
 
                   </div>
-
 
                   <span>
                     {relatedItem.data.title}
@@ -662,7 +684,6 @@ const { Content } = await render(item);
 
 
     <nav class="object-pagination">
-
 
       <div>
 
@@ -720,7 +741,6 @@ const { Content } = await render(item);
         }
 
       </div>
-
 
     </nav>
 

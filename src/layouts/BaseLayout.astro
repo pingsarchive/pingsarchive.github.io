@@ -1,10 +1,37 @@
 ---
 import "../styles/global.css";
+import { getCollection } from "astro:content";
 
 const {
   title = "ping's archive",
-  description = "an ongoing collection of things worth remembering"
+  description = "a personal archive of creative findings"
 } = Astro.props;
+
+
+const archiveItems =
+  await getCollection(
+    "archive",
+    ({ data }) => !data.private
+  );
+
+
+const totalFindings =
+  archiveItems.length;
+
+
+const pathname =
+  Astro.url.pathname;
+
+
+function isActive(path) {
+
+  if (path === "/") {
+    return pathname === "/";
+  }
+
+  return pathname.startsWith(path);
+
+}
 ---
 
 <!doctype html>
@@ -32,12 +59,20 @@ const {
 
   <body>
 
+
     <header class="site-header">
+
+
+      <!-- TOP TECHNICAL LINE -->
 
       <div class="document-code">
 
         <span>
           QUEENS, NYC
+        </span>
+
+        <span class="header-archive-count">
+          {String(totalFindings).padStart(4, "0")}
         </span>
 
         <span>
@@ -47,7 +82,11 @@ const {
       </div>
 
 
+
+      <!-- MAIN HEADER -->
+
       <div class="masthead">
+
 
         <div class="masthead-copy">
 
@@ -58,11 +97,10 @@ const {
             ping's archive
           </a>
 
-          <p class="site-description">
-            an ongoing collection of things worth remembering
-          </p>
+          <p class="site-description"></p>
 
         </div>
+
 
 
         <div class="archive-plate">
@@ -89,38 +127,85 @@ const {
 
         </div>
 
+
       </div>
 
 
+
+      <!-- NAVIGATION -->
+
       <nav class="site-nav">
 
-        <a href="/">
+        <a
+          href="/"
+          class:list={[
+            "nav-stamp-link",
+            { "is-current": isActive("/") }
+          ]}
+        >
           index
         </a>
 
-        <a href="/archive">
+
+        <a
+          href="/archive"
+          class:list={[
+            "nav-stamp-link",
+            { "is-current": isActive("/archive") }
+          ]}
+        >
           archive
         </a>
 
-        <a href="/collections">
+
+        <a
+          href="/collections"
+          class:list={[
+            "nav-stamp-link",
+            { "is-current": isActive("/collections") }
+          ]}
+        >
           collections
         </a>
 
-        <a href="/notes">
+
+        <a
+          href="/notes"
+          class:list={[
+            "nav-stamp-link",
+            { "is-current": isActive("/notes") }
+          ]}
+        >
           notes
         </a>
 
-        <a href="/about">
+
+        <a
+          href="/about"
+          class:list={[
+            "nav-stamp-link",
+            { "is-current": isActive("/about") }
+          ]}
+        >
           about
         </a>
 
-        <a href="/random">
+
+        <a
+          href="/random"
+          class:list={[
+            "nav-stamp-link",
+            { "is-current": isActive("/random") }
+          ]}
+        >
           random ↗
         </a>
 
       </nav>
 
+
     </header>
+
 
 
     <main class="site-main">
@@ -128,6 +213,7 @@ const {
       <slot />
 
     </main>
+
 
 
     <footer class="site-footer">
@@ -145,6 +231,7 @@ const {
       </span>
 
     </footer>
+
 
   </body>
 

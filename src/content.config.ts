@@ -31,11 +31,16 @@ gallery: z.array(
 
 colors: z.array(z.string()).default([]),
 
-    archiveDescription: z.string().optional(),
-    location: z.string().optional(),
+archiveDescription: z.string().optional(),
 
-   kind: z.string().optional(),
+location: z.string().optional(),
+country: z.string().optional(),
+region: z.string().optional(),
+city: z.string().optional(),
+neighborhood: z.string().optional(),
+venue: z.string().optional(),
 
+kind: z.string().optional(),
 reason: z.string().optional(),
 
     collections: z.array(z.string()).default([]),

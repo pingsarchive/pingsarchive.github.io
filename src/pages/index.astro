@@ -1,53 +1,263 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+
+const items = (
+  await getCollection(
+    "archive",
+    ({ data }) => !data.private
+  )
+).sort(
+  (a, b) =>
+    b.data.dateFound.getTime() -
+    a.data.dateFound.getTime()
+);
+
+
+const featured =
+  items.filter(
+    (item) => item.data.featured
+  );
+
+
+const recent =
+  items.slice(0, 20);
 ---
 
 <BaseLayout>
 
-  <section class="page-heading">
 
-    <div>
-      <p class="page-label">index</p>
-      <h1 class="page-title">recent findings</h1>
+  <!-- =========================================
+       FEATURED FINDINGS
+  ========================================== -->
+
+  {
+    featured.length > 0 && (
+
+      <section class="home-section">
+
+        <div class="page-heading">
+
+          <div>
+
+            <p class="page-label">
+              selected
+            </p>
+
+            <h1 class="page-title">
+              featured findings
+            </h1>
+
+          </div>
+
+        </div>
+
+
+        <div class="home-masonry">
+
+          {
+            featured.map((item) => (
+
+              <a
+                href={`/archive/${item.id}/`}
+                class="masonry-card"
+              >
+
+                <div class="masonry-card-image">
+
+                  <img
+                    src={item.data.image}
+                    alt={
+                      item.data.alt ||
+                      item.data.title
+                    }
+                    loading="lazy"
+                  />
+
+                </div>
+
+
+                <div class="masonry-card-info">
+
+                  <h2>
+                    {item.data.title}
+                  </h2>
+
+
+                  {
+                    (
+                      item.data.creator ||
+                      item.data.kind
+                    ) && (
+
+                      <p>
+                        {
+                          [
+                            item.data.creator,
+                            item.data.kind
+                          ]
+                            .filter(Boolean)
+                            .join(" / ")
+                        }
+                      </p>
+
+                    )
+                  }
+
+
+                  <time
+                    datetime={
+                      item.data.dateFound.toISOString()
+                    }
+                  >
+                    {
+                      item.data.dateFound.toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        }
+                      )
+                    }
+                  </time>
+
+                </div>
+
+              </a>
+
+            ))
+          }
+
+        </div>
+
+      </section>
+
+    )
+  }
+
+
+
+  <!-- =========================================
+       RECENT FINDINGS
+  ========================================== -->
+
+  <section class="home-section">
+
+    <div class="page-heading recent-page-heading">
+
+      <div>
+
+        <p class="page-label">
+          index
+        </p>
+
+        <h1 class="page-title">
+          recent findings
+        </h1>
+
+      </div>
+
+
+      <span class="recent-findings-count">
+        {String(items.length).padStart(4, "0")}
+      </span>
+
     </div>
 
-    <p class="page-count">
-      archive currently empty
-    </p>
+
+    {
+      recent.length > 0 ? (
+
+        <div class="home-masonry">
+
+          {
+            recent.map((item) => (
+
+              <a
+                href={`/archive/${item.id}/`}
+                class="masonry-card"
+              >
+
+                <div class="masonry-card-image">
+
+                  <img
+                    src={item.data.image}
+                    alt={
+                      item.data.alt ||
+                      item.data.title
+                    }
+                    loading="lazy"
+                  />
+
+                </div>
+
+
+                <div class="masonry-card-info">
+
+                  <h2>
+                    {item.data.title}
+                  </h2>
+
+
+                  {
+                    (
+                      item.data.creator ||
+                      item.data.kind
+                    ) && (
+
+                      <p>
+                        {
+                          [
+                            item.data.creator,
+                            item.data.kind
+                          ]
+                            .filter(Boolean)
+                            .join(" / ")
+                        }
+                      </p>
+
+                    )
+                  }
+
+
+                  <time
+                    datetime={
+                      item.data.dateFound.toISOString()
+                    }
+                  >
+                    {
+                      item.data.dateFound.toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        }
+                      )
+                    }
+                  </time>
+
+                </div>
+
+              </a>
+
+            ))
+          }
+
+        </div>
+
+      ) : (
+
+        <p class="home-empty-note">
+          the archive is waiting.
+        </p>
+
+      )
+    }
 
   </section>
 
-
-  <section class="archive-grid">
-
-    <div class="archive-placeholder">
-      <div class="archive-placeholder-image"></div>
-      <div class="archive-placeholder-number">
-        NO. —
-      </div>
-    </div>
-
-    <div class="archive-placeholder">
-      <div class="archive-placeholder-image"></div>
-      <div class="archive-placeholder-number">
-        NO. —
-      </div>
-    </div>
-
-    <div class="archive-placeholder">
-      <div class="archive-placeholder-image"></div>
-      <div class="archive-placeholder-number">
-        NO. —
-      </div>
-    </div>
-
-    <div class="archive-placeholder">
-      <div class="archive-placeholder-image"></div>
-      <div class="archive-placeholder-number">
-        NO. —
-      </div>
-    </div>
-
-  </section>
 
 </BaseLayout>

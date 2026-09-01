@@ -2,22 +2,67 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
-
 const items = (
-  await getCollection(
-    "archive",
-    ({ data }) => !data.private
-  )
+  await getCollection("archive", ({ data }) => !data.private)
 ).sort(
   (a, b) =>
     b.data.dateFound.getTime() -
     a.data.dateFound.getTime()
 );
 
+const years = Array.from(
+  new Set(items.map((item) => String(item.data.dateFound.getFullYear())))
+).sort((a, b) => Number(b) - Number(a));
 
-/* ---------------------------------
-   BUILD FILTER OPTIONS AUTOMATICALLY
---------------------------------- */
+const months = Array.from(
+  new Set(
+    items.map((item) =>
+      item.data.dateFound.toLocaleDateString("en-US", {
+        month: "long",
+      })
+    )
+  )
+);
+
+const weekdays = Array.from(
+  new Set(
+    items.map((item) =>
+      item.data.dateFound.toLocaleDateString("en-US", {
+        weekday: "long",
+      })
+    )
+  )
+);
+
+const countries = Array.from(
+  new Set(
+    items
+      .map((item) => item.data.country)
+      .filter(Boolean)
+  )
+).sort();
+
+const cities = Array.from(
+  new Set(
+    items
+      .map((item) => item.data.city)
+      .filter(Boolean)
+  )
+).sort();
+
+const venues = Array.from(
+  new Set(
+    items
+      .map((item) => item.data.venue)
+      .filter(Boolean)
+  )
+).sort();
+
+const collections = Array.from(
+  new Set(
+    items.flatMap((item) => item.data.collections)
+  )
+).sort();
 
 const kinds = Array.from(
   new Set(
@@ -26,70 +71,37 @@ const kinds = Array.from(
       .filter(Boolean)
   )
 ).sort();
-
-
-const collections = Array.from(
-  new Set(
-    items.flatMap(
-      (item) => item.data.collections
-    )
-  )
-).sort();
-
-
-const locations = Array.from(
-  new Set(
-    items
-      .map((item) => item.data.location)
-      .filter(Boolean)
-  )
-).sort();
 ---
 
 <BaseLayout title="archive — ping's archive">
 
-  <section class="page-heading">
+  <section class="page-heading archive-heading">
 
     <div>
-
-      <p class="page-label">
-        archive
-      </p>
-
-      <h1 class="page-title">
-        all findings
-      </h1>
-
+      <p class="page-label">archive</p>
+      <h1 class="page-title">all findings</h1>
     </div>
 
+    <div class="archive-total-count">
+      <span class="archive-total-number">
+        {String(items.length).padStart(4, "0")}
+      </span>
 
-    <p
-      class="page-count"
-      data-result-count
-    >
-
-      {String(items.length).padStart(4, "0")} objects
-
-    </p>
+      <span class="archive-total-label">
+        {items.length === 1 ? "finding" : "findings"}
+      </span>
+    </div>
 
   </section>
 
 
-
-  <section
-    class="archive-toolbar"
-    data-archive-controls
-  >
-
-
-    <!-- SEARCH -->
+  <section class="archive-toolbar">
 
     <div class="archive-search-row">
 
       <label for="archive-search">
         search
       </label>
-
 
       <input
         id="archive-search"
@@ -101,18 +113,13 @@ const locations = Array.from(
     </div>
 
 
-
-    <!-- VIEW + SORT -->
-
     <div class="archive-toolbar-row">
-
 
       <div class="view-control">
 
         <span class="control-label">
           view
         </span>
-
 
         <button
           class="view-button is-active"
@@ -122,7 +129,6 @@ const locations = Array.from(
         >
           grid
         </button>
-
 
         <button
           class="view-button"
@@ -136,7 +142,6 @@ const locations = Array.from(
       </div>
 
 
-
       <div class="sort-control">
 
         <label
@@ -146,152 +151,216 @@ const locations = Array.from(
           sort
         </label>
 
-
         <select
           id="archive-sort"
           disabled={items.length === 0}
         >
-
-          <option value="newest">
-            newest found
-          </option>
-
-          <option value="oldest">
-            oldest found
-          </option>
-
-          <option value="az">
-            a–z
-          </option>
-
-          <option value="za">
-            z–a
-          </option>
-
+          <option value="newest">newest</option>
+          <option value="oldest">oldest</option>
+          <option value="az">a–z</option>
+          <option value="za">z–a</option>
         </select>
 
       </div>
 
-
     </div>
 
 
-
-    <!-- FILTERS -->
-
-    <details class="archive-filters" open>
+    <details class="archive-filters">
 
       <summary>
         filter archive
       </summary>
 
 
-      <div class="filter-grid">
+      <div class="archive-filter-groups">
+
+        <div class="filter-group">
+
+          <span class="filter-group-title">
+            date
+          </span>
+
+          <div class="filter-grid">
+
+            <div class="filter-field">
+              <label for="filter-year">year</label>
+
+              <select id="filter-year">
+                <option value="all">all</option>
+
+                {
+                  years.map((year) => (
+                    <option value={year}>
+                      {year}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
 
 
-        <!-- WHAT IS IT -->
+            <div class="filter-field">
+              <label for="filter-month">month</label>
 
-        <div class="filter-field">
+              <select id="filter-month">
+                <option value="all">all</option>
 
-          <label for="filter-kind">
-            what is it?
-          </label>
-
-
-          <select
-            id="filter-kind"
-            disabled={items.length === 0}
-          >
-
-            <option value="all">
-              all
-            </option>
+                {
+                  months.map((month) => (
+                    <option value={month}>
+                      {month}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
 
 
-            {
-              kinds.map((kind) => (
+            <div class="filter-field">
+              <label for="filter-weekday">day</label>
 
-                <option value={kind}>
-                  {kind}
-                </option>
+              <select id="filter-weekday">
+                <option value="all">all</option>
 
-              ))
-            }
+                {
+                  weekdays.map((weekday) => (
+                    <option value={weekday}>
+                      {weekday}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
 
-          </select>
-
-        </div>
-
-
-
-        <!-- COLLECTION -->
-
-        <div class="filter-field">
-
-          <label for="filter-collection">
-            collection
-          </label>
-
-
-          <select
-            id="filter-collection"
-            disabled={items.length === 0}
-          >
-
-            <option value="all">
-              all collections
-            </option>
-
-
-            {
-              collections.map((collection) => (
-
-                <option value={collection}>
-                  {collection}
-                </option>
-
-              ))
-            }
-
-          </select>
+          </div>
 
         </div>
 
 
+        <div class="filter-group">
 
-        <!-- LOCATION -->
+          <span class="filter-group-title">
+            place
+          </span>
 
-        <div class="filter-field">
+          <div class="filter-grid">
 
-          <label for="filter-location">
-            location
-          </label>
+            <div class="filter-field">
+              <label for="filter-country">country</label>
+
+              <select id="filter-country">
+                <option value="all">all</option>
+
+                {
+                  countries.map((country) => (
+                    <option value={country}>
+                      {country}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
 
 
-          <select
-            id="filter-location"
-            disabled={items.length === 0}
-          >
+            <div class="filter-field">
+              <label for="filter-city">city</label>
 
-            <option value="all">
-              all locations
-            </option>
+              <select id="filter-city">
+                <option value="all">all</option>
+
+                {
+                  cities.map((city) => (
+                    <option value={city}>
+                      {city}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
 
 
-            {
-              locations.map((location) => (
+            <div class="filter-field">
+              <label for="filter-venue">venue</label>
 
-                <option value={location}>
-                  {location}
-                </option>
+              <select id="filter-venue">
+                <option value="all">all</option>
 
-              ))
-            }
+                {
+                  venues.map((venue) => (
+                    <option value={venue}>
+                      {venue}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
 
-          </select>
+          </div>
 
         </div>
 
+
+        <div class="filter-group">
+
+          <span class="filter-group-title">
+            archive
+          </span>
+
+          <div class="filter-grid">
+
+            <div class="filter-field">
+              <label for="filter-collection">
+                collection
+              </label>
+
+              <select id="filter-collection">
+                <option value="all">all</option>
+
+                {
+                  collections.map((collection) => (
+                    <option value={collection}>
+                      {collection}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+
+
+            <div class="filter-field">
+              <label for="filter-kind">
+                what is it?
+              </label>
+
+              <select id="filter-kind">
+                <option value="all">all</option>
+
+                {
+                  kinds.map((kind) => (
+                    <option value={kind}>
+                      {kind}
+                    </option>
+                  ))
+                }
+              </select>
+            </div>
+
+
+            <div class="filter-field">
+              <label for="filter-favorite">
+                favorites
+              </label>
+
+              <select id="filter-favorite">
+                <option value="all">all</option>
+                <option value="favorite">favorites only</option>
+              </select>
+            </div>
+
+          </div>
+
+        </div>
 
       </div>
 
@@ -300,252 +369,174 @@ const locations = Array.from(
   </section>
 
 
-
-  <!-- ==================================
-       ARCHIVE RESULTS
-  =================================== -->
-
   <section
     class="archive-results"
     data-archive
     data-view="grid"
   >
 
-
     {
-      items.map((item, index) => (
+      items.map((item, index) => {
 
-        <a
-          href={`/archive/${item.id}/`}
-          class="archive-entry"
+        const date = item.data.dateFound;
 
-          data-title={item.data.title.toLowerCase()}
+        const year =
+          String(date.getFullYear());
 
-          data-search={
-            [
-              item.data.title,
-              item.data.creator,
-              item.data.archiveDescription,
-              item.data.location,
-              item.data.kind,
-              item.data.reason,
-              item.data.sourceName,
+        const month =
+          date.toLocaleDateString(
+            "en-US",
+            { month: "long" }
+          );
 
-              ...item.data.tags,
-              ...item.data.colors,
-              ...item.data.collections
+        const weekday =
+          date.toLocaleDateString(
+            "en-US",
+            { weekday: "long" }
+          );
 
-            ]
-              .filter(Boolean)
-              .join(" ")
-              .toLowerCase()
-          }
+        return (
 
-          data-kind={
-            (item.data.kind || "")
-              .toLowerCase()
-          }
+          <a
+            href={`/archive/${item.id}/`}
+            class="archive-entry"
 
-          data-collections={
-            item.data.collections
-              .map((value) =>
-                value.toLowerCase()
-              )
-              .join("|")
-          }
+            data-title={item.data.title.toLowerCase()}
 
-          data-location={
-            (item.data.location || "")
-              .toLowerCase()
-          }
+            data-search={
+              [
+                item.data.title,
+                item.data.creator,
+                item.data.archiveDescription,
+                item.data.location,
+                item.data.country,
+                item.data.region,
+                item.data.city,
+                item.data.neighborhood,
+                item.data.venue,
+                item.data.kind,
+                item.data.reason,
+                item.data.sourceName,
+                ...item.data.tags,
+                ...item.data.colors,
+                ...item.data.collections,
+              ]
+                .filter(Boolean)
+                .join(" ")
+                .toLowerCase()
+            }
 
-          data-date={
-            item.data.dateFound.toISOString()
-          }
-        >
+            data-year={year}
+            data-month={month.toLowerCase()}
+            data-weekday={weekday.toLowerCase()}
 
+            data-country={
+              (item.data.country || "").toLowerCase()
+            }
 
-          <!-- IMAGE -->
+            data-city={
+              (item.data.city || "").toLowerCase()
+            }
 
-          <div class="archive-entry-image">
+            data-venue={
+              (item.data.venue || "").toLowerCase()
+            }
 
-            <img
-              src={item.data.image}
-              alt={item.data.alt || item.data.title}
-              loading="lazy"
-            />
+            data-kind={
+              (item.data.kind || "").toLowerCase()
+            }
 
-          </div>
+            data-collections={
+              item.data.collections
+                .map((value) => value.toLowerCase())
+                .join("|")
+            }
 
+            data-favorite={
+              item.data.favorite ? "true" : "false"
+            }
 
+            data-date={
+              item.data.dateFound.toISOString()
+            }
+          >
 
-          <!-- INFORMATION -->
-
-          <div class="archive-entry-information">
-
-
-            <span class="archive-accession">
-
-              NO. {
-                item.data.accession ||
-                String(index + 1).padStart(4, "0")
-              }
-
-            </span>
-
-
-
-            <h2>
-              {item.data.title}
-            </h2>
-
-
-
-            <p class="archive-entry-meta">
-
-              {
-                [
-                  item.data.kind,
-                  item.data.location
-                ]
-                  .filter(Boolean)
-                  .join(" / ")
-              }
-
-            </p>
+            <div class="archive-entry-image">
+              <img
+                src={item.data.image}
+                alt={item.data.alt || item.data.title}
+                loading="lazy"
+              />
+            </div>
 
 
+            <div class="archive-entry-information">
 
-            <time
-              datetime={
-                item.data.dateFound.toISOString()
-              }
-            >
+              <span class="archive-accession">
+                NO. {
+                  item.data.accession ||
+                  String(index + 1).padStart(4, "0")
+                }
+              </span>
 
-              {
-                item.data.dateFound.toLocaleDateString(
-                  "en-US",
-                  {
-                    month: "short",
-                    day: "numeric",
-                    year: "numeric"
-                  }
-                )
-              }
+              <h2>
+                {item.data.title}
+              </h2>
 
-            </time>
+              <p class="archive-entry-meta">
+                {
+                  [
+                    item.data.kind,
+                    item.data.city ||
+                    item.data.country ||
+                    item.data.location
+                  ]
+                    .filter(Boolean)
+                    .join(" / ")
+                }
+              </p>
 
+              <time
+                datetime={item.data.dateFound.toISOString()}
+              >
+                {
+                  item.data.dateFound.toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                    }
+                  )
+                }
+              </time>
 
-          </div>
+            </div>
 
-        </a>
+          </a>
 
-      ))
+        );
+      })
     }
-
 
   </section>
 
-
-
-  <!-- EMPTY ARCHIVE -->
-
-  {
-    items.length === 0 && (
-
-      <div class="archive-empty-state">
-
-        <span>
-          0000
-        </span>
-
-
-        <p>
-          the archive is empty.
-        </p>
-
-
-        <small>
-          structure first. objects later.
-        </small>
-
-      </div>
-
-    )
-  }
-
-
-
-  <!-- NO SEARCH RESULTS -->
 
   <div
     class="archive-no-results"
     data-no-results
     hidden
   >
-
-    <p>
-      no findings match your search.
-    </p>
-
+    no findings match these filters.
   </div>
 
 
-
-  <!-- ==================================
-       INTERACTIVITY
-  =================================== -->
-
   <script>
-
 
     const archive =
       document.querySelector<HTMLElement>(
         "[data-archive]"
       );
-
-
-    const search =
-      document.querySelector<HTMLInputElement>(
-        "#archive-search"
-      );
-
-
-    const kind =
-      document.querySelector<HTMLSelectElement>(
-        "#filter-kind"
-      );
-
-
-    const collection =
-      document.querySelector<HTMLSelectElement>(
-        "#filter-collection"
-      );
-
-
-    const location =
-      document.querySelector<HTMLSelectElement>(
-        "#filter-location"
-      );
-
-
-    const sort =
-      document.querySelector<HTMLSelectElement>(
-        "#archive-sort"
-      );
-
-
-    const count =
-      document.querySelector<HTMLElement>(
-        "[data-result-count]"
-      );
-
-
-    const noResults =
-      document.querySelector<HTMLElement>(
-        "[data-no-results]"
-      );
-
 
     const entries =
       Array.from(
@@ -554,300 +545,275 @@ const locations = Array.from(
         )
       );
 
+    const search =
+      document.querySelector<HTMLInputElement>(
+        "#archive-search"
+      );
+
+    const year =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-year"
+      );
+
+    const month =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-month"
+      );
+
+    const weekday =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-weekday"
+      );
+
+    const country =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-country"
+      );
+
+    const city =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-city"
+      );
+
+    const venue =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-venue"
+      );
+
+    const collection =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-collection"
+      );
+
+    const kind =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-kind"
+      );
+
+    const favorite =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-favorite"
+      );
+
+    const sort =
+      document.querySelector<HTMLSelectElement>(
+        "#archive-sort"
+      );
+
+    const noResults =
+      document.querySelector<HTMLElement>(
+        "[data-no-results]"
+      );
 
 
-    /* ---------------------------------
-       MULTIPLE-VALUE FILTER
-    --------------------------------- */
-
-    function containsValue(
+    function simpleMatch(
       source: string | undefined,
       selected: string
     ) {
+      if (selected === "all") return true;
 
-      if (selected === "all") {
-        return true;
-      }
+      return (
+        (source || "") ===
+        selected.toLowerCase()
+      );
+    }
 
+
+    function listMatch(
+      source: string | undefined,
+      selected: string
+    ) {
+      if (selected === "all") return true;
 
       return (source || "")
         .split("|")
-        .includes(selected);
-
+        .includes(selected.toLowerCase());
     }
 
-
-
-    /* ---------------------------------
-       FILTER EVERYTHING
-    --------------------------------- */
 
     function applyFilters() {
 
-
       const query =
-        search?.value
-          .trim()
-          .toLowerCase() || "";
-
+        search?.value.trim().toLowerCase() || "";
 
       let visible = 0;
 
-
-
       entries.forEach((entry) => {
 
-
-        const matchesSearch =
-          !query ||
-          (entry.dataset.search || "")
-            .includes(query);
-
-
-        const matchesKind =
-          !kind ||
-          kind.value === "all" ||
-          entry.dataset.kind ===
-            kind.value.toLowerCase();
-
-
-        const matchesCollection =
-          !collection ||
-          containsValue(
-            entry.dataset.collections,
-            collection.value.toLowerCase()
-          );
-
-
-        const matchesLocation =
-          !location ||
-          location.value === "all" ||
-          entry.dataset.location ===
-            location.value.toLowerCase();
-
-
         const show =
-          matchesSearch &&
-          matchesKind &&
-          matchesCollection &&
-          matchesLocation;
-
+          (
+            !query ||
+            (entry.dataset.search || "")
+              .includes(query)
+          )
+          &&
+          (!year ||
+            simpleMatch(
+              entry.dataset.year,
+              year.value
+            ))
+          &&
+          (!month ||
+            simpleMatch(
+              entry.dataset.month,
+              month.value
+            ))
+          &&
+          (!weekday ||
+            simpleMatch(
+              entry.dataset.weekday,
+              weekday.value
+            ))
+          &&
+          (!country ||
+            simpleMatch(
+              entry.dataset.country,
+              country.value
+            ))
+          &&
+          (!city ||
+            simpleMatch(
+              entry.dataset.city,
+              city.value
+            ))
+          &&
+          (!venue ||
+            simpleMatch(
+              entry.dataset.venue,
+              venue.value
+            ))
+          &&
+          (!collection ||
+            listMatch(
+              entry.dataset.collections,
+              collection.value
+            ))
+          &&
+          (!kind ||
+            simpleMatch(
+              entry.dataset.kind,
+              kind.value
+            ))
+          &&
+          (
+            !favorite ||
+            favorite.value === "all" ||
+            entry.dataset.favorite === "true"
+          );
 
         entry.hidden = !show;
 
-
-        if (show) {
-          visible++;
-        }
-
+        if (show) visible++;
       });
 
-
-
-      if (count) {
-
-        count.textContent =
-          `${String(visible).padStart(4, "0")} objects`;
-
-      }
-
-
-
       if (noResults) {
-
         noResults.hidden =
-          visible !== 0 ||
-          entries.length === 0;
-
+          visible !== 0 || entries.length === 0;
       }
-
     }
 
 
+    [
+      search,
+      year,
+      month,
+      weekday,
+      country,
+      city,
+      venue,
+      collection,
+      kind,
+      favorite,
+    ].forEach((control) => {
 
-    /* ---------------------------------
-       LISTEN TO SEARCH + FILTERS
-    --------------------------------- */
+      if (!control) return;
 
-    search?.addEventListener(
-      "input",
-      applyFilters
-    );
-
-
-    kind?.addEventListener(
-      "change",
-      applyFilters
-    );
-
-
-    collection?.addEventListener(
-      "change",
-      applyFilters
-    );
-
-
-    location?.addEventListener(
-      "change",
-      applyFilters
-    );
+      control.addEventListener(
+        control instanceof HTMLInputElement
+          ? "input"
+          : "change",
+        applyFilters
+      );
+    });
 
 
+    sort?.addEventListener("change", () => {
 
-    /* ---------------------------------
-       SORT
-    --------------------------------- */
+      if (!archive) return;
 
-    sort?.addEventListener(
-      "change",
-      () => {
+      const sorted = [...entries];
 
+      sorted.sort((a, b) => {
 
-        if (!archive) {
-          return;
+        if (sort.value === "oldest") {
+          return (
+            new Date(a.dataset.date || "").getTime() -
+            new Date(b.dataset.date || "").getTime()
+          );
         }
 
-
-        const sorted =
-          [...entries];
-
-
-
-        sorted.sort((a, b) => {
-
-
-          if (sort.value === "oldest") {
-
-            return (
-              new Date(
-                a.dataset.date || ""
-              ).getTime()
-              -
-              new Date(
-                b.dataset.date || ""
-              ).getTime()
-            );
-
-          }
-
-
-
-          if (sort.value === "az") {
-
-            return (
-              a.dataset.title || ""
-            ).localeCompare(
+        if (sort.value === "az") {
+          return (a.dataset.title || "")
+            .localeCompare(
               b.dataset.title || ""
             );
+        }
 
-          }
-
-
-
-          if (sort.value === "za") {
-
-            return (
-              b.dataset.title || ""
-            ).localeCompare(
+        if (sort.value === "za") {
+          return (b.dataset.title || "")
+            .localeCompare(
               a.dataset.title || ""
             );
+        }
 
-          }
+        return (
+          new Date(b.dataset.date || "").getTime() -
+          new Date(a.dataset.date || "").getTime()
+        );
 
+      });
 
+      sorted.forEach((entry) =>
+        archive.appendChild(entry)
+      );
 
-          return (
-            new Date(
-              b.dataset.date || ""
-            ).getTime()
-            -
-            new Date(
-              a.dataset.date || ""
-            ).getTime()
-          );
+    });
 
-        });
-
-
-
-        sorted.forEach((entry) => {
-
-          archive.appendChild(entry);
-
-        });
-
-
-      }
-    );
-
-
-
-    /* ---------------------------------
-       GRID / INDEX SWITCHER
-    --------------------------------- */
 
     const viewButtons =
       document.querySelectorAll<HTMLButtonElement>(
         "[data-view-button]"
       );
 
-
-
     viewButtons.forEach((button) => {
 
+      button.addEventListener("click", () => {
 
-      button.addEventListener(
-        "click",
-        () => {
+        if (!archive) return;
 
+        archive.dataset.view =
+          button.dataset.viewButton || "grid";
 
-          if (!archive) {
-            return;
-          }
+        viewButtons.forEach((other) => {
 
+          const active = other === button;
 
-          const view =
-            button.dataset.viewButton ||
-            "grid";
-
-
-          archive.dataset.view =
-            view;
-
-
-
-          viewButtons.forEach(
-            (otherButton) => {
-
-
-              const active =
-                otherButton === button;
-
-
-              otherButton.classList.toggle(
-                "is-active",
-                active
-              );
-
-
-              otherButton.setAttribute(
-                "aria-pressed",
-                String(active)
-              );
-
-
-            }
+          other.classList.toggle(
+            "is-active",
+            active
           );
 
+          other.setAttribute(
+            "aria-pressed",
+            String(active)
+          );
 
-        }
-      );
+        });
 
+      });
 
     });
 
-
   </script>
-
 
 </BaseLayout>
