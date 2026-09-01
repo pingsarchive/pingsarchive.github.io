@@ -142,11 +142,11 @@ img {
 
   font-size: clamp(28px, 4.5vw, 52px);
 
-  font-weight: 500;
+  font-weight: 400;
 
   line-height: 1;
 
-  letter-spacing: -0.035em;
+  letter-spacing: -0.04em;
 
   text-transform: uppercase;
 
@@ -2185,4 +2185,21 @@ img {
 }
 .site-description {
   display: none !important;
+}
+/* =============================================
+   REFINED ARCHIVE FILTERS
+============================================= */
+
+.filter-grid {
+  grid-template-columns:
+    repeat(3, minmax(0, 1fr));
+}
+
+
+@media (max-width: 700px) {
+
+  .filter-grid {
+    grid-template-columns: 1fr;
+  }
+
 }

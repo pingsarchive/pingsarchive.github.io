@@ -18,12 +18,11 @@ const archive = defineCollection({
     creator: z.string().optional(),
 
 image: z.string(),
-alt: z.string(),
+alt: z.string().optional(),
 
 gallery: z.array(
   z.object({
     image: z.string(),
-    alt: z.string(),
     caption: z.string().optional(),
     credit: z.string().optional(),
     sourceUrl: z.string().optional(),
@@ -32,11 +31,12 @@ gallery: z.array(
 
 colors: z.array(z.string()).default([]),
 
-    summary: z.string().optional(),
+    archiveDescription: z.string().optional(),
     location: z.string().optional(),
 
-    medium: z.string().optional(),
-    type: z.string().optional(),
+   kind: z.string().optional(),
+
+reason: z.string().optional(),
 
     collections: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
@@ -48,7 +48,6 @@ attachments: z.array(
   z.object({
     file: z.string(),
     title: z.string(),
-    description: z.string().optional(),
   })
 ).default([]),
 

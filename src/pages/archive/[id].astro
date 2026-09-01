@@ -161,7 +161,7 @@ const { Content } = await render(item);
 
         <img
           src={item.data.image}
-          alt={item.data.alt}
+          alt={item.data.alt || item.data.title}
           class="object-image"
         />
 
@@ -181,10 +181,10 @@ const { Content } = await render(item);
 
 
         {
-          item.data.summary && (
+          item.data.archiveDescription && (
 
             <p class="object-summary">
-              {item.data.summary}
+              {item.data.archiveDescription}
             </p>
 
           )
@@ -419,7 +419,7 @@ const { Content } = await render(item);
 
                 <img
                   src={photo.image}
-                  alt={photo.alt}
+                  alt={photo.caption || item.data.title}
                   loading="lazy"
                 />
 

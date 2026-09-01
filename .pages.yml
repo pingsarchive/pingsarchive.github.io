@@ -42,8 +42,8 @@ content:
       fields:
         - title
         - dateFound
-        - medium
-        - type
+        - kind
+        - reason
         - featured
 
       primary: title
@@ -55,8 +55,10 @@ content:
       search:
         - title
         - creator
-        - summary
+        - archiveDescription
         - location
+        - kind
+        - reason
 
       default:
         sort: dateFound
@@ -99,12 +101,6 @@ content:
         options:
           media: images
 
-      - name: alt
-        label: Cover Image Description
-        type: text
-        required: true
-        description: "Briefly describe what is visible in the image."
-
 
       # ADDITIONAL VIEWS
 
@@ -125,32 +121,26 @@ content:
             options:
               media: images
 
-          - name: alt
-            label: Image Description
-            type: text
-            required: true
-
           - name: caption
             label: Caption
             type: string
-            description: "Optional. Example: south elevation or packaging detail."
+            description: "Optional."
 
           - name: credit
             label: Credit
             type: string
-            description: "Optional photographer, archive, artist, etc."
+            description: "Optional."
 
           - name: sourceUrl
             label: Image Source URL
             type: string
 
 
-      # YOUR OBSERVATION
+      # DESCRIPTION
 
-      - name: summary
-        label: Quick Observation
+      - name: archiveDescription
+        label: Description
         type: text
-        description: "The short note that can appear in the archive grid."
 
 
       # ORGANIZATION
@@ -159,43 +149,15 @@ content:
         label: Location
         type: string
 
-      - name: medium
-        label: Medium
-        type: select
-        options:
-          values:
-            - photography
-            - graphic design
-            - typography
-            - illustration
-            - fashion
-            - beauty
-            - architecture
-            - interior
-            - product
-            - packaging
-            - ephemera
-            - craft
-            - website
-            - film
-            - object
-            - signage
-            - other
+      - name: kind
+        label: What Is It?
+        type: string
+        description: "Describe it however you want."
 
-      - name: type
+      - name: reason
         label: Why I Saved It
-        type: select
-        options:
-          values:
-            - inspiration
-            - reference
-            - research
-            - observation
-            - want to make
-            - want to learn
-            - place
-            - object
-            - idea
+        type: string
+        description: "Optional. Write this however you want."
 
       - name: collections
         label: Collections
@@ -249,10 +211,6 @@ content:
             label: File Title
             type: string
             required: true
-
-          - name: description
-            label: Description
-            type: text
 
 
       # WEBSITE BEHAVIOR
