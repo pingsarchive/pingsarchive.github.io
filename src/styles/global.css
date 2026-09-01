@@ -2183,3 +2183,6 @@ img {
   }
 
 }
+.site-description {
+  display: none !important;
+}
