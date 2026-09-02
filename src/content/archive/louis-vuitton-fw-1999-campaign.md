@@ -10,8 +10,9 @@ gallery:
   - image: /images/archive/img004.jpg
   - image: /images/archive/img023.jpg
   - image: /images/archive/scan2026-04-23145209005.jpg
-archiveDescription: "Fall/Winter 1999 Louis Vuitton campaign under Marc Jacobs,
-  photographed by Harvé Haddad. SCANNED FROM HARPER'S BAZAAR US OCTOBER 1999. "
+archiveDescription: "Fall/Winter 1999 Louis Vuitton campaign, photographed by
+  Harvé Haddad with art direction by maurice betite. SCANNED FROM HARPER'S
+  BAZAAR US OCTOBER 1999. "
 kind: fashion advertising campaign
 tags:
   - fashion
