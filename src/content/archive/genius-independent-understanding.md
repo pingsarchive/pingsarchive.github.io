@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0004"
 title: genius + independent understanding
 dateFound: 2026-09-02
 originalDate: August 28, 2026
