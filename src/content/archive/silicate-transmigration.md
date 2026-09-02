@@ -1,5 +1,5 @@
 ---
-accession: "0001"
+archiveNumber: "0001"
 title: Silicate Transmigration
 dateFound: 2026-09-01
 originalDate: "2026"

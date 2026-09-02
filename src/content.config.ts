@@ -10,55 +10,57 @@ const archive = defineCollection({
   }),
 
   schema: z.object({
-    accession: z.string().optional(),
+
+    archiveNumber: z.string().optional(),
 
     title: z.string(),
     dateFound: z.coerce.date(),
     originalDate: z.string().optional(),
     creator: z.string().optional(),
 
-image: z.string(),
-alt: z.string().optional(),
-
-gallery: z.array(
-  z.object({
     image: z.string(),
-    caption: z.string().optional(),
-    credit: z.string().optional(),
-    sourceUrl: z.string().optional(),
-  })
-).default([]),
+    alt: z.string().optional(),
 
-colors: z.array(z.string()).default([]),
+    gallery: z.array(
+      z.object({
+        image: z.string(),
+        caption: z.string().optional(),
+        credit: z.string().optional(),
+        sourceUrl: z.string().optional(),
+      })
+    ).default([]),
 
-archiveDescription: z.string().optional(),
+    colors: z.array(z.string()).default([]),
 
-location: z.string().optional(),
-country: z.string().optional(),
-region: z.string().optional(),
-city: z.string().optional(),
-neighborhood: z.string().optional(),
-venue: z.string().optional(),
+    archiveDescription: z.string().optional(),
 
-kind: z.string().optional(),
-reason: z.string().optional(),
+    location: z.string().optional(),
+    country: z.string().optional(),
+    region: z.string().optional(),
+    city: z.string().optional(),
+    neighborhood: z.string().optional(),
+    venue: z.string().optional(),
+
+    kind: z.string().optional(),
+    reason: z.string().optional(),
 
     collections: z.array(z.string()).default([]),
     tags: z.array(z.string()).default([]),
 
-sourceName: z.string().optional(),
-sourceUrl: z.string().optional(),
+    sourceName: z.string().optional(),
+    sourceUrl: z.string().optional(),
 
-attachments: z.array(
-  z.object({
-    file: z.string(),
-    title: z.string(),
-  })
-).default([]),
+    attachments: z.array(
+      z.object({
+        file: z.string(),
+        title: z.string(),
+      })
+    ).default([]),
 
-featured: z.boolean().default(false),
+    featured: z.boolean().default(false),
     favorite: z.boolean().default(false),
     private: z.boolean().default(false),
+
   }),
 });
 

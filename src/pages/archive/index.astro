@@ -2,37 +2,55 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { getCollection } from "astro:content";
 
+
 const items = (
-  await getCollection("archive", ({ data }) => !data.private)
+  await getCollection(
+    "archive",
+    ({ data }) => !data.private
+  )
 ).sort(
   (a, b) =>
     b.data.dateFound.getTime() -
     a.data.dateFound.getTime()
 );
 
+
+/* =========================================
+   AUTOMATIC FILTER OPTIONS
+========================================= */
+
 const years = Array.from(
-  new Set(items.map((item) => String(item.data.dateFound.getFullYear())))
+  new Set(
+    items.map((item) =>
+      String(item.data.dateFound.getFullYear())
+    )
+  )
 ).sort((a, b) => Number(b) - Number(a));
+
 
 const months = Array.from(
   new Set(
     items.map((item) =>
-      item.data.dateFound.toLocaleDateString("en-US", {
-        month: "long",
-      })
+      item.data.dateFound.toLocaleDateString(
+        "en-US",
+        { month: "long" }
+      )
     )
   )
 );
 
+
 const weekdays = Array.from(
   new Set(
     items.map((item) =>
-      item.data.dateFound.toLocaleDateString("en-US", {
-        weekday: "long",
-      })
+      item.data.dateFound.toLocaleDateString(
+        "en-US",
+        { weekday: "long" }
+      )
     )
   )
 );
+
 
 const countries = Array.from(
   new Set(
@@ -42,6 +60,7 @@ const countries = Array.from(
   )
 ).sort();
 
+
 const cities = Array.from(
   new Set(
     items
@@ -49,6 +68,7 @@ const cities = Array.from(
       .filter(Boolean)
   )
 ).sort();
+
 
 const venues = Array.from(
   new Set(
@@ -58,11 +78,15 @@ const venues = Array.from(
   )
 ).sort();
 
+
 const collections = Array.from(
   new Set(
-    items.flatMap((item) => item.data.collections)
+    items.flatMap(
+      (item) => item.data.collections
+    )
   )
 ).sort();
+
 
 const kinds = Array.from(
   new Set(
@@ -75,14 +99,28 @@ const kinds = Array.from(
 
 <BaseLayout title="archive — ping's archive">
 
+
+  <!-- =========================================
+       ARCHIVE HEADING
+  ========================================== -->
+
   <section class="page-heading archive-heading">
 
     <div>
-      <p class="page-label">archive</p>
-      <h1 class="page-title">all findings</h1>
+
+      <p class="page-label">
+        archive
+      </p>
+
+      <h1 class="page-title">
+        all findings
+      </h1>
+
     </div>
 
+
     <div class="archive-total-count">
+
       <span class="archive-total-number">
         {String(items.length).padStart(4, "0")}
       </span>
@@ -90,12 +128,19 @@ const kinds = Array.from(
       <span class="archive-total-label">
         {items.length === 1 ? "finding" : "findings"}
       </span>
+
     </div>
 
   </section>
 
 
+
+  <!-- =========================================
+       SEARCH / FILTERS
+  ========================================== -->
+
   <section class="archive-toolbar">
+
 
     <div class="archive-search-row">
 
@@ -113,7 +158,9 @@ const kinds = Array.from(
     </div>
 
 
+
     <div class="archive-toolbar-row">
+
 
       <div class="view-control">
 
@@ -142,6 +189,7 @@ const kinds = Array.from(
       </div>
 
 
+
       <div class="sort-control">
 
         <label
@@ -155,16 +203,33 @@ const kinds = Array.from(
           id="archive-sort"
           disabled={items.length === 0}
         >
-          <option value="newest">newest</option>
-          <option value="oldest">oldest</option>
-          <option value="az">a–z</option>
-          <option value="za">z–a</option>
+
+          <option value="newest">
+            newest
+          </option>
+
+          <option value="oldest">
+            oldest
+          </option>
+
+          <option value="az">
+            a–z
+          </option>
+
+          <option value="za">
+            z–a
+          </option>
+
         </select>
 
       </div>
 
+
     </div>
 
+
+
+    <!-- COLLAPSED BY DEFAULT -->
 
     <details class="archive-filters">
 
@@ -175,19 +240,30 @@ const kinds = Array.from(
 
       <div class="archive-filter-groups">
 
+
+        <!-- DATE -->
+
         <div class="filter-group">
 
           <span class="filter-group-title">
             date
           </span>
 
+
           <div class="filter-grid">
 
+
             <div class="filter-field">
-              <label for="filter-year">year</label>
+
+              <label for="filter-year">
+                year
+              </label>
 
               <select id="filter-year">
-                <option value="all">all</option>
+
+                <option value="all">
+                  all
+                </option>
 
                 {
                   years.map((year) => (
@@ -196,15 +272,24 @@ const kinds = Array.from(
                     </option>
                   ))
                 }
+
               </select>
+
             </div>
 
 
+
             <div class="filter-field">
-              <label for="filter-month">month</label>
+
+              <label for="filter-month">
+                month
+              </label>
 
               <select id="filter-month">
-                <option value="all">all</option>
+
+                <option value="all">
+                  all
+                </option>
 
                 {
                   months.map((month) => (
@@ -213,15 +298,24 @@ const kinds = Array.from(
                     </option>
                   ))
                 }
+
               </select>
+
             </div>
 
 
+
             <div class="filter-field">
-              <label for="filter-weekday">day</label>
+
+              <label for="filter-weekday">
+                day
+              </label>
 
               <select id="filter-weekday">
-                <option value="all">all</option>
+
+                <option value="all">
+                  all
+                </option>
 
                 {
                   weekdays.map((weekday) => (
@@ -230,13 +324,19 @@ const kinds = Array.from(
                     </option>
                   ))
                 }
+
               </select>
+
             </div>
+
 
           </div>
 
         </div>
 
+
+
+        <!-- PLACE -->
 
         <div class="filter-group">
 
@@ -244,13 +344,21 @@ const kinds = Array.from(
             place
           </span>
 
+
           <div class="filter-grid">
 
+
             <div class="filter-field">
-              <label for="filter-country">country</label>
+
+              <label for="filter-country">
+                country
+              </label>
 
               <select id="filter-country">
-                <option value="all">all</option>
+
+                <option value="all">
+                  all
+                </option>
 
                 {
                   countries.map((country) => (
@@ -259,15 +367,24 @@ const kinds = Array.from(
                     </option>
                   ))
                 }
+
               </select>
+
             </div>
 
 
+
             <div class="filter-field">
-              <label for="filter-city">city</label>
+
+              <label for="filter-city">
+                city
+              </label>
 
               <select id="filter-city">
-                <option value="all">all</option>
+
+                <option value="all">
+                  all
+                </option>
 
                 {
                   cities.map((city) => (
@@ -276,15 +393,24 @@ const kinds = Array.from(
                     </option>
                   ))
                 }
+
               </select>
+
             </div>
 
 
+
             <div class="filter-field">
-              <label for="filter-venue">venue</label>
+
+              <label for="filter-venue">
+                venue
+              </label>
 
               <select id="filter-venue">
-                <option value="all">all</option>
+
+                <option value="all">
+                  all
+                </option>
 
                 {
                   venues.map((venue) => (
@@ -293,13 +419,19 @@ const kinds = Array.from(
                     </option>
                   ))
                 }
+
               </select>
+
             </div>
+
 
           </div>
 
         </div>
 
+
+
+        <!-- ARCHIVE -->
 
         <div class="filter-group">
 
@@ -307,15 +439,21 @@ const kinds = Array.from(
             archive
           </span>
 
+
           <div class="filter-grid">
 
+
             <div class="filter-field">
+
               <label for="filter-collection">
                 collection
               </label>
 
               <select id="filter-collection">
-                <option value="all">all</option>
+
+                <option value="all">
+                  all
+                </option>
 
                 {
                   collections.map((collection) => (
@@ -324,17 +462,24 @@ const kinds = Array.from(
                     </option>
                   ))
                 }
+
               </select>
+
             </div>
 
 
+
             <div class="filter-field">
+
               <label for="filter-kind">
                 what is it?
               </label>
 
               <select id="filter-kind">
-                <option value="all">all</option>
+
+                <option value="all">
+                  all
+                </option>
 
                 {
                   kinds.map((kind) => (
@@ -343,31 +488,51 @@ const kinds = Array.from(
                     </option>
                   ))
                 }
+
               </select>
+
             </div>
 
 
+
             <div class="filter-field">
+
               <label for="filter-favorite">
                 favorites
               </label>
 
               <select id="filter-favorite">
-                <option value="all">all</option>
-                <option value="favorite">favorites only</option>
+
+                <option value="all">
+                  all
+                </option>
+
+                <option value="favorite">
+                  favorites only
+                </option>
+
               </select>
+
             </div>
+
 
           </div>
 
         </div>
 
+
       </div>
 
     </details>
 
+
   </section>
 
+
+
+  <!-- =========================================
+       FINDINGS
+  ========================================== -->
 
   <section
     class="archive-results"
@@ -376,9 +541,10 @@ const kinds = Array.from(
   >
 
     {
-      items.map((item, index) => {
+      items.map((item) => {
 
-        const date = item.data.dateFound;
+        const date =
+          item.data.dateFound;
 
         const year =
           String(date.getFullYear());
@@ -395,16 +561,25 @@ const kinds = Array.from(
             { weekday: "long" }
           );
 
+
+        const findingNumber =
+          item.data.archiveNumber ||
+          "----";
+
+
         return (
 
           <a
             href={`/archive/${item.id}/`}
             class="archive-entry"
 
-            data-title={item.data.title.toLowerCase()}
+            data-title={
+              item.data.title.toLowerCase()
+            }
 
             data-search={
               [
+                item.data.archiveNumber,
                 item.data.title,
                 item.data.creator,
                 item.data.archiveDescription,
@@ -417,9 +592,11 @@ const kinds = Array.from(
                 item.data.kind,
                 item.data.reason,
                 item.data.sourceName,
+
                 ...item.data.tags,
                 ...item.data.colors,
-                ...item.data.collections,
+                ...item.data.collections
+
               ]
                 .filter(Boolean)
                 .join(" ")
@@ -427,33 +604,47 @@ const kinds = Array.from(
             }
 
             data-year={year}
-            data-month={month.toLowerCase()}
-            data-weekday={weekday.toLowerCase()}
+
+            data-month={
+              month.toLowerCase()
+            }
+
+            data-weekday={
+              weekday.toLowerCase()
+            }
 
             data-country={
-              (item.data.country || "").toLowerCase()
+              (item.data.country || "")
+                .toLowerCase()
             }
 
             data-city={
-              (item.data.city || "").toLowerCase()
+              (item.data.city || "")
+                .toLowerCase()
             }
 
             data-venue={
-              (item.data.venue || "").toLowerCase()
+              (item.data.venue || "")
+                .toLowerCase()
             }
 
             data-kind={
-              (item.data.kind || "").toLowerCase()
+              (item.data.kind || "")
+                .toLowerCase()
             }
 
             data-collections={
               item.data.collections
-                .map((value) => value.toLowerCase())
+                .map((value) =>
+                  value.toLowerCase()
+                )
                 .join("|")
             }
 
             data-favorite={
-              item.data.favorite ? "true" : "false"
+              item.data.favorite
+                ? "true"
+                : "false"
             }
 
             data-date={
@@ -461,65 +652,85 @@ const kinds = Array.from(
             }
           >
 
+
             <div class="archive-entry-image">
+
               <img
                 src={item.data.image}
-                alt={item.data.alt || item.data.title}
+                alt={
+                  item.data.alt ||
+                  item.data.title
+                }
                 loading="lazy"
               />
+
             </div>
+
 
 
             <div class="archive-entry-information">
 
+
               <span class="archive-accession">
-                NO. {
-                  item.data.accession ||
-                  String(index + 1).padStart(4, "0")
-                }
+                NO. {findingNumber}
               </span>
+
 
               <h2>
                 {item.data.title}
               </h2>
 
+
               <p class="archive-entry-meta">
+
                 {
                   [
                     item.data.kind,
+
                     item.data.city ||
                     item.data.country ||
                     item.data.location
+
                   ]
                     .filter(Boolean)
                     .join(" / ")
                 }
+
               </p>
 
+
               <time
-                datetime={item.data.dateFound.toISOString()}
+                datetime={
+                  item.data.dateFound.toISOString()
+                }
               >
+
                 {
                   item.data.dateFound.toLocaleDateString(
                     "en-US",
                     {
                       month: "short",
                       day: "numeric",
-                      year: "numeric",
+                      year: "numeric"
                     }
                   )
                 }
+
               </time>
 
+
             </div>
+
 
           </a>
 
         );
+
       })
     }
 
   </section>
+
 
 
   <div
@@ -531,12 +742,19 @@ const kinds = Array.from(
   </div>
 
 
+
+  <!-- =========================================
+       FILTER / SORT / VIEW
+  ========================================== -->
+
   <script>
+
 
     const archive =
       document.querySelector<HTMLElement>(
         "[data-archive]"
       );
+
 
     const entries =
       Array.from(
@@ -545,60 +763,72 @@ const kinds = Array.from(
         )
       );
 
+
     const search =
       document.querySelector<HTMLInputElement>(
         "#archive-search"
       );
+
 
     const year =
       document.querySelector<HTMLSelectElement>(
         "#filter-year"
       );
 
+
     const month =
       document.querySelector<HTMLSelectElement>(
         "#filter-month"
       );
+
 
     const weekday =
       document.querySelector<HTMLSelectElement>(
         "#filter-weekday"
       );
 
+
     const country =
       document.querySelector<HTMLSelectElement>(
         "#filter-country"
       );
+
 
     const city =
       document.querySelector<HTMLSelectElement>(
         "#filter-city"
       );
 
+
     const venue =
       document.querySelector<HTMLSelectElement>(
         "#filter-venue"
       );
+
 
     const collection =
       document.querySelector<HTMLSelectElement>(
         "#filter-collection"
       );
 
+
     const kind =
       document.querySelector<HTMLSelectElement>(
         "#filter-kind"
       );
+
 
     const favorite =
       document.querySelector<HTMLSelectElement>(
         "#filter-favorite"
       );
 
+
     const sort =
       document.querySelector<HTMLSelectElement>(
         "#archive-sort"
       );
+
 
     const noResults =
       document.querySelector<HTMLElement>(
@@ -606,111 +836,181 @@ const kinds = Array.from(
       );
 
 
+
     function simpleMatch(
       source: string | undefined,
       selected: string
     ) {
-      if (selected === "all") return true;
+
+      if (selected === "all") {
+        return true;
+      }
+
 
       return (
         (source || "") ===
         selected.toLowerCase()
       );
+
     }
+
 
 
     function listMatch(
       source: string | undefined,
       selected: string
     ) {
-      if (selected === "all") return true;
+
+      if (selected === "all") {
+        return true;
+      }
+
 
       return (source || "")
         .split("|")
-        .includes(selected.toLowerCase());
+        .includes(
+          selected.toLowerCase()
+        );
+
     }
+
 
 
     function applyFilters() {
 
+
       const query =
-        search?.value.trim().toLowerCase() || "";
+        search?.value
+          .trim()
+          .toLowerCase() || "";
+
 
       let visible = 0;
 
+
+
       entries.forEach((entry) => {
 
+
         const show =
+
           (
             !query ||
             (entry.dataset.search || "")
               .includes(query)
           )
+
           &&
-          (!year ||
+
+          (
+            !year ||
             simpleMatch(
               entry.dataset.year,
               year.value
-            ))
+            )
+          )
+
           &&
-          (!month ||
+
+          (
+            !month ||
             simpleMatch(
               entry.dataset.month,
               month.value
-            ))
+            )
+          )
+
           &&
-          (!weekday ||
+
+          (
+            !weekday ||
             simpleMatch(
               entry.dataset.weekday,
               weekday.value
-            ))
+            )
+          )
+
           &&
-          (!country ||
+
+          (
+            !country ||
             simpleMatch(
               entry.dataset.country,
               country.value
-            ))
+            )
+          )
+
           &&
-          (!city ||
+
+          (
+            !city ||
             simpleMatch(
               entry.dataset.city,
               city.value
-            ))
+            )
+          )
+
           &&
-          (!venue ||
+
+          (
+            !venue ||
             simpleMatch(
               entry.dataset.venue,
               venue.value
-            ))
+            )
+          )
+
           &&
-          (!collection ||
+
+          (
+            !collection ||
             listMatch(
               entry.dataset.collections,
               collection.value
-            ))
+            )
+          )
+
           &&
-          (!kind ||
+
+          (
+            !kind ||
             simpleMatch(
               entry.dataset.kind,
               kind.value
-            ))
+            )
+          )
+
           &&
+
           (
             !favorite ||
             favorite.value === "all" ||
             entry.dataset.favorite === "true"
           );
 
-        entry.hidden = !show;
 
-        if (show) visible++;
+        entry.hidden =
+          !show;
+
+
+        if (show) {
+          visible++;
+        }
+
       });
 
+
+
       if (noResults) {
+
         noResults.hidden =
-          visible !== 0 || entries.length === 0;
+          visible !== 0 ||
+          entries.length === 0;
+
       }
+
     }
+
 
 
     [
@@ -723,61 +1023,107 @@ const kinds = Array.from(
       venue,
       collection,
       kind,
-      favorite,
+      favorite
     ].forEach((control) => {
 
-      if (!control) return;
+
+      if (!control) {
+        return;
+      }
+
 
       control.addEventListener(
+
         control instanceof HTMLInputElement
           ? "input"
           : "change",
+
         applyFilters
+
       );
+
     });
 
 
-    sort?.addEventListener("change", () => {
 
-      if (!archive) return;
+    sort?.addEventListener(
+      "change",
+      () => {
 
-      const sorted = [...entries];
 
-      sorted.sort((a, b) => {
-
-        if (sort.value === "oldest") {
-          return (
-            new Date(a.dataset.date || "").getTime() -
-            new Date(b.dataset.date || "").getTime()
-          );
+        if (!archive) {
+          return;
         }
 
-        if (sort.value === "az") {
-          return (a.dataset.title || "")
-            .localeCompare(
+
+        const sorted =
+          [...entries];
+
+
+        sorted.sort((a, b) => {
+
+
+          if (sort.value === "oldest") {
+
+            return (
+              new Date(
+                a.dataset.date || ""
+              ).getTime()
+              -
+              new Date(
+                b.dataset.date || ""
+              ).getTime()
+            );
+
+          }
+
+
+          if (sort.value === "az") {
+
+            return (
+              a.dataset.title || ""
+            ).localeCompare(
               b.dataset.title || ""
             );
-        }
 
-        if (sort.value === "za") {
-          return (b.dataset.title || "")
-            .localeCompare(
+          }
+
+
+          if (sort.value === "za") {
+
+            return (
+              b.dataset.title || ""
+            ).localeCompare(
               a.dataset.title || ""
             );
-        }
 
-        return (
-          new Date(b.dataset.date || "").getTime() -
-          new Date(a.dataset.date || "").getTime()
-        );
+          }
 
-      });
 
-      sorted.forEach((entry) =>
-        archive.appendChild(entry)
-      );
+          return (
+            new Date(
+              b.dataset.date || ""
+            ).getTime()
+            -
+            new Date(
+              a.dataset.date || ""
+            ).getTime()
+          );
 
-    });
+        });
+
+
+
+        sorted.forEach((entry) => {
+
+          archive.appendChild(entry);
+
+        });
+
+
+      }
+    );
+
 
 
     const viewButtons =
@@ -785,35 +1131,57 @@ const kinds = Array.from(
         "[data-view-button]"
       );
 
+
     viewButtons.forEach((button) => {
 
-      button.addEventListener("click", () => {
 
-        if (!archive) return;
+      button.addEventListener(
+        "click",
+        () => {
 
-        archive.dataset.view =
-          button.dataset.viewButton || "grid";
 
-        viewButtons.forEach((other) => {
+          if (!archive) {
+            return;
+          }
 
-          const active = other === button;
 
-          other.classList.toggle(
-            "is-active",
-            active
+          archive.dataset.view =
+            button.dataset.viewButton ||
+            "grid";
+
+
+          viewButtons.forEach(
+            (other) => {
+
+
+              const active =
+                other === button;
+
+
+              other.classList.toggle(
+                "is-active",
+                active
+              );
+
+
+              other.setAttribute(
+                "aria-pressed",
+                String(active)
+              );
+
+
+            }
           );
 
-          other.setAttribute(
-            "aria-pressed",
-            String(active)
-          );
 
-        });
+        }
+      );
 
-      });
 
     });
 
+
   </script>
+
 
 </BaseLayout>

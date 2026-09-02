@@ -1,3 +1,8 @@
+settings:
+  content:
+    merge: true
+
+
 media:
   - name: images
     label: Archive Images
@@ -40,10 +45,10 @@ content:
 
     view:
       fields:
+        - archiveNumber
         - title
         - dateFound
         - kind
-        - reason
         - featured
 
       primary: title
@@ -57,6 +62,11 @@ content:
         - creator
         - archiveDescription
         - location
+        - country
+        - region
+        - city
+        - neighborhood
+        - venue
         - kind
         - reason
 
@@ -66,10 +76,16 @@ content:
 
     fields:
 
-      - name: accession
-        label: Archive Number
+      # AUTOMATIC — NEVER MANUALLY EDITED
+
+      - name: archiveNumber
+        label: Finding No.
         type: string
-        description: "Optional. Leave blank and the website can number objects automatically."
+        hidden: true
+        readonly: true
+
+
+      # BASIC INFORMATION
 
       - name: title
         label: Title
@@ -92,7 +108,7 @@ content:
         description: "Optional. Artist, architect, designer, brand, author, etc."
 
 
-      # COVER IMAGE
+      # IMAGES
 
       - name: image
         label: Cover Image
@@ -100,9 +116,6 @@ content:
         required: true
         options:
           media: images
-
-
-      # ADDITIONAL VIEWS
 
       - name: gallery
         label: Additional Views
@@ -143,11 +156,35 @@ content:
         type: text
 
 
-      # ORGANIZATION
+      # PLACE
 
       - name: location
-        label: Location
+        label: Location Display
         type: string
+        description: "Optional. Write the location naturally as you want it shown on the post."
+
+      - name: country
+        label: Country
+        type: string
+
+      - name: region
+        label: Region / State
+        type: string
+
+      - name: city
+        label: City
+        type: string
+
+      - name: neighborhood
+        label: Neighborhood
+        type: string
+
+      - name: venue
+        label: Venue
+        type: string
+
+
+      # ORGANIZATION
 
       - name: kind
         label: What Is It?
@@ -163,7 +200,7 @@ content:
         label: Collections
         type: string
         list: true
-        description: "Example: queens, typography, public space."
+        description: "Add new collections whenever your archive grows."
 
       - name: tags
         label: Tags
@@ -176,7 +213,7 @@ content:
         list: true
 
 
-      # ORIGINAL SOURCE
+      # SOURCE
 
       - name: sourceName
         label: Source Name
@@ -188,7 +225,7 @@ content:
         type: string
 
 
-      # FILE ATTACHMENTS
+      # ATTACHMENTS
 
       - name: attachments
         label: Attachments

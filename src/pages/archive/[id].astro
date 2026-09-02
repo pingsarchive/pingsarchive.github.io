@@ -5,6 +5,7 @@ import { getCollection, render } from "astro:content";
 
 export async function getStaticPaths() {
 
+
   const items = (
     await getCollection(
       "archive",
@@ -19,10 +20,12 @@ export async function getStaticPaths() {
 
   return items.map((item, index) => {
 
+
     const previous =
       index < items.length - 1
         ? items[index + 1]
         : null;
+
 
     const next =
       index > 0
@@ -30,77 +33,95 @@ export async function getStaticPaths() {
         : null;
 
 
-    const related = items
-      .filter(
-        (candidate) =>
-          candidate.id !== item.id
-      )
 
-      .map((candidate) => {
+    const related =
+      items
 
-        let score = 0;
+        .filter(
+          (candidate) =>
+            candidate.id !== item.id
+        )
 
-        candidate.data.collections.forEach(
-          (collection) => {
+        .map((candidate) => {
 
-            if (
-              item.data.collections.includes(
-                collection
-              )
-            ) {
-              score += 3;
+
+          let score = 0;
+
+
+          candidate.data.collections.forEach(
+            (collection) => {
+
+
+              if (
+                item.data.collections.includes(
+                  collection
+                )
+              ) {
+                score += 3;
+              }
+
+
             }
-
-          }
-        );
+          );
 
 
-        candidate.data.tags.forEach((tag) => {
+          candidate.data.tags.forEach(
+            (tag) => {
+
+
+              if (
+                item.data.tags.includes(tag)
+              ) {
+                score += 1;
+              }
+
+
+            }
+          );
+
 
           if (
-            item.data.tags.includes(tag)
+            candidate.data.kind &&
+            candidate.data.kind ===
+              item.data.kind
+          ) {
+            score += 2;
+          }
+
+
+          if (
+            candidate.data.city &&
+            candidate.data.city ===
+              item.data.city
           ) {
             score += 1;
           }
 
-        });
+
+          return {
+            item: candidate,
+            score,
+          };
 
 
-        if (
-          candidate.data.kind &&
-          candidate.data.kind ===
-            item.data.kind
-        ) {
-          score += 2;
-        }
+        })
 
+        .filter(
+          ({ score }) =>
+            score > 0
+        )
 
-        if (
-          candidate.data.city &&
-          candidate.data.city ===
-            item.data.city
-        ) {
-          score += 1;
-        }
+        .sort(
+          (a, b) =>
+            b.score - a.score
+        )
 
+        .slice(0, 4)
 
-        return {
-          item: candidate,
-          score,
-        };
-
-      })
-
-      .filter(({ score }) => score > 0)
-
-      .sort(
-        (a, b) =>
-          b.score - a.score
-      )
-
-      .slice(0, 4)
-
-      .map(({ item }) => item);
+        .map(
+          ({ item }) =>
+            item
+        );
 
 
     return {
@@ -114,15 +135,13 @@ export async function getStaticPaths() {
         previous,
         next,
         related,
-
-        number:
-          item.data.accession ||
-          String(index + 1).padStart(4, "0"),
       },
 
     };
 
+
   });
+
 
 }
 
@@ -132,18 +151,27 @@ const {
   previous,
   next,
   related,
-  number,
 } = Astro.props;
 
 
-const { Content } = await render(item);
+const { Content } =
+  await render(item);
+
 
 const hasNotes =
-  Boolean(item.body?.trim());
+  Boolean(
+    item.body?.trim()
+  );
+
+
+const findingNumber =
+  item.data.archiveNumber ||
+  "----";
 
 
 const placeDisplay =
   item.data.location ||
+
   [
     item.data.venue,
     item.data.neighborhood,
@@ -151,6 +179,7 @@ const placeDisplay =
     item.data.region,
     item.data.country,
   ]
+
     .filter(Boolean)
     .join(", ");
 ---
@@ -159,10 +188,16 @@ const placeDisplay =
   title={`${item.data.title} — ping's archive`}
 >
 
+
   <article class="object-file">
 
 
+    <!-- =========================================
+         TOP LINE
+    ========================================== -->
+
     <div class="object-topline">
+
 
       <a
         href="/archive"
@@ -171,36 +206,50 @@ const placeDisplay =
         ← archive
       </a>
 
+
       <span>
-        object no. {number}
+        finding no. {findingNumber}
       </span>
+
 
     </div>
 
 
 
+    <!-- =========================================
+         COVER + TITLE
+    ========================================== -->
+
     <section class="object-hero">
+
 
       <div class="object-image-wrap">
 
         <img
           src={item.data.image}
-          alt={item.data.alt || item.data.title}
+          alt={
+            item.data.alt ||
+            item.data.title
+          }
           class="object-image"
         />
 
       </div>
 
 
+
       <div class="object-introduction">
 
+
         <p class="object-accession">
-          pa / obj / {number}
+          finding no. {findingNumber}
         </p>
+
 
         <h1 class="object-title">
           {item.data.title}
         </h1>
+
 
         {
           item.data.archiveDescription && (
@@ -212,11 +261,17 @@ const placeDisplay =
           )
         }
 
+
       </div>
+
 
     </section>
 
 
+
+    <!-- =========================================
+         METADATA
+    ========================================== -->
 
     <section class="object-metadata">
 
@@ -240,6 +295,7 @@ const placeDisplay =
       }
 
 
+
       {
         item.data.originalDate && (
 
@@ -257,6 +313,7 @@ const placeDisplay =
 
         )
       }
+
 
 
       <div class="metadata-row">
@@ -283,6 +340,7 @@ const placeDisplay =
       </div>
 
 
+
       {
         placeDisplay && (
 
@@ -300,6 +358,7 @@ const placeDisplay =
 
         )
       }
+
 
 
       {
@@ -321,6 +380,7 @@ const placeDisplay =
       }
 
 
+
       {
         item.data.reason && (
 
@@ -338,6 +398,7 @@ const placeDisplay =
 
         )
       }
+
 
 
       {
@@ -359,6 +420,7 @@ const placeDisplay =
       }
 
 
+
       {
         item.data.tags.length > 0 && (
 
@@ -376,6 +438,7 @@ const placeDisplay =
 
         )
       }
+
 
 
       {
@@ -401,10 +464,15 @@ const placeDisplay =
 
 
 
+    <!-- =========================================
+         ADDITIONAL VIEWS
+    ========================================== -->
+
     {
       item.data.gallery.length > 0 && (
 
         <section class="object-gallery">
+
 
           <div class="object-section-heading">
 
@@ -419,13 +487,16 @@ const placeDisplay =
           </div>
 
 
+
           <div class="object-gallery-grid">
+
 
             {
               item.data.gallery.map(
                 (photo, index) => (
 
                   <figure class="gallery-item">
+
 
                     <div class="gallery-image">
 
@@ -441,7 +512,9 @@ const placeDisplay =
                     </div>
 
 
+
                     <figcaption>
+
 
                       <span class="gallery-number">
                         VIEW {String(index + 1).padStart(2, "0")}
@@ -485,7 +558,9 @@ const placeDisplay =
                         )
                       }
 
+
                     </figcaption>
+
 
                   </figure>
 
@@ -493,7 +568,9 @@ const placeDisplay =
               )
             }
 
+
           </div>
+
 
         </section>
 
@@ -501,19 +578,26 @@ const placeDisplay =
     }
 
 
+
+    <!-- =========================================
+         NOTES — ONLY IF THEY EXIST
+    ========================================== -->
 
     {
       hasNotes && (
 
         <section class="object-notes">
 
+
           <div class="object-section-label">
             notes
           </div>
 
+
           <div class="object-body">
             <Content />
           </div>
+
 
         </section>
 
@@ -521,6 +605,10 @@ const placeDisplay =
     }
 
 
+
+    <!-- =========================================
+         SOURCE
+    ========================================== -->
 
     {
       (
@@ -529,6 +617,7 @@ const placeDisplay =
       ) && (
 
         <section class="object-source">
+
 
           <span class="metadata-label">
             source
@@ -543,11 +632,14 @@ const placeDisplay =
                 target="_blank"
                 rel="noopener noreferrer"
               >
+
                 {
                   item.data.sourceName ||
                   "original source"
                 }
+
                 {" ↗"}
+
               </a>
 
             ) : (
@@ -559,6 +651,7 @@ const placeDisplay =
             )
           }
 
+
         </section>
 
       )
@@ -566,10 +659,15 @@ const placeDisplay =
 
 
 
+    <!-- =========================================
+         ATTACHMENTS
+    ========================================== -->
+
     {
       item.data.attachments.length > 0 && (
 
         <section class="object-attachments">
+
 
           <div class="object-section-heading">
 
@@ -584,7 +682,9 @@ const placeDisplay =
           </div>
 
 
+
           <div class="attachment-list">
+
 
             {
               item.data.attachments.map(
@@ -615,7 +715,9 @@ const placeDisplay =
               )
             }
 
+
           </div>
+
 
         </section>
 
@@ -624,15 +726,20 @@ const placeDisplay =
 
 
 
+    <!-- =========================================
+         RELATED FINDINGS
+    ========================================== -->
+
     {
       related.length > 0 && (
 
         <section class="related-section">
 
+
           <div class="object-section-heading">
 
             <span>
-              related objects
+              related findings
             </span>
 
             <span>
@@ -642,39 +749,48 @@ const placeDisplay =
           </div>
 
 
+
           <div class="related-grid">
 
+
             {
-              related.map((relatedItem) => (
+              related.map(
+                (relatedItem) => (
 
-                <a
-                  href={`/archive/${relatedItem.id}/`}
-                  class="related-item"
-                >
+                  <a
+                    href={`/archive/${relatedItem.id}/`}
+                    class="related-item"
+                  >
 
-                  <div class="related-image">
 
-                    <img
-                      src={relatedItem.data.image}
-                      alt={
-                        relatedItem.data.alt ||
-                        relatedItem.data.title
-                      }
-                      loading="lazy"
-                    />
+                    <div class="related-image">
 
-                  </div>
+                      <img
+                        src={relatedItem.data.image}
+                        alt={
+                          relatedItem.data.alt ||
+                          relatedItem.data.title
+                        }
+                        loading="lazy"
+                      />
 
-                  <span>
-                    {relatedItem.data.title}
-                  </span>
+                    </div>
 
-                </a>
 
-              ))
+                    <span>
+                      {relatedItem.data.title}
+                    </span>
+
+
+                  </a>
+
+                )
+              )
             }
 
+
           </div>
+
 
         </section>
 
@@ -683,9 +799,15 @@ const placeDisplay =
 
 
 
+    <!-- =========================================
+         PREVIOUS / NEXT
+    ========================================== -->
+
     <nav class="object-pagination">
 
+
       <div>
+
 
         {
           previous ? (
@@ -711,10 +833,13 @@ const placeDisplay =
           )
         }
 
+
       </div>
 
 
+
       <div class="pagination-next">
+
 
         {
           next ? (
@@ -740,11 +865,14 @@ const placeDisplay =
           )
         }
 
+
       </div>
+
 
     </nav>
 
 
   </article>
+
 
 </BaseLayout>
