@@ -3168,3 +3168,136 @@ img {
 .site-nav a.nav-stamp-link.is-current:hover::before {
   opacity: 1 !important;
 }
+/* ==========================================================
+   TRUE PINTEREST / MASONRY FEED
+========================================================== */
+
+
+/* HOMEPAGE */
+
+.home-masonry {
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  grid-auto-rows: 6px;
+
+  column-gap: 14px;
+  row-gap: 0;
+
+  column-count: unset !important;
+}
+
+
+.home-masonry .masonry-card {
+  display: block !important;
+
+  width: 100% !important;
+
+  margin: 0 !important;
+
+  break-inside: auto !important;
+
+  align-self: start;
+}
+
+
+
+/* ALL FINDINGS */
+
+.archive-results[data-view="grid"] {
+  display: grid !important;
+
+  grid-template-columns:
+    repeat(4, minmax(0, 1fr));
+
+  grid-auto-rows: 6px;
+
+  column-gap: 14px;
+  row-gap: 0;
+
+  column-count: unset !important;
+}
+
+
+.archive-results[data-view="grid"]
+.archive-entry {
+
+  display: block !important;
+
+  width: 100% !important;
+
+  margin: 0 !important;
+
+  break-inside: auto !important;
+
+  align-self: start;
+}
+
+
+
+/* NEVER CROP COVER IMAGES */
+
+.masonry-card-image,
+.archive-entry-image {
+  height: auto !important;
+
+  min-height: 0 !important;
+
+  aspect-ratio: auto !important;
+
+  overflow: visible !important;
+}
+
+
+.masonry-card-image img,
+.archive-entry-image img {
+
+  display: block !important;
+
+  width: 100% !important;
+
+  height: auto !important;
+
+  max-height: none !important;
+
+  aspect-ratio: auto !important;
+
+  object-fit: contain !important;
+}
+
+
+
+/* RESPONSIVE */
+
+@media (max-width: 1200px) {
+
+  .home-masonry,
+  .archive-results[data-view="grid"] {
+    grid-template-columns:
+      repeat(3, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 800px) {
+
+  .home-masonry,
+  .archive-results[data-view="grid"] {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+}
+
+
+@media (max-width: 500px) {
+
+  .home-masonry,
+  .archive-results[data-view="grid"] {
+    grid-template-columns: 1fr;
+  }
+
+}
