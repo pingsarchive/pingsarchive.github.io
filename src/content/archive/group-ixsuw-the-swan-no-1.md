@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0006"
 title: Group IX/SUW, The Swan, No. 1
 dateFound: 2026-09-02
 originalDate: "1915"
