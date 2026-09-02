@@ -26,8 +26,9 @@ const extension = src
   .pop()
   ?.toLowerCase();
 
-const isGifFile = extension === "gif";
-const isVideoFile = ["mp4", "webm", "mov"].includes(extension || "");
+const isVideoFile = ["mp4", "webm", "mov"].includes(
+  extension || ""
+);
 
 const renderAsLoop =
   coverType === "loop" && isVideoFile;
@@ -52,7 +53,7 @@ const renderAsVideo =
         muted
         loop
         playsinline
-        preload="metadata"
+        preload="auto"
         poster={poster}
         aria-label={title}
       >
@@ -92,6 +93,86 @@ const renderAsVideo =
     )
   }
 </div>
+
+<script>
+  function initializeArchiveLoops() {
+    const loops = document.querySelectorAll(
+      '[data-cover-type="loop"]'
+    );
+
+    loops.forEach((wrapper) => {
+      const video = wrapper.querySelector("video");
+
+      if (video) {
+        video.muted = true;
+        video.defaultMuted = true;
+        video.loop = true;
+        video.playsInline = true;
+
+        const tryToPlay = () => {
+          if (video.paused) {
+            video.play().catch(() => {
+              // Some mobile browsers may require one tap.
+            });
+          }
+        };
+
+        tryToPlay();
+
+        video.addEventListener(
+          "loadedmetadata",
+          tryToPlay
+        );
+
+        video.addEventListener(
+          "canplay",
+          tryToPlay
+        );
+      }
+
+      if (wrapper.dataset.loopInteractionReady === "true") {
+        return;
+      }
+
+      wrapper.dataset.loopInteractionReady = "true";
+
+      wrapper.addEventListener("click", (event) => {
+        /*
+          A GIF / Loop is meant to be viewable in the feed.
+          Do not let a tap on the moving media activate
+          a surrounding archive-card link.
+        */
+        event.preventDefault();
+        event.stopPropagation();
+
+        if (video && video.paused) {
+          video.play().catch(() => {});
+        }
+      });
+    });
+  }
+
+  initializeArchiveLoops();
+
+  document.addEventListener(
+    "astro:page-load",
+    initializeArchiveLoops
+  );
+
+  window.addEventListener("pageshow", () => {
+    initializeArchiveLoops();
+  });
+
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (!document.hidden) {
+        initializeArchiveLoops();
+      }
+    }
+  );
+</script>
+
 <style>
   .archive-media {
     display: block;
@@ -109,5 +190,9 @@ const renderAsVideo =
   .archive-media-video,
   .archive-media-video-preview {
     object-fit: contain;
+  }
+
+  .archive-media-loop {
+    cursor: default;
   }
 </style>
