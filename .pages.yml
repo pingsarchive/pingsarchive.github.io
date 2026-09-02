@@ -16,6 +16,18 @@ media:
       - webp
       - gif
 
+  - name: noteImages
+    label: Note Images
+    input: public/images/notes
+    output: /images/notes
+    rename: safe
+    extensions:
+      - jpg
+      - jpeg
+      - png
+      - webp
+      - gif
+
   - name: documents
     label: Archive Files
     input: public/files/archive
@@ -282,6 +294,7 @@ content:
 
   # ==========================================
   # NOTES
+  # FLEXIBLE COMMONPLACE / RESEARCH NOTE SYSTEM
   # ==========================================
 
   - name: notes
@@ -290,58 +303,194 @@ content:
     path: src/content/notes
     format: yaml-frontmatter
 
+    # No title is needed to create a file.
+    # Example:
+    # 2026-09-01-22-45-17-quote.md
+
     filename:
-      template: "{title}.md"
+      template: "{year}-{month}-{day}-{hour}-{minute}-{second}-{type}.md"
       field: false
+
 
     view:
       fields:
-        - title
+        - type
         - date
+        - title
+        - author
         - featured
 
-      primary: title
+      primary: type
 
       sort:
         - date
+        - type
+
+      search:
+        - type
         - title
+        - author
+        - sourceName
+        - location
+        - tags
 
       default:
         sort: date
         order: desc
 
+
     fields:
+
+      # ------------------------------------------
+      # WHAT KIND OF NOTE IS THIS?
+      # ------------------------------------------
+
+      - name: type
+        label: Type
+        type: select
+        required: true
+        options:
+          placeholder: "Choose a note type"
+          values:
+            - name: quote
+              label: Quote
+
+            - name: note
+              label: Note
+
+            - name: thought
+              label: Thought
+
+            - name: excerpt
+              label: Excerpt
+
+            - name: link
+              label: Link
+
+            - name: image
+              label: Image
+
+            - name: list
+              label: List
+
+            - name: reference
+              label: Reference
+
+            - name: question
+              label: Question
+
+            - name: idea
+              label: Idea
+
+            - name: observation
+              label: Observation
+
+            - name: fragment
+              label: Fragment
+
+            - name: other
+              label: Other
+
+
+      # ------------------------------------------
+      # WHEN YOU SAVED IT
+      # ------------------------------------------
+
+      - name: date
+        label: Date Saved
+        type: date
+        required: true
+
+
+      # ------------------------------------------
+      # OPTIONAL LABEL
+      # ------------------------------------------
 
       - name: title
         label: Title
         type: string
-        required: true
+        description: "Optional. Leave blank for quotes, fragments, images, quick thoughts, etc."
 
-      - name: date
-        label: Date
-        type: date
-        required: true
 
-      - name: summary
-        label: Summary
-        type: text
+      # ------------------------------------------
+      # AUTHOR / CREATOR
+      # ------------------------------------------
+
+      - name: author
+        label: Author / Creator
+        type: string
+        description: "Optional. Person, artist, writer, designer, publication, account, etc."
+
+
+      # ------------------------------------------
+      # SOURCE
+      # ------------------------------------------
+
+      - name: sourceName
+        label: Source
+        type: string
+        description: "Optional. Book, article, interview, website, film, publication, etc."
+
+      - name: sourceUrl
+        label: Source URL
+        type: string
+        description: "Optional. Link back to the original source."
+
+
+      # ------------------------------------------
+      # IMAGE
+      # ------------------------------------------
+
+      - name: image
+        label: Image
+        type: image
+        description: "Optional. Use for screenshots, visual references, image notes, scans, etc."
+        options:
+          media: noteImages
+
+
+      # ------------------------------------------
+      # PLACE / CONTEXT
+      # ------------------------------------------
+
+      - name: location
+        label: Location
+        type: string
+        description: "Optional. Useful for observations, places, events, or things you encountered in person."
+
+
+      # ------------------------------------------
+      # ORGANIZATION
+      # ------------------------------------------
 
       - name: tags
         label: Tags
         type: string
         list: true
+        description: "Optional. Add whatever tags become useful as your notes grow."
+
+
+      # ------------------------------------------
+      # WEBSITE
+      # ------------------------------------------
 
       - name: featured
         label: Featured
         type: boolean
         default: false
 
+
+      # ------------------------------------------
+      # THE NOTE ITSELF
+      # ------------------------------------------
+
       - name: body
-        label: Writing
+        label: Content
         type: rich-text
+        description: "Write as much or as little as you want. This can be a quote, thought, list, excerpt, question, caption, link note, or longer piece of writing."
         options:
           format: markdown
-          media: images
+          media: noteImages
           switcher: true
 
 
