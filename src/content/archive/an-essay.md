@@ -1,5 +1,5 @@
 ---
-title: An Essay
+title: "RE: YOUR REQUEST FOR AN INTERVIEW WITH BIANCA CENSORI"
 dateFound: 2026-09-01
 originalDate: August 27, 2026
 creator: Bianca Censori
