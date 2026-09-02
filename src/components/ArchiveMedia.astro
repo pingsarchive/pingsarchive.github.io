@@ -1,0 +1,113 @@
+---
+interface Props {
+  src: string;
+  coverType?: "image" | "loop" | "video";
+  poster?: string;
+  alt?: string;
+  title?: string;
+  context?: "card" | "detail";
+  loading?: "eager" | "lazy";
+}
+
+const {
+  src,
+  coverType = "image",
+  poster,
+  alt = "",
+  title = "Archive media",
+  context = "card",
+  loading = "lazy",
+} = Astro.props;
+
+const extension = src
+  .split("?")[0]
+  .split("#")[0]
+  .split(".")
+  .pop()
+  ?.toLowerCase();
+
+const isGifFile = extension === "gif";
+const isVideoFile = ["mp4", "webm", "mov"].includes(extension || "");
+
+const renderAsLoop =
+  coverType === "loop" && isVideoFile;
+
+const renderAsVideo =
+  coverType === "video" && isVideoFile;
+---
+
+<div
+  class:list={[
+    "archive-media",
+    `archive-media-${coverType}`,
+    `archive-media-${context}`,
+  ]}
+  data-cover-type={coverType}
+>
+  {
+    renderAsLoop ? (
+      <video
+        class="archive-media-element archive-media-loop"
+        autoplay
+        muted
+        loop
+        playsinline
+        preload="metadata"
+        poster={poster}
+        aria-label={title}
+      >
+        <source src={src} />
+      </video>
+    ) : renderAsVideo ? (
+      context === "detail" ? (
+        <video
+          class="archive-media-element archive-media-video"
+          controls
+          playsinline
+          preload="metadata"
+          poster={poster}
+          aria-label={title}
+        >
+          <source src={src} />
+        </video>
+      ) : (
+        <video
+          class="archive-media-element archive-media-video-preview"
+          muted
+          playsinline
+          preload="metadata"
+          poster={poster}
+          aria-label={`${title} — video`}
+        >
+          <source src={src} />
+        </video>
+      )
+    ) : (
+      <img
+        class="archive-media-element archive-media-image"
+        src={src}
+        alt={alt}
+        loading={loading}
+      />
+    )
+  }
+</div>
+<style>
+  .archive-media {
+    display: block;
+    width: 100%;
+  }
+
+  .archive-media-element {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+  }
+
+  .archive-media-loop,
+  .archive-media-video,
+  .archive-media-video-preview {
+    object-fit: contain;
+  }
+</style>

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import ArchiveMedia from "../components/ArchiveMedia.astro";
 import { getCollection } from "astro:content";
-
 
 const items = (
   await getCollection(
@@ -14,19 +14,16 @@ const items = (
     a.data.dateFound.getTime()
 );
 
-
 const featured =
   items.filter(
     (item) => item.data.featured
   );
-
 
 const recent =
   items.slice(0, 20);
 ---
 
 <BaseLayout>
-
 
   <!-- =========================================
        FEATURED FINDINGS
@@ -66,12 +63,16 @@ const recent =
 
                 <div class="masonry-card-image">
 
-                  <img
+                  <ArchiveMedia
                     src={item.data.image}
+                    coverType={item.data.coverType}
+                    poster={item.data.videoPoster}
                     alt={
                       item.data.alt ||
                       item.data.title
                     }
+                    title={item.data.title}
+                    context="card"
                     loading="lazy"
                   />
 
@@ -159,7 +160,6 @@ const recent =
 
       </div>
 
-
       <span class="recent-findings-count">
         {String(items.length).padStart(4, "0")}
       </span>
@@ -182,12 +182,16 @@ const recent =
 
                 <div class="masonry-card-image">
 
-                  <img
+                  <ArchiveMedia
                     src={item.data.image}
+                    coverType={item.data.coverType}
+                    poster={item.data.videoPoster}
                     alt={
                       item.data.alt ||
                       item.data.title
                     }
+                    title={item.data.title}
+                    context="card"
                     loading="lazy"
                   />
 

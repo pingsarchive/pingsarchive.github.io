@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArchiveMedia from "../../components/ArchiveMedia.astro";
 import { getCollection, render } from "astro:content";
 
 
@@ -225,14 +226,18 @@ const placeDisplay =
 
       <div class="object-image-wrap">
 
-        <img
-          src={item.data.image}
-          alt={
-            item.data.alt ||
-            item.data.title
-          }
-          class="object-image"
-        />
+        <ArchiveMedia
+  src={item.data.image}
+  coverType={item.data.coverType}
+  poster={item.data.videoPoster}
+  alt={
+    item.data.alt ||
+    item.data.title
+  }
+  title={item.data.title}
+  context="detail"
+  loading="eager"
+/>
 
       </div>
 

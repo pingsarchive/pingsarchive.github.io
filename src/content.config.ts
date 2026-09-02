@@ -27,9 +27,10 @@ const archive = defineCollection({
     creator: z.string().optional(),
 
 
-    image: z.string(),
-
-    alt: z.string().optional(),
+coverType: z.enum(["image", "loop", "video"]).default("image"),
+image: z.string(),
+videoPoster: z.string().optional(),
+alt: z.string().optional(),
 
 
     gallery: z.array(

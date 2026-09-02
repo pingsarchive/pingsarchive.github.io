@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import ArchiveMedia from "../../components/ArchiveMedia.astro";
 import { getCollection } from "astro:content";
 
 
@@ -654,17 +655,19 @@ const kinds = Array.from(
 
 
             <div class="archive-entry-image">
-
-              <img
-                src={item.data.image}
-                alt={
-                  item.data.alt ||
-                  item.data.title
-                }
-                loading="lazy"
-              />
-
-            </div>
+  <ArchiveMedia
+    src={item.data.image}
+    coverType={item.data.coverType}
+    poster={item.data.videoPoster}
+    alt={
+      item.data.alt ||
+      item.data.title
+    }
+    title={item.data.title}
+    context="card"
+    loading="lazy"
+  />
+</div>
 
 
 

@@ -5,7 +5,7 @@ settings:
 
 media:
   - name: images
-    label: Archive Images
+    label: Archive Media
     input: public/images/archive
     output: /images/archive
     rename: safe
@@ -15,6 +15,9 @@ media:
       - png
       - webp
       - gif
+      - mp4
+      - webm
+      - mov
 
   - name: noteImages
     label: Note Images
@@ -120,12 +123,43 @@ content:
         description: "Optional. Artist, architect, designer, brand, author, etc."
 
 
-      # IMAGES
+      # COVER MEDIA
+
+      - name: coverType
+        label: Cover Type
+        type: select
+        required: true
+        default: image
+        options:
+          values:
+            - name: image
+              label: Image
+            - name: loop
+              label: GIF / Loop
+            - name: video
+              label: Video
 
       - name: image
-        label: Cover Image
-        type: image
+        label: Cover Media
+        type: file
         required: true
+        description: "Upload an image, GIF, looping clip, or video."
+        options:
+          media: images
+          extensions:
+            - jpg
+            - jpeg
+            - png
+            - webp
+            - gif
+            - mp4
+            - webm
+            - mov
+
+      - name: videoPoster
+        label: Video Poster Image
+        type: image
+        description: "Optional. Add a still preview image for a true Video cover."
         options:
           media: images
 
