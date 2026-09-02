@@ -16,6 +16,9 @@ summary: >-
 
   — Ottessa Moshfegh
 featured: false
+tags:
+  - quote
+  - literature
 ---
 Source: Bookforum, “What forms of art, activism, and literature can speak authentically today?”
 Author: Ottessa Moshfegh
