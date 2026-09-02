@@ -1,27 +1,358 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection, render } from "astro:content";
+
+
+const notes = (
+  await getCollection("notes")
+).sort(
+  (a, b) =>
+    b.data.date.getTime() -
+    a.data.date.getTime()
+);
+
+
+const preparedNotes =
+  await Promise.all(
+    notes.map(async (note) => {
+
+      const { Content } =
+        await render(note);
+
+
+      const lowerTags =
+        note.data.tags.map(
+          (tag) => tag.toLowerCase()
+        );
+
+
+      /*
+       * Older notes may not have the new
+       * Type field yet.
+       */
+
+      const type =
+        note.data.type ||
+        (
+          lowerTags.includes("quote")
+            ? "quote"
+            : "note"
+        );
+
+
+      /*
+       * Your original Moshfegh quote used
+       * the Title field for her name.
+       * For legacy quotes, use that as the
+       * author instead of displaying it
+       * as a title.
+       */
+
+      const author =
+        note.data.author ||
+        (
+          type === "quote"
+            ? note.data.title
+            : undefined
+        );
+
+
+      return {
+        note,
+        Content,
+        type,
+        author,
+      };
+
+    })
+  );
 ---
 
 <BaseLayout title="notes — ping's archive">
 
+
+  <!-- =========================================
+       NOTES HEADER
+  ========================================== -->
+
   <section class="page-heading">
 
     <div>
-      <p class="page-label">notes</p>
-      <h1 class="page-title">writing + observations</h1>
+
+      <p class="page-label">
+        notes
+      </p>
+
+      <h1 class="page-title">
+        writing + observations
+      </h1>
+
     </div>
 
-    <p class="page-count">
-      00 notes
-    </p>
+
+    <span class="notes-total-count">
+      {String(notes.length).padStart(4, "0")}
+    </span>
 
   </section>
 
 
-  <div class="empty-state">
-    <p>
-      fragments, research, thoughts, and writing will live here.
-    </p>
-  </div>
+
+  <!-- =========================================
+       NOTES FEED
+  ========================================== -->
+
+  {
+    preparedNotes.length > 0 ? (
+
+      <section class="notes-feed">
+
+        {
+          preparedNotes.map(
+            ({
+              note,
+              Content,
+              type,
+              author,
+            }) => (
+
+              <article
+                class:list={[
+                  "note-entry",
+                  `note-type-${type}`
+                ]}
+              >
+
+
+                <!-- TYPE + DATE -->
+
+                <div class="note-entry-meta">
+
+                  <span class="note-type">
+                    {type}
+                  </span>
+
+
+                  <time
+                    datetime={
+                      note.data.date.toISOString()
+                    }
+                  >
+                    {
+                      note.data.date.toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        }
+                      )
+                    }
+                  </time>
+
+                </div>
+
+
+
+                <!-- OPTIONAL TITLE -->
+
+                {
+                  note.data.title &&
+                  type !== "quote" && (
+
+                    <h2 class="note-entry-title">
+                      {note.data.title}
+                    </h2>
+
+                  )
+                }
+
+
+
+                <!-- OPTIONAL IMAGE -->
+
+                {
+                  note.data.image && (
+
+                    <figure class="note-entry-image">
+
+                      <img
+                        src={note.data.image}
+                        alt={
+                          note.data.title ||
+                          `${type} saved ${note.data.date.toLocaleDateString("en-US")}`
+                        }
+                        loading="lazy"
+                      />
+
+                    </figure>
+
+                  )
+                }
+
+
+
+                <!-- CONTENT -->
+
+                <div class="note-entry-body">
+
+                  <Content />
+
+                </div>
+
+
+
+                <!-- QUOTE ATTRIBUTION -->
+
+                {
+                  type === "quote" &&
+                  author && (
+
+                    <div class="note-quote-author">
+                      — {author}
+                    </div>
+
+                  )
+                }
+
+
+
+                <!-- AUTHOR / CREATOR FOR NON-QUOTES -->
+
+                {
+                  type !== "quote" &&
+                  note.data.author && (
+
+                    <div class="note-byline">
+
+                      <span>
+                        creator
+                      </span>
+
+                      <strong>
+                        {note.data.author}
+                      </strong>
+
+                    </div>
+
+                  )
+                }
+
+
+
+                <!-- LOCATION -->
+
+                {
+                  note.data.location && (
+
+                    <div class="note-context-row">
+
+                      <span>
+                        location
+                      </span>
+
+                      <strong>
+                        {note.data.location}
+                      </strong>
+
+                    </div>
+
+                  )
+                }
+
+
+
+                <!-- SOURCE -->
+
+                {
+                  (
+                    note.data.sourceName ||
+                    note.data.sourceUrl
+                  ) && (
+
+                    <div class="note-source-row">
+
+                      <span>
+                        source
+                      </span>
+
+
+                      {
+                        note.data.sourceUrl ? (
+
+                          <a
+                            href={note.data.sourceUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            {
+                              note.data.sourceName ||
+                              "open source"
+                            }
+                            {" ↗"}
+                          </a>
+
+                        ) : (
+
+                          <strong>
+                            {note.data.sourceName}
+                          </strong>
+
+                        )
+                      }
+
+                    </div>
+
+                  )
+                }
+
+
+
+                <!-- TAGS -->
+
+                {
+                  note.data.tags.length > 0 && (
+
+                    <div class="note-entry-tags">
+
+                      {
+                        note.data.tags.map(
+                          (tag) => (
+
+                            <span>
+                              {tag}
+                            </span>
+
+                          )
+                        )
+                      }
+
+                    </div>
+
+                  )
+                }
+
+
+              </article>
+
+            )
+          )
+        }
+
+      </section>
+
+    ) : (
+
+      <div class="empty-state">
+
+        <p>
+          fragments, research, thoughts, and things worth keeping will live here.
+        </p>
+
+      </div>
+
+    )
+  }
+
 
 </BaseLayout>

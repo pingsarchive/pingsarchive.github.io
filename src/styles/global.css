@@ -3301,3 +3301,504 @@ img {
   }
 
 }
+/* ==========================================================
+   NOTES
+========================================================== */
+
+.notes-total-count {
+  font-family: var(--mono);
+  font-size: 9px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+}
+
+
+.notes-feed {
+  width: 100%;
+  max-width: 1000px;
+}
+
+
+.note-entry {
+  padding: 24px 0 44px;
+
+  border-top: 1px solid var(--blue-faint);
+}
+
+
+.note-entry:first-child {
+  border-top: 1px solid var(--blue);
+}
+
+
+.note-entry-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  margin-bottom: 20px;
+
+  font-family: var(--mono);
+  font-size: 7px;
+  font-weight: 500;
+
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+
+.note-entry-title {
+  margin: 0 0 10px;
+
+  font-family: var(--mono);
+  font-size: 18px;
+  font-weight: 400;
+
+  text-transform: uppercase;
+}
+
+
+.note-entry-summary {
+  max-width: 650px;
+
+  margin: 0 0 24px;
+
+  font-size: 11px;
+  line-height: 1.6;
+}
+
+
+.note-entry-body {
+  max-width: 760px;
+
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+
+.note-entry-body p {
+  margin: 0 0 16px;
+}
+
+
+/* QUOTE ENTRIES */
+
+.note-entry-quote {
+  padding-top: 28px;
+  padding-bottom: 54px;
+}
+
+
+.note-entry-quote .note-entry-body {
+  max-width: 850px;
+}
+
+
+.note-entry-quote blockquote {
+  margin: 0;
+
+  padding: 4px 0 4px 22px;
+
+  border-left: 1px solid var(--blue);
+
+  font-size: clamp(15px, 1.6vw, 22px);
+  font-weight: 400;
+
+  line-height: 1.55;
+}
+
+
+.note-entry-quote blockquote p {
+  margin: 0;
+}
+
+
+.note-entry-tags {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 7px;
+
+  margin-top: 22px;
+
+  font-family: var(--mono);
+  font-size: 7px;
+
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+
+.note-entry-tags span:not(:last-child)::after {
+  content: " /";
+}
+/* ==========================================================
+   FLEXIBLE NOTES / COMMONPLACE BOOK
+========================================================== */
+
+
+.notes-total-count {
+  font-family: var(--mono);
+
+  font-size: 9px;
+  font-weight: 500;
+
+  letter-spacing: 0.08em;
+}
+
+
+/* ----------------------------------------------------------
+   MAIN FEED
+---------------------------------------------------------- */
+
+.notes-feed {
+  width: 100%;
+}
+
+
+.note-entry {
+  width: 100%;
+
+  padding: 28px 0 58px;
+
+  border-top: 1px solid var(--blue-faint);
+}
+
+
+.note-entry:first-child {
+  border-top-color: var(--blue);
+}
+
+
+/* ----------------------------------------------------------
+   TYPE + DATE
+---------------------------------------------------------- */
+
+.note-entry-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+
+  width: 100%;
+
+  margin-bottom: 22px;
+
+  font-family: var(--mono);
+
+  font-size: 7px;
+  font-weight: 500;
+
+  line-height: 1;
+
+  letter-spacing: 0.08em;
+
+  text-transform: uppercase;
+}
+
+
+.note-type {
+  text-transform: uppercase;
+}
+
+
+/* ----------------------------------------------------------
+   OPTIONAL TITLE
+---------------------------------------------------------- */
+
+.note-entry-title {
+  max-width: 850px;
+
+  margin: 0 0 24px;
+
+  font-family: var(--mono);
+
+  font-size: clamp(17px, 2vw, 27px);
+  font-weight: 400;
+
+  line-height: 1.1;
+
+  letter-spacing: -0.035em;
+
+  text-transform: uppercase;
+}
+
+
+/* ----------------------------------------------------------
+   BODY
+---------------------------------------------------------- */
+
+.note-entry-body {
+  max-width: 820px;
+
+  font-size: 12px;
+
+  line-height: 1.75;
+}
+
+
+.note-entry-body p {
+  margin: 0 0 18px;
+}
+
+
+.note-entry-body p:last-child {
+  margin-bottom: 0;
+}
+
+
+.note-entry-body ul,
+.note-entry-body ol {
+  margin: 16px 0;
+
+  padding-left: 22px;
+}
+
+
+.note-entry-body li {
+  margin-bottom: 7px;
+}
+
+
+
+/* ==========================================================
+   QUOTE
+========================================================== */
+
+.note-type-quote {
+  padding-top: 32px;
+  padding-bottom: 70px;
+}
+
+
+.note-type-quote .note-entry-body {
+  max-width: 950px;
+
+  font-size: clamp(16px, 1.75vw, 24px);
+
+  line-height: 1.55;
+}
+
+
+.note-type-quote blockquote {
+  max-width: 950px;
+
+  margin: 0;
+
+  padding: 3px 0 3px 24px;
+
+  border-left: 1px solid var(--blue);
+
+  font-size: inherit;
+  line-height: inherit;
+}
+
+
+.note-type-quote blockquote p {
+  margin: 0;
+}
+
+
+.note-quote-author {
+  max-width: 950px;
+
+  margin-top: 18px;
+
+  padding-left: 25px;
+
+  font-family: var(--mono);
+
+  font-size: 8px;
+
+  letter-spacing: 0.04em;
+
+  text-transform: uppercase;
+}
+
+
+
+/* ==========================================================
+   THOUGHT / IDEA / FRAGMENT / OBSERVATION
+========================================================== */
+
+.note-type-thought .note-entry-body,
+.note-type-idea .note-entry-body,
+.note-type-fragment .note-entry-body,
+.note-type-observation .note-entry-body {
+
+  max-width: 760px;
+
+  font-size: clamp(14px, 1.35vw, 19px);
+
+  line-height: 1.65;
+}
+
+
+
+/* ==========================================================
+   QUESTION
+========================================================== */
+
+.note-type-question .note-entry-body {
+  max-width: 900px;
+
+  font-size: clamp(18px, 2vw, 28px);
+
+  line-height: 1.4;
+}
+
+
+
+/* ==========================================================
+   EXCERPT
+========================================================== */
+
+.note-type-excerpt .note-entry-body {
+  max-width: 800px;
+
+  padding-left: 24px;
+
+  border-left: 1px solid var(--blue-faint);
+
+  font-size: 13px;
+
+  line-height: 1.8;
+}
+
+
+
+/* ==========================================================
+   IMAGE NOTE
+========================================================== */
+
+.note-entry-image {
+  width: min(900px, 100%);
+
+  margin: 0 0 24px;
+}
+
+
+.note-entry-image img {
+  display: block;
+
+  width: 100%;
+  height: auto;
+
+  object-fit: contain;
+}
+
+
+
+/* ==========================================================
+   LINK / REFERENCE
+========================================================== */
+
+.note-type-link .note-source-row a,
+.note-type-reference .note-source-row a {
+  font-size: 12px;
+}
+
+
+
+/* ==========================================================
+   SOURCE / AUTHOR / CONTEXT
+========================================================== */
+
+.note-byline,
+.note-context-row,
+.note-source-row {
+  display: grid;
+
+  grid-template-columns:
+    110px
+    minmax(0, 1fr);
+
+  gap: 18px;
+
+  max-width: 820px;
+
+  margin-top: 18px;
+
+
+  font-family: var(--mono);
+
+  font-size: 8px;
+
+  line-height: 1.45;
+
+  text-transform: uppercase;
+}
+
+
+.note-byline > span,
+.note-context-row > span,
+.note-source-row > span {
+  opacity: 0.55;
+}
+
+
+.note-byline strong,
+.note-context-row strong,
+.note-source-row strong,
+.note-source-row a {
+  font-weight: 400;
+}
+
+
+
+/* ==========================================================
+   TAGS
+========================================================== */
+
+.note-entry-tags {
+  display: flex;
+  flex-wrap: wrap;
+
+  gap: 6px;
+
+  margin-top: 24px;
+
+  font-family: var(--mono);
+
+  font-size: 7px;
+
+  line-height: 1;
+
+  letter-spacing: 0.05em;
+
+  text-transform: uppercase;
+}
+
+
+.note-entry-tags span:not(:last-child)::after {
+  content: " /";
+}
+
+
+
+/* ==========================================================
+   MOBILE
+========================================================== */
+
+@media (max-width: 700px) {
+
+  .note-entry {
+    padding-bottom: 45px;
+  }
+
+
+  .note-byline,
+  .note-context-row,
+  .note-source-row {
+    grid-template-columns:
+      80px
+      minmax(0, 1fr);
+
+    gap: 12px;
+  }
+
+
+  .note-type-quote .note-entry-body {
+    font-size: 16px;
+  }
+
+}
