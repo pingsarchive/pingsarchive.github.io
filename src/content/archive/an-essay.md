@@ -12,9 +12,31 @@ archiveDescription: Bianca Censori’s refusal of the interview as a fixed form.
   response to an interview request from POSTPOSTPOST.
 tags:
   - essays
-sourceName: An essay by Bianca Censori
+  - bianca censori
+  - interviews
+sourceName: Welcome Magazine
 sourceUrl: https://www.welcomejpeg.com/p/re-your-request-for-an-interview
 featured: true
 favorite: false
 private: false
+coverType: image
+gallery:
+  - image: /images/archive/screenshot-2026-09-02-at-15512-pm.png
+    caption: snapshot of essay
+    credit: Bianca Censori / Welcome Magazine
+    sourceUrl: https://www.welcomejpeg.com/p/re-your-request-for-an-interview
+  - image: /images/archive/screenshot-2026-09-02-at-15659-pm.png
+    caption: snapshot of essay
+    credit: Bianca Censori / Welcome Magazine
+    sourceUrl: https://www.welcomejpeg.com/p/re-your-request-for-an-interview
+  - image: /images/archive/screenshot-2026-09-02-at-15753-pm.png
+    caption: snapshot of essay
+    credit: Bianca Censori / Welcome Magazine
+    sourceUrl: https://www.welcomejpeg.com/p/re-your-request-for-an-interview
+kind: essay / artist statement / refusal of interview
+reason: the idea that identity is not fixed, and that attempts to explain or
+  summarize a person can flatten something that is constantly changing
+collections:
+  - essays
+  - interviews
 ---
