@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0003"
 title: Louis Vuitton F/W 1999 Campaign
 dateFound: 2026-09-02
 originalDate: Fall/Winter 1999
