@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0007"
 title: Untitled
 dateFound: 2026-09-02
 originalDate: "1969"
