@@ -70,8 +70,6 @@ tags:
   - dutch design
 sourceName: "Designboom — “Peter van der Jagt + Erik Jan Kwakkel + Arnout Visser: DTILE”"
 sourceUrl: https://www.designboom.com/design/peter-van-der-jagt-erik-jan-kwakkel-arnout-visser-dtile/
-attachments:
-  - {}
 featured: false
 favorite: false
 private: false
