@@ -25,11 +25,11 @@ gallery:
     caption: snapshot of essay
     credit: Bianca Censori / Welcome Magazine
     sourceUrl: https://www.welcomejpeg.com/p/re-your-request-for-an-interview
-  - image: /images/archive/screenshot-2026-09-02-at-15659-pm.png
+  - image: /images/archive/screenshot-2026-09-02-at-20100-pm.png
     caption: snapshot of essay
     credit: Bianca Censori / Welcome Magazine
     sourceUrl: https://www.welcomejpeg.com/p/re-your-request-for-an-interview
-  - image: /images/archive/screenshot-2026-09-02-at-15753-pm.png
+  - image: /images/archive/screenshot-2026-09-02-at-20138-pm.png
     caption: snapshot of essay
     credit: Bianca Censori / Welcome Magazine
     sourceUrl: https://www.welcomejpeg.com/p/re-your-request-for-an-interview
