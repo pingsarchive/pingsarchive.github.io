@@ -1,15 +1,19 @@
 /* ==========================================================
    PING'S ARCHIVE — MASONRY
    ----------------------------------------------------------
+   Stable Pinterest-style packing.
+
    Handles:
    - homepage masonry
-   - archive grid masonry
-   - images
-   - GIFs
-   - video / loop media
-   - responsive resizing
-   - grid/index switching
-   - Astro page swaps if enabled later
+   - archive masonry
+   - images / GIFs
+   - video / MP4 loops
+   - fonts
+   - resizing
+   - grid / index switching
+
+   The grid stays hidden only during its FIRST measurement,
+   then appears already packed.
 ========================================================== */
 
 
@@ -17,12 +21,15 @@ const observedCards = new WeakSet();
 const observedMedia = new WeakSet();
 const observedGrids = new WeakSet();
 
+const preparingGrids = new WeakSet();
+const revealedGrids = new WeakSet();
+
 let masonryFrame = null;
 
 
 
 /* ==========================================================
-   FIND ACTIVE MASONRY GRIDS
+   FIND MASONRY GRIDS
 ========================================================== */
 
 function getMasonryGrids() {
@@ -38,15 +45,15 @@ function getMasonryGrids() {
 
 
 /* ==========================================================
-   SIZE ONE ITEM
+   SIZE ONE CARD
 ========================================================== */
 
 function resizeMasonryItem(item, grid) {
 
   /*
-    Reset before measuring so an old span
-    never contaminates the new measurement.
+    Clear the previous row span before measuring.
   */
+
   item.style.gridRowEnd = "auto";
 
 
@@ -138,7 +145,7 @@ function resizeMasonryGrid(grid) {
 
 
 /* ==========================================================
-   UPDATE EVERYTHING
+   NORMAL RECALCULATION
 ========================================================== */
 
 function updateMasonryNow() {
@@ -146,50 +153,32 @@ function updateMasonryNow() {
   masonryFrame = null;
 
 
-  const grids =
-    getMasonryGrids();
+  getMasonryGrids().forEach(
+    (grid) => {
 
+      resizeMasonryGrid(grid);
 
-  grids.forEach((grid) => {
-
-    resizeMasonryGrid(grid);
-
-    /*
-      Do not reveal the masonry until its
-      first correct layout has been calculated.
-    */
-    grid.classList.add(
-      "masonry-ready"
-    );
-
-  });
+    }
+  );
 
 }
 
 
 
-/*
-  Schedule instead of recalculating repeatedly
-  in the same browser frame.
-*/
-
 function scheduleMasonry() {
 
   if (masonryFrame !== null) {
+
     cancelAnimationFrame(
       masonryFrame
     );
+
   }
 
 
   masonryFrame =
     requestAnimationFrame(
       () => {
-
-        /*
-          Two frames gives the browser time to
-          complete layout before measuring.
-        */
 
         masonryFrame =
           requestAnimationFrame(
@@ -204,7 +193,231 @@ function scheduleMasonry() {
 
 
 /* ==========================================================
-   MEDIA
+   WAIT FOR MEDIA
+========================================================== */
+
+function waitForImage(image) {
+
+  return new Promise((resolve) => {
+
+
+    const finish = () => {
+
+      /*
+        decode() waits for the browser to actually
+        have the image ready to paint.
+      */
+
+      if (
+        typeof image.decode === "function"
+      ) {
+
+        image.decode()
+          .catch(() => {})
+          .finally(resolve);
+
+      } else {
+
+        resolve();
+
+      }
+
+    };
+
+
+    if (image.complete) {
+
+      finish();
+      return;
+
+    }
+
+
+    image.addEventListener(
+      "load",
+      finish,
+      { once: true }
+    );
+
+
+    image.addEventListener(
+      "error",
+      resolve,
+      { once: true }
+    );
+
+  });
+
+}
+
+
+
+function waitForVideo(video) {
+
+  return new Promise((resolve) => {
+
+
+    /*
+      Metadata is enough for the browser to know
+      the video's intrinsic dimensions.
+    */
+
+    if (video.readyState >= 1) {
+
+      resolve();
+      return;
+
+    }
+
+
+    video.addEventListener(
+      "loadedmetadata",
+      resolve,
+      { once: true }
+    );
+
+
+    video.addEventListener(
+      "error",
+      resolve,
+      { once: true }
+    );
+
+  });
+
+}
+
+
+
+function waitForGridMedia(grid) {
+
+  const media =
+    Array.from(
+      grid.querySelectorAll(
+        "img, video"
+      )
+    );
+
+
+  return Promise.all(
+
+    media.map((item) => {
+
+      if (
+        item instanceof HTMLImageElement
+      ) {
+
+        return waitForImage(item);
+
+      }
+
+
+      if (
+        item instanceof HTMLVideoElement
+      ) {
+
+        return waitForVideo(item);
+
+      }
+
+
+      return Promise.resolve();
+
+    })
+
+  );
+
+}
+
+
+
+/* ==========================================================
+   FIRST REVEAL
+
+   This is the twitch reduction.
+
+   On first page load:
+   1. wait for intrinsic media sizes
+   2. wait for fonts
+   3. calculate masonry
+   4. allow one browser layout frame
+   5. calculate once more
+   6. reveal
+========================================================== */
+
+async function prepareGrid(grid) {
+
+  if (
+    revealedGrids.has(grid) ||
+    preparingGrids.has(grid)
+  ) {
+
+    return;
+
+  }
+
+
+  preparingGrids.add(grid);
+
+
+  const fontsReady =
+    document.fonts?.ready ||
+    Promise.resolve();
+
+
+  await Promise.all([
+
+    waitForGridMedia(grid),
+
+    fontsReady,
+
+  ]);
+
+
+  /*
+    First measurement.
+  */
+
+  resizeMasonryGrid(grid);
+
+
+  /*
+    Let the browser commit that geometry.
+  */
+
+  requestAnimationFrame(
+    () => {
+
+      /*
+        Final measurement before anything
+        becomes visible.
+      */
+
+      resizeMasonryGrid(grid);
+
+
+      requestAnimationFrame(
+        () => {
+
+          grid.classList.add(
+            "masonry-ready"
+          );
+
+
+          revealedGrids.add(grid);
+
+        }
+      );
+
+    }
+  );
+
+}
+
+
+
+/* ==========================================================
+   MEDIA OBSERVATION AFTER INITIAL LOAD
 ========================================================== */
 
 function observeMedia(media) {
@@ -212,7 +425,9 @@ function observeMedia(media) {
   if (
     observedMedia.has(media)
   ) {
+
     return;
+
   }
 
 
@@ -226,38 +441,26 @@ function observeMedia(media) {
   };
 
 
-  /*
-    IMAGES / GIFS
-  */
-
   if (
     media instanceof HTMLImageElement
   ) {
 
-    if (!media.complete) {
+    media.addEventListener(
+      "load",
+      refresh
+    );
 
-      media.addEventListener(
-        "load",
-        refresh,
-        { once: true }
-      );
 
-      media.addEventListener(
-        "error",
-        refresh,
-        { once: true }
-      );
+    media.addEventListener(
+      "error",
+      refresh
+    );
 
-    }
 
     return;
 
   }
 
-
-  /*
-    VIDEO / MP4 LOOPS
-  */
 
   if (
     media instanceof HTMLVideoElement
@@ -268,25 +471,17 @@ function observeMedia(media) {
       refresh
     );
 
+
     media.addEventListener(
       "loadeddata",
       refresh
     );
 
-    media.addEventListener(
-      "canplay",
-      refresh
-    );
 
     return;
 
   }
 
-
-  /*
-    AUDIO can alter detail-page geometry,
-    though it normally isn't inside masonry.
-  */
 
   if (
     media instanceof HTMLAudioElement
@@ -304,7 +499,7 @@ function observeMedia(media) {
 
 
 /* ==========================================================
-   RESIZE OBSERVER
+   CARD RESIZE OBSERVER
 ========================================================== */
 
 const cardResizeObserver =
@@ -325,7 +520,9 @@ function observeCard(card) {
   if (
     observedCards.has(card)
   ) {
+
     return;
+
   }
 
 
@@ -351,9 +548,6 @@ function observeCard(card) {
 
 /* ==========================================================
    GRID OBSERVER
-
-   Watches the archive switching between
-   grid and index views.
 ========================================================== */
 
 const gridMutationObserver =
@@ -374,7 +568,9 @@ function observeGrid(grid) {
   if (
     observedGrids.has(grid)
   ) {
+
     return;
+
   }
 
 
@@ -385,12 +581,15 @@ function observeGrid(grid) {
     grid,
     {
       attributes: true,
+
       attributeFilter: [
         "data-view",
         "class"
       ],
+
       childList: true,
-      subtree: false
+
+      subtree: false,
     }
   );
 
@@ -418,9 +617,20 @@ function initializeMasonry() {
 
 
   grids.forEach(
-    observeGrid
+    (grid) => {
+
+      observeGrid(grid);
+
+      prepareGrid(grid);
+
+    }
   );
 
+
+  /*
+    Also observe media that might sit inside
+    the masonry but outside an observed card.
+  */
 
   document
     .querySelectorAll(
@@ -434,23 +644,21 @@ function initializeMasonry() {
     );
 
 
-  scheduleMasonry();
-
-
   /*
-    A second delayed pass catches layout changes
-    caused by fonts / media / browser rendering.
+    Later passes handle anything dynamic,
+    but by this point the grid is already
+    correctly revealed.
   */
 
   setTimeout(
     scheduleMasonry,
-    80
+    150
   );
 
 
   setTimeout(
     scheduleMasonry,
-    250
+    500
   );
 
 }
@@ -479,11 +687,6 @@ window.addEventListener(
 );
 
 
-/*
-  These do nothing harmful during normal navigation,
-  but prepare masonry for Astro ClientRouter later.
-*/
-
 document.addEventListener(
   "astro:page-load",
   initializeMasonry
@@ -494,23 +697,6 @@ document.addEventListener(
   "astro:after-swap",
   initializeMasonry
 );
-
-
-
-/* ==========================================================
-   FONT LOADING
-========================================================== */
-
-if (
-  document.fonts &&
-  document.fonts.ready
-) {
-
-  document.fonts.ready.then(
-    scheduleMasonry
-  );
-
-}
 
 
 
