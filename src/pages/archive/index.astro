@@ -538,14 +538,6 @@ const sourceTypes =
             oldest added
           </option>
 
-          <option value="found-newest">
-            date found — newest
-          </option>
-
-          <option value="found-oldest">
-            date found — oldest
-          </option>
-
           <option value="az">
             a–z
           </option>
@@ -1709,42 +1701,6 @@ const sourceTypes =
           Number(
             b.dataset.number || "0"
           )
-        );
-
-      }
-
-
-      if (
-        selected ===
-        "found-newest"
-      ) {
-
-        return (
-          new Date(
-            b.dataset.dateFound || ""
-          ).getTime()
-          -
-          new Date(
-            a.dataset.dateFound || ""
-          ).getTime()
-        );
-
-      }
-
-
-      if (
-        selected ===
-        "found-oldest"
-      ) {
-
-        return (
-          new Date(
-            a.dataset.dateFound || ""
-          ).getTime()
-          -
-          new Date(
-            b.dataset.dateFound || ""
-          ).getTime()
         );
 
       }
