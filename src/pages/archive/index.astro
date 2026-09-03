@@ -4,106 +4,422 @@ import ArchiveMedia from "../../components/ArchiveMedia.astro";
 import { getCollection } from "astro:content";
 
 
+/* ==========================================================
+   ARCHIVE
+========================================================== */
+
 const items = (
   await getCollection(
     "archive",
     ({ data }) => !data.private
   )
-).sort(
-  (a, b) =>
-    b.data.dateFound.getTime() -
-    a.data.dateFound.getTime()
-);
+).sort((a, b) => {
+
+  const aNumber =
+    Number.parseInt(
+      a.data.archiveNumber || "0",
+      10
+    );
+
+  const bNumber =
+    Number.parseInt(
+      b.data.archiveNumber || "0",
+      10
+    );
+
+  return bNumber - aNumber;
+
+});
 
 
-/* =========================================
+
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+function uniqueSorted(
+  values: Array<string | undefined>
+) {
+
+  return Array.from(
+    new Set(
+      values
+        .filter(
+          (value): value is string =>
+            Boolean(value?.trim())
+        )
+        .map(
+          (value) => value.trim()
+        )
+    )
+  ).sort(
+    (a, b) =>
+      a.localeCompare(b)
+  );
+
+}
+
+
+function creatorNames(item: any) {
+
+  if (
+    item.data.creators?.length
+  ) {
+
+    return item.data.creators
+      .map(
+        (creator: any) =>
+          creator.name
+      )
+      .filter(Boolean);
+
+  }
+
+  return item.data.creator
+    ? [item.data.creator]
+    : [];
+
+}
+
+
+function creatorSearchValues(item: any) {
+
+  const modern =
+    item.data.creators?.flatMap(
+      (creator: any) => [
+        creator.name,
+        creator.role,
+      ]
+    ) || [];
+
+  return [
+    ...modern,
+    item.data.creator,
+  ].filter(Boolean);
+
+}
+
+
+function locationsFor(item: any) {
+
+  if (
+    item.data.locations?.length
+  ) {
+    return item.data.locations;
+  }
+
+  return [
+    item.data.location,
+    item.data.venue,
+    item.data.neighborhood,
+    item.data.city,
+    item.data.region,
+    item.data.country,
+  ].filter(Boolean);
+
+}
+
+
+function primaryTypeFor(item: any) {
+
+  return (
+    item.data.primaryObjectType ||
+    item.data.kind ||
+    ""
+  );
+
+}
+
+
+function originalYearFor(item: any) {
+
+  const structuredYear =
+    item.data.originalDateDetails
+      ?.year;
+
+  if (
+    typeof structuredYear ===
+    "number"
+  ) {
+    return structuredYear;
+  }
+
+
+  const legacy =
+    item.data.originalDate || "";
+
+
+  const match =
+    String(legacy).match(
+      /\b(1[0-9]{3}|20[0-9]{2}|21[0-9]{2})\b/
+    );
+
+
+  return match
+    ? Number(match[1])
+    : undefined;
+
+}
+
+
+function decadeFor(
+  year?: number
+) {
+
+  if (!year) {
+    return "";
+  }
+
+  return (
+    `${Math.floor(year / 10) * 10}s`
+  );
+
+}
+
+
+function ordinal(
+  value: number
+) {
+
+  const remainder100 =
+    value % 100;
+
+  if (
+    remainder100 >= 11 &&
+    remainder100 <= 13
+  ) {
+    return `${value}th`;
+  }
+
+  switch (value % 10) {
+
+    case 1:
+      return `${value}st`;
+
+    case 2:
+      return `${value}nd`;
+
+    case 3:
+      return `${value}rd`;
+
+    default:
+      return `${value}th`;
+
+  }
+
+}
+
+
+function centuryFor(
+  year?: number
+) {
+
+  if (!year) {
+    return "";
+  }
+
+  return (
+    `${ordinal(
+      Math.ceil(year / 100)
+    )} century`
+  );
+
+}
+
+
+function originalDateSearchValues(
+  item: any
+) {
+
+  const details =
+    item.data.originalDateDetails;
+
+
+  const year =
+    originalYearFor(item);
+
+
+  return [
+
+    item.data.originalDate,
+
+    details?.year,
+    details?.month,
+    details?.day,
+    details?.season,
+    details?.timeOfDay,
+    details?.qualifier,
+    details?.endYear,
+    details?.eraLabel,
+    details?.dateNote,
+
+    year,
+    decadeFor(year),
+    centuryFor(year),
+
+  ].filter(Boolean);
+
+}
+
+
+function sourceSearchValues(
+  item: any
+) {
+
+  return [
+
+    item.data.primarySource?.type,
+    item.data.primarySource?.name,
+    item.data.primarySource?.url,
+
+    item.data.discovery?.type,
+    item.data.discovery?.name,
+    item.data.discovery?.url,
+
+    item.data.sourceName,
+    item.data.sourceUrl,
+
+  ].filter(Boolean);
+
+}
+
+
+function additionalMediaSearchValues(
+  item: any
+) {
+
+  const modern =
+    item.data.additionalMedia
+      ?.flatMap(
+        (media: any) => [
+          media.mediaType,
+          media.caption,
+          media.credit,
+          media.sourceUrl,
+        ]
+      ) || [];
+
+
+  const legacyGallery =
+    item.data.gallery
+      ?.flatMap(
+        (media: any) => [
+          media.caption,
+          media.credit,
+          media.sourceUrl,
+        ]
+      ) || [];
+
+
+  const legacyAttachments =
+    item.data.attachments
+      ?.flatMap(
+        (attachment: any) => [
+          attachment.title,
+        ]
+      ) || [];
+
+
+  return [
+    ...modern,
+    ...legacyGallery,
+    ...legacyAttachments,
+  ].filter(Boolean);
+
+}
+
+
+
+/* ==========================================================
    AUTOMATIC FILTER OPTIONS
-========================================= */
+========================================================== */
 
-const years = Array.from(
-  new Set(
-    items.map((item) =>
-      String(item.data.dateFound.getFullYear())
-    )
-  )
-).sort((a, b) => Number(b) - Number(a));
-
-
-const months = Array.from(
-  new Set(
-    items.map((item) =>
-      item.data.dateFound.toLocaleDateString(
-        "en-US",
-        { month: "long" }
-      )
-    )
-  )
-);
-
-
-const weekdays = Array.from(
-  new Set(
-    items.map((item) =>
-      item.data.dateFound.toLocaleDateString(
-        "en-US",
-        { weekday: "long" }
-      )
-    )
-  )
-);
-
-
-const countries = Array.from(
-  new Set(
-    items
-      .map((item) => item.data.country)
-      .filter(Boolean)
-  )
-).sort();
-
-
-const cities = Array.from(
-  new Set(
-    items
-      .map((item) => item.data.city)
-      .filter(Boolean)
-  )
-).sort();
-
-
-const venues = Array.from(
-  new Set(
-    items
-      .map((item) => item.data.venue)
-      .filter(Boolean)
-  )
-).sort();
-
-
-const collections = Array.from(
-  new Set(
+const objectTypes =
+  uniqueSorted(
     items.flatMap(
-      (item) => item.data.collections
+      (item) => {
+
+        const primary =
+          primaryTypeFor(item);
+
+        return [
+          primary,
+          ...(item.data
+            .secondaryObjectTypes || []),
+        ];
+
+      }
     )
-  )
-).sort();
+  );
 
 
-const kinds = Array.from(
-  new Set(
-    items
-      .map((item) => item.data.kind)
-      .filter(Boolean)
-  )
-).sort();
+const creators =
+  uniqueSorted(
+    items.flatMap(
+      (item) =>
+        creatorNames(item)
+    )
+  );
+
+
+const originalPeriods =
+  Array.from(
+    new Set(
+      items
+        .map(
+          (item) =>
+            decadeFor(
+              originalYearFor(item)
+            )
+        )
+        .filter(Boolean)
+    )
+  ).sort(
+    (a, b) =>
+      Number.parseInt(b, 10) -
+      Number.parseInt(a, 10)
+  );
+
+
+const themes =
+  uniqueSorted(
+    items.flatMap(
+      (item) =>
+        item.data.themes || []
+    )
+  );
+
+
+const colors =
+  uniqueSorted(
+    items.flatMap(
+      (item) =>
+        item.data.colors || []
+    )
+  );
+
+
+const sourceTypes =
+  uniqueSorted(
+    items.flatMap(
+      (item) => [
+
+        item.data.primarySource?.type,
+
+        item.data.discovery?.type,
+
+      ]
+    )
+  );
+
 ---
 
 <BaseLayout title="archive — ping's archive">
 
 
-  <!-- =========================================
+  <!-- ======================================================
        ARCHIVE HEADING
-  ========================================== -->
+  ======================================================= -->
 
   <section class="page-heading archive-heading">
 
@@ -127,7 +443,11 @@ const kinds = Array.from(
       </span>
 
       <span class="archive-total-label">
-        {items.length === 1 ? "finding" : "findings"}
+        {
+          items.length === 1
+            ? "finding"
+            : "findings"
+        }
       </span>
 
     </div>
@@ -136,9 +456,9 @@ const kinds = Array.from(
 
 
 
-  <!-- =========================================
+  <!-- ======================================================
        SEARCH / FILTERS
-  ========================================== -->
+  ======================================================= -->
 
   <section class="archive-toolbar">
 
@@ -152,7 +472,8 @@ const kinds = Array.from(
       <input
         id="archive-search"
         type="search"
-        placeholder="search the archive..."
+        placeholder="search title, creator, material, theme, place, source..."
+        autocomplete="off"
         disabled={items.length === 0}
       />
 
@@ -162,6 +483,8 @@ const kinds = Array.from(
 
     <div class="archive-toolbar-row">
 
+
+      <!-- VIEW -->
 
       <div class="view-control">
 
@@ -191,6 +514,8 @@ const kinds = Array.from(
 
 
 
+      <!-- SORT -->
+
       <div class="sort-control">
 
         <label
@@ -205,12 +530,20 @@ const kinds = Array.from(
           disabled={items.length === 0}
         >
 
-          <option value="newest">
-            newest
+          <option value="newest-added">
+            newest added
           </option>
 
-          <option value="oldest">
-            oldest
+          <option value="oldest-added">
+            oldest added
+          </option>
+
+          <option value="found-newest">
+            date found — newest
+          </option>
+
+          <option value="found-oldest">
+            date found — oldest
           </option>
 
           <option value="az">
@@ -230,7 +563,9 @@ const kinds = Array.from(
 
 
 
-    <!-- COLLAPSED BY DEFAULT -->
+    <!-- ====================================================
+         FILTERS
+    ===================================================== -->
 
     <details class="archive-filters">
 
@@ -242,36 +577,43 @@ const kinds = Array.from(
       <div class="archive-filter-groups">
 
 
-        <!-- DATE -->
-
         <div class="filter-group">
 
           <span class="filter-group-title">
-            date
+            browse
           </span>
 
 
           <div class="filter-grid">
 
 
+            <!-- OBJECT TYPE -->
+
             <div class="filter-field">
 
-              <label for="filter-year">
-                year
+              <label for="filter-object-type">
+                object type
               </label>
 
-              <select id="filter-year">
+              <select
+                id="filter-object-type"
+                disabled={objectTypes.length === 0}
+              >
 
                 <option value="all">
                   all
                 </option>
 
                 {
-                  years.map((year) => (
-                    <option value={year}>
-                      {year}
-                    </option>
-                  ))
+                  objectTypes.map(
+                    (value) => (
+
+                      <option value={value}>
+                        {value}
+                      </option>
+
+                    )
+                  )
                 }
 
               </select>
@@ -280,24 +622,33 @@ const kinds = Array.from(
 
 
 
+            <!-- CREATOR -->
+
             <div class="filter-field">
 
-              <label for="filter-month">
-                month
+              <label for="filter-creator">
+                creator
               </label>
 
-              <select id="filter-month">
+              <select
+                id="filter-creator"
+                disabled={creators.length === 0}
+              >
 
                 <option value="all">
                   all
                 </option>
 
                 {
-                  months.map((month) => (
-                    <option value={month}>
-                      {month}
-                    </option>
-                  ))
+                  creators.map(
+                    (value) => (
+
+                      <option value={value}>
+                        {value}
+                      </option>
+
+                    )
+                  )
                 }
 
               </select>
@@ -306,24 +657,142 @@ const kinds = Array.from(
 
 
 
+            <!-- ORIGINAL PERIOD -->
+
             <div class="filter-field">
 
-              <label for="filter-weekday">
-                day
+              <label for="filter-period">
+                original period
               </label>
 
-              <select id="filter-weekday">
+              <select
+                id="filter-period"
+                disabled={
+                  originalPeriods.length === 0
+                }
+              >
 
                 <option value="all">
                   all
                 </option>
 
                 {
-                  weekdays.map((weekday) => (
-                    <option value={weekday}>
-                      {weekday}
-                    </option>
-                  ))
+                  originalPeriods.map(
+                    (value) => (
+
+                      <option value={value}>
+                        {value}
+                      </option>
+
+                    )
+                  )
+                }
+
+              </select>
+
+            </div>
+
+
+
+            <!-- THEME -->
+
+            <div class="filter-field">
+
+              <label for="filter-theme">
+                theme / concept
+              </label>
+
+              <select
+                id="filter-theme"
+                disabled={themes.length === 0}
+              >
+
+                <option value="all">
+                  all
+                </option>
+
+                {
+                  themes.map(
+                    (value) => (
+
+                      <option value={value}>
+                        {value}
+                      </option>
+
+                    )
+                  )
+                }
+
+              </select>
+
+            </div>
+
+
+
+            <!-- COLOR -->
+
+            <div class="filter-field">
+
+              <label for="filter-color">
+                color
+              </label>
+
+              <select
+                id="filter-color"
+                disabled={colors.length === 0}
+              >
+
+                <option value="all">
+                  all
+                </option>
+
+                {
+                  colors.map(
+                    (value) => (
+
+                      <option value={value}>
+                        {value}
+                      </option>
+
+                    )
+                  )
+                }
+
+              </select>
+
+            </div>
+
+
+
+            <!-- SOURCE / DISCOVERY -->
+
+            <div class="filter-field">
+
+              <label for="filter-source-type">
+                source / discovery
+              </label>
+
+              <select
+                id="filter-source-type"
+                disabled={
+                  sourceTypes.length === 0
+                }
+              >
+
+                <option value="all">
+                  all
+                </option>
+
+                {
+                  sourceTypes.map(
+                    (value) => (
+
+                      <option value={value}>
+                        {value}
+                      </option>
+
+                    )
+                  )
                 }
 
               </select>
@@ -333,191 +802,15 @@ const kinds = Array.from(
 
           </div>
 
-        </div>
 
+          <button
+            id="archive-clear"
+            class="view-button"
+            type="button"
+          >
+            clear search + filters
+          </button>
 
-
-        <!-- PLACE -->
-
-        <div class="filter-group">
-
-          <span class="filter-group-title">
-            place
-          </span>
-
-
-          <div class="filter-grid">
-
-
-            <div class="filter-field">
-
-              <label for="filter-country">
-                country
-              </label>
-
-              <select id="filter-country">
-
-                <option value="all">
-                  all
-                </option>
-
-                {
-                  countries.map((country) => (
-                    <option value={country}>
-                      {country}
-                    </option>
-                  ))
-                }
-
-              </select>
-
-            </div>
-
-
-
-            <div class="filter-field">
-
-              <label for="filter-city">
-                city
-              </label>
-
-              <select id="filter-city">
-
-                <option value="all">
-                  all
-                </option>
-
-                {
-                  cities.map((city) => (
-                    <option value={city}>
-                      {city}
-                    </option>
-                  ))
-                }
-
-              </select>
-
-            </div>
-
-
-
-            <div class="filter-field">
-
-              <label for="filter-venue">
-                venue
-              </label>
-
-              <select id="filter-venue">
-
-                <option value="all">
-                  all
-                </option>
-
-                {
-                  venues.map((venue) => (
-                    <option value={venue}>
-                      {venue}
-                    </option>
-                  ))
-                }
-
-              </select>
-
-            </div>
-
-
-          </div>
-
-        </div>
-
-
-
-        <!-- ARCHIVE -->
-
-        <div class="filter-group">
-
-          <span class="filter-group-title">
-            archive
-          </span>
-
-
-          <div class="filter-grid">
-
-
-            <div class="filter-field">
-
-              <label for="filter-collection">
-                collection
-              </label>
-
-              <select id="filter-collection">
-
-                <option value="all">
-                  all
-                </option>
-
-                {
-                  collections.map((collection) => (
-                    <option value={collection}>
-                      {collection}
-                    </option>
-                  ))
-                }
-
-              </select>
-
-            </div>
-
-
-
-            <div class="filter-field">
-
-              <label for="filter-kind">
-                what is it?
-              </label>
-
-              <select id="filter-kind">
-
-                <option value="all">
-                  all
-                </option>
-
-                {
-                  kinds.map((kind) => (
-                    <option value={kind}>
-                      {kind}
-                    </option>
-                  ))
-                }
-
-              </select>
-
-            </div>
-
-
-
-            <div class="filter-field">
-
-              <label for="filter-favorite">
-                favorites
-              </label>
-
-              <select id="filter-favorite">
-
-                <option value="all">
-                  all
-                </option>
-
-                <option value="favorite">
-                  favorites only
-                </option>
-
-              </select>
-
-            </div>
-
-
-          </div>
 
         </div>
 
@@ -531,9 +824,9 @@ const kinds = Array.from(
 
 
 
-  <!-- =========================================
+  <!-- ======================================================
        FINDINGS
-  ========================================== -->
+  ======================================================= -->
 
   <section
     class="archive-results"
@@ -544,28 +837,226 @@ const kinds = Array.from(
     {
       items.map((item) => {
 
-        const date =
-          item.data.dateFound;
 
-        const year =
-          String(date.getFullYear());
-
-        const month =
-          date.toLocaleDateString(
-            "en-US",
-            { month: "long" }
-          );
-
-        const weekday =
-          date.toLocaleDateString(
-            "en-US",
-            { weekday: "long" }
-          );
-
+        /* --------------------------------------------------
+           BASIC VALUES
+        -------------------------------------------------- */
 
         const findingNumber =
           item.data.archiveNumber ||
           "----";
+
+
+        const numberValue =
+          Number.parseInt(
+            item.data.archiveNumber || "0",
+            10
+          );
+
+
+        const dateFound =
+          item.data.dateFound;
+
+
+        const foundYear =
+          String(
+            dateFound.getUTCFullYear()
+          );
+
+
+        const foundMonth =
+          dateFound.toLocaleDateString(
+            "en-US",
+            {
+              month: "long",
+              timeZone: "UTC",
+            }
+          );
+
+
+        const foundDay =
+          String(
+            dateFound.getUTCDate()
+          );
+
+
+        /* --------------------------------------------------
+           NEW + LEGACY METADATA
+        -------------------------------------------------- */
+
+        const itemCreators =
+          creatorNames(item);
+
+
+        const creatorValues =
+          creatorSearchValues(item);
+
+
+        const itemLocations =
+          locationsFor(item);
+
+
+        const primaryType =
+          primaryTypeFor(item);
+
+
+        const itemObjectTypes =
+          [
+            primaryType,
+            ...(item.data
+              .secondaryObjectTypes || []),
+          ].filter(Boolean);
+
+
+        const originalYear =
+          originalYearFor(item);
+
+
+        const originalDecade =
+          decadeFor(originalYear);
+
+
+        const originalCentury =
+          centuryFor(originalYear);
+
+
+        const itemSourceTypes =
+          [
+            item.data.primarySource?.type,
+            item.data.discovery?.type,
+          ].filter(Boolean);
+
+
+        /* --------------------------------------------------
+           UNIVERSAL SEARCH INDEX
+        -------------------------------------------------- */
+
+        const searchValues = [
+
+          /* SYSTEM */
+
+          item.data.archiveNumber,
+
+
+          /* TITLE */
+
+          item.data.title,
+
+
+          /* CREATOR */
+
+          ...creatorValues,
+
+
+          /* WRITING */
+
+          item.data.archiveDescription,
+          item.data.reason,
+          item.body,
+
+
+          /* DATE FOUND */
+
+          foundYear,
+          foundMonth,
+          foundDay,
+
+
+          /* ORIGINAL DATE */
+
+          ...originalDateSearchValues(item),
+
+
+          /* CLASSIFICATION */
+
+          primaryType,
+
+          ...(item.data
+            .secondaryObjectTypes || []),
+
+          ...(item.data.mediums || []),
+
+          ...(item.data.themes || []),
+
+
+          /* COLOR */
+
+          ...(item.data.colors || []),
+
+          item.data.colorNotes,
+
+
+          /* SERIES */
+
+          item.data.seriesProject,
+          item.data.bodyOfWork,
+
+
+          /* LOCATION */
+
+          ...itemLocations,
+
+
+          /* SOURCE / DISCOVERY */
+
+          ...sourceSearchValues(item),
+
+
+          /* MEDIA */
+
+          item.data.coverType,
+
+          ...additionalMediaSearchValues(
+            item
+          ),
+
+
+          /* TEMPORARY LEGACY SEARCH */
+
+          ...(item.data.tags || []),
+          ...(item.data.collections || []),
+
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+
+        const titleSearch =
+          item.data.title.toLowerCase();
+
+
+        const creatorSearch =
+          creatorValues
+            .join(" ")
+            .toLowerCase();
+
+
+        const classificationSearch =
+          [
+
+            ...itemObjectTypes,
+
+            ...(item.data.mediums || []),
+
+            ...(item.data.themes || []),
+
+            ...(item.data.colors || []),
+
+            ...itemLocations,
+
+          ]
+            .filter(Boolean)
+            .join(" ")
+            .toLowerCase();
+
+
+        /* --------------------------------------------------
+           CARD META
+        -------------------------------------------------- */
+
+        const cardLocation =
+          itemLocations[0] || "";
 
 
         return (
@@ -574,102 +1065,132 @@ const kinds = Array.from(
             href={`/archive/${item.id}/`}
             class="archive-entry"
 
+            data-number={
+              String(numberValue)
+            }
+
             data-title={
-              item.data.title.toLowerCase()
+              titleSearch
+            }
+
+            data-title-search={
+              titleSearch
+            }
+
+            data-creator-search={
+              creatorSearch
+            }
+
+            data-classification-search={
+              classificationSearch
             }
 
             data-search={
-              [
-                item.data.archiveNumber,
-                item.data.title,
-                item.data.creator,
-                item.data.archiveDescription,
-                item.data.location,
-                item.data.country,
-                item.data.region,
-                item.data.city,
-                item.data.neighborhood,
-                item.data.venue,
-                item.data.kind,
-                item.data.reason,
-                item.data.sourceName,
-
-                ...item.data.tags,
-                ...item.data.colors,
-                ...item.data.collections
-
-              ]
-                .filter(Boolean)
-                .join(" ")
-                .toLowerCase()
+              searchValues
             }
 
-            data-year={year}
-
-            data-month={
-              month.toLowerCase()
-            }
-
-            data-weekday={
-              weekday.toLowerCase()
-            }
-
-            data-country={
-              (item.data.country || "")
-                .toLowerCase()
-            }
-
-            data-city={
-              (item.data.city || "")
-                .toLowerCase()
-            }
-
-            data-venue={
-              (item.data.venue || "")
-                .toLowerCase()
-            }
-
-            data-kind={
-              (item.data.kind || "")
-                .toLowerCase()
-            }
-
-            data-collections={
-              item.data.collections
-                .map((value) =>
-                  value.toLowerCase()
+            data-object-types={
+              itemObjectTypes
+                .map(
+                  (value) =>
+                    String(value)
+                      .toLowerCase()
                 )
                 .join("|")
             }
 
-            data-favorite={
-              item.data.favorite
-                ? "true"
-                : "false"
+            data-creators={
+              itemCreators
+                .map(
+                  (value) =>
+                    String(value)
+                      .toLowerCase()
+                )
+                .join("|")
             }
 
-            data-date={
-              item.data.dateFound.toISOString()
+            data-periods={
+              [
+                originalYear
+                  ? String(originalYear)
+                  : "",
+
+                originalDecade,
+
+                originalCentury,
+              ]
+                .filter(Boolean)
+                .map(
+                  (value) =>
+                    String(value)
+                      .toLowerCase()
+                )
+                .join("|")
+            }
+
+            data-themes={
+              (item.data.themes || [])
+                .map(
+                  (value) =>
+                    value.toLowerCase()
+                )
+                .join("|")
+            }
+
+            data-colors={
+              (item.data.colors || [])
+                .map(
+                  (value) =>
+                    value.toLowerCase()
+                )
+                .join("|")
+            }
+
+            data-source-types={
+              itemSourceTypes
+                .map(
+                  (value) =>
+                    String(value)
+                      .toLowerCase()
+                )
+                .join("|")
+            }
+
+            data-date-found={
+              item.data.dateFound
+                .toISOString()
             }
           >
 
 
+            <!-- COVER -->
+
             <div class="archive-entry-image">
-  <ArchiveMedia
-    src={item.data.image}
-    coverType={item.data.coverType}
-    poster={item.data.videoPoster}
-    alt={
-      item.data.alt ||
-      item.data.title
-    }
-    title={item.data.title}
-    context="card"
-    loading="lazy"
-  />
-</div>
+
+              <ArchiveMedia
+                src={item.data.image}
+                coverType={
+                  item.data.coverType
+                }
+                poster={
+                  item.data.videoPoster
+                }
+                alt={
+                  item.data.alt ||
+                  item.data.title
+                }
+                title={
+                  item.data.title
+                }
+                context="card"
+                loading="lazy"
+              />
+
+            </div>
 
 
+
+            <!-- INFORMATION -->
 
             <div class="archive-entry-information">
 
@@ -688,12 +1209,8 @@ const kinds = Array.from(
 
                 {
                   [
-                    item.data.kind,
-
-                    item.data.city ||
-                    item.data.country ||
-                    item.data.location
-
+                    primaryType,
+                    cardLocation,
                   ]
                     .filter(Boolean)
                     .join(" / ")
@@ -704,19 +1221,22 @@ const kinds = Array.from(
 
               <time
                 datetime={
-                  item.data.dateFound.toISOString()
+                  item.data.dateFound
+                    .toISOString()
                 }
               >
 
                 {
-                  item.data.dateFound.toLocaleDateString(
-                    "en-US",
-                    {
-                      month: "short",
-                      day: "numeric",
-                      year: "numeric"
-                    }
-                  )
+                  item.data.dateFound
+                    .toLocaleDateString(
+                      "en-US",
+                      {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                        timeZone: "UTC",
+                      }
+                    )
                 }
 
               </time>
@@ -736,22 +1256,30 @@ const kinds = Array.from(
 
 
 
+  <!-- ======================================================
+       NO RESULTS
+  ======================================================= -->
+
   <div
     class="archive-no-results"
     data-no-results
     hidden
   >
-    no findings match these filters.
+    no findings match your search or filters.
   </div>
 
 
 
-  <!-- =========================================
-       FILTER / SORT / VIEW
-  ========================================== -->
+  <!-- ======================================================
+       SEARCH / FILTER / SORT / VIEW
+  ======================================================= -->
 
   <script>
 
+
+    /* ------------------------------------------------------
+       ELEMENTS
+    ------------------------------------------------------ */
 
     const archive =
       document.querySelector<HTMLElement>(
@@ -773,63 +1301,51 @@ const kinds = Array.from(
       );
 
 
-    const year =
+    const objectType =
       document.querySelector<HTMLSelectElement>(
-        "#filter-year"
+        "#filter-object-type"
       );
 
 
-    const month =
+    const creator =
       document.querySelector<HTMLSelectElement>(
-        "#filter-month"
+        "#filter-creator"
       );
 
 
-    const weekday =
+    const period =
       document.querySelector<HTMLSelectElement>(
-        "#filter-weekday"
+        "#filter-period"
       );
 
 
-    const country =
+    const theme =
       document.querySelector<HTMLSelectElement>(
-        "#filter-country"
+        "#filter-theme"
       );
 
 
-    const city =
+    const color =
       document.querySelector<HTMLSelectElement>(
-        "#filter-city"
+        "#filter-color"
       );
 
 
-    const venue =
+    const sourceType =
       document.querySelector<HTMLSelectElement>(
-        "#filter-venue"
-      );
-
-
-    const collection =
-      document.querySelector<HTMLSelectElement>(
-        "#filter-collection"
-      );
-
-
-    const kind =
-      document.querySelector<HTMLSelectElement>(
-        "#filter-kind"
-      );
-
-
-    const favorite =
-      document.querySelector<HTMLSelectElement>(
-        "#filter-favorite"
+        "#filter-source-type"
       );
 
 
     const sort =
       document.querySelector<HTMLSelectElement>(
         "#archive-sort"
+      );
+
+
+    const clear =
+      document.querySelector<HTMLButtonElement>(
+        "#archive-clear"
       );
 
 
@@ -840,56 +1356,525 @@ const kinds = Array.from(
 
 
 
-    function simpleMatch(
-      source: string | undefined,
-      selected: string
+    /* ------------------------------------------------------
+       SEARCH NORMALIZATION
+    ------------------------------------------------------ */
+
+    function normalizeText(
+      value: string
     ) {
 
-      if (selected === "all") {
-        return true;
-      }
+      return value
+        .toLowerCase()
 
+        /* Useful archive abbreviations */
 
-      return (
-        (source || "") ===
-        selected.toLowerCase()
-      );
+        .replace(/\bf\/w\b/g, "fw")
+        .replace(/\bs\/s\b/g, "ss")
+        .replace(/\bb&w\b/g, "bw")
+
+        .normalize("NFD")
+        .replace(
+          /[\u0300-\u036f]/g,
+          ""
+        )
+
+        .replace(
+          /[^a-z0-9]+/g,
+          " "
+        )
+
+        .replace(
+          /\s+/g,
+          " "
+        )
+
+        .trim();
 
     }
 
 
 
-    function listMatch(
-      source: string | undefined,
-      selected: string
+    /* ------------------------------------------------------
+       SYNONYM GROUPS
+    ------------------------------------------------------ */
+
+    const synonymGroups = [
+
+      [
+        "photo",
+        "photograph",
+        "photography",
+        "photographic",
+      ],
+
+      [
+        "gif",
+        "loop",
+        "animation",
+        "animated",
+      ],
+
+      [
+        "nyc",
+        "new york city",
+      ],
+
+      [
+        "bw",
+        "black and white",
+        "black white",
+      ],
+
+      [
+        "ceramic",
+        "ceramics",
+      ],
+
+      [
+        "fw",
+        "fall winter",
+      ],
+
+      [
+        "ss",
+        "spring summer",
+      ],
+
+      [
+        "movie",
+        "film",
+        "cinema",
+      ],
+
+      [
+        "audio",
+        "sound",
+        "recording",
+      ],
+
+      [
+        "twitter",
+        "x twitter",
+        "x com",
+      ],
+
+    ].map(
+      (group) =>
+        group.map(normalizeText)
+    );
+
+
+
+    function variantsForToken(
+      token: string
     ) {
 
-      if (selected === "all") {
-        return true;
+      const normalized =
+        normalizeText(token);
+
+
+      const group =
+        synonymGroups.find(
+          (values) =>
+            values.includes(normalized)
+        );
+
+
+      return group || [normalized];
+
+    }
+
+
+
+    function queryTokens() {
+
+      if (!search?.value) {
+        return [];
       }
 
 
-      return (source || "")
-        .split("|")
-        .includes(
-          selected.toLowerCase()
+      return normalizeText(
+        search.value
+      )
+        .split(" ")
+        .filter(Boolean);
+
+    }
+
+
+
+    function textMatchesToken(
+      source: string,
+      token: string
+    ) {
+
+      const normalizedSource =
+        normalizeText(source);
+
+
+      return variantsForToken(token)
+        .some(
+          (variant) =>
+            normalizedSource.includes(
+              variant
+            )
         );
 
     }
 
 
 
-    function applyFilters() {
+    /* ------------------------------------------------------
+       FILTER MATCHING
+    ------------------------------------------------------ */
+
+    function listMatch(
+      source: string | undefined,
+      selected: string | undefined
+    ) {
+
+      if (
+        !selected ||
+        selected === "all"
+      ) {
+        return true;
+      }
 
 
-      const query =
-        search?.value
-          .trim()
-          .toLowerCase() || "";
+      const wanted =
+        normalizeText(selected);
+
+
+      return (
+        source || ""
+      )
+        .split("|")
+        .map(normalizeText)
+        .includes(wanted);
+
+    }
+
+
+
+    function entryMatchesSearch(
+      entry: HTMLElement,
+      tokens: string[]
+    ) {
+
+      if (
+        tokens.length === 0
+      ) {
+        return true;
+      }
+
+
+      const fullSearch =
+        entry.dataset.search || "";
+
+
+      /*
+        Every query word must appear somewhere.
+
+        Example:
+        "blue rothko paper"
+
+        can match across three different metadata
+        fields.
+      */
+
+      return tokens.every(
+        (token) =>
+          textMatchesToken(
+            fullSearch,
+            token
+          )
+      );
+
+    }
+
+
+
+    /* ------------------------------------------------------
+       SEARCH RELEVANCE
+
+       Title > Creator > Classification > everything else.
+    ------------------------------------------------------ */
+
+    function relevanceScore(
+      entry: HTMLElement,
+      tokens: string[]
+    ) {
+
+      if (
+        tokens.length === 0
+      ) {
+        return 0;
+      }
+
+
+      const titleText =
+        entry.dataset.titleSearch || "";
+
+
+      const creatorText =
+        entry.dataset.creatorSearch || "";
+
+
+      const classificationText =
+        entry.dataset
+          .classificationSearch || "";
+
+
+      const fullText =
+        entry.dataset.search || "";
+
+
+      let score = 0;
+
+
+      tokens.forEach((token) => {
+
+        if (
+          textMatchesToken(
+            titleText,
+            token
+          )
+        ) {
+          score += 10;
+        }
+
+
+        if (
+          textMatchesToken(
+            creatorText,
+            token
+          )
+        ) {
+          score += 7;
+        }
+
+
+        if (
+          textMatchesToken(
+            classificationText,
+            token
+          )
+        ) {
+          score += 4;
+        }
+
+
+        if (
+          textMatchesToken(
+            fullText,
+            token
+          )
+        ) {
+          score += 1;
+        }
+
+      });
+
+
+      return score;
+
+    }
+
+
+
+    /* ------------------------------------------------------
+       STANDARD SORT
+    ------------------------------------------------------ */
+
+    function standardCompare(
+      a: HTMLElement,
+      b: HTMLElement
+    ) {
+
+      const selected =
+        sort?.value ||
+        "newest-added";
+
+
+      if (
+        selected ===
+        "oldest-added"
+      ) {
+
+        return (
+          Number(
+            a.dataset.number || "0"
+          )
+          -
+          Number(
+            b.dataset.number || "0"
+          )
+        );
+
+      }
+
+
+      if (
+        selected ===
+        "found-newest"
+      ) {
+
+        return (
+          new Date(
+            b.dataset.dateFound || ""
+          ).getTime()
+          -
+          new Date(
+            a.dataset.dateFound || ""
+          ).getTime()
+        );
+
+      }
+
+
+      if (
+        selected ===
+        "found-oldest"
+      ) {
+
+        return (
+          new Date(
+            a.dataset.dateFound || ""
+          ).getTime()
+          -
+          new Date(
+            b.dataset.dateFound || ""
+          ).getTime()
+        );
+
+      }
+
+
+      if (
+        selected === "az"
+      ) {
+
+        return (
+          a.dataset.title || ""
+        ).localeCompare(
+          b.dataset.title || ""
+        );
+
+      }
+
+
+      if (
+        selected === "za"
+      ) {
+
+        return (
+          b.dataset.title || ""
+        ).localeCompare(
+          a.dataset.title || ""
+        );
+
+      }
+
+
+      /*
+        DEFAULT:
+        newest added = highest permanent
+        Finding No.
+      */
+
+      return (
+        Number(
+          b.dataset.number || "0"
+        )
+        -
+        Number(
+          a.dataset.number || "0"
+        )
+      );
+
+    }
+
+
+
+    /* ------------------------------------------------------
+       REORDER
+    ------------------------------------------------------ */
+
+    function reorderEntries(
+      tokens: string[]
+    ) {
+
+      if (!archive) {
+        return;
+      }
+
+
+      const sorted =
+        [...entries];
+
+
+      sorted.sort((a, b) => {
+
+
+        /*
+          When searching, relevance gets first
+          priority.
+
+          The selected sort breaks ties.
+        */
+
+        if (
+          tokens.length > 0
+        ) {
+
+          const difference =
+            relevanceScore(
+              b,
+              tokens
+            )
+            -
+            relevanceScore(
+              a,
+              tokens
+            );
+
+
+          if (difference !== 0) {
+            return difference;
+          }
+
+        }
+
+
+        return standardCompare(
+          a,
+          b
+        );
+
+      });
+
+
+      sorted.forEach(
+        (entry) =>
+          archive.appendChild(entry)
+      );
+
+    }
+
+
+
+    /* ------------------------------------------------------
+       APPLY SEARCH + FILTERS
+    ------------------------------------------------------ */
+
+    function applyArchiveControls() {
+
+      const tokens =
+        queryTokens();
 
 
       let visible = 0;
-
 
 
       entries.forEach((entry) => {
@@ -897,98 +1882,51 @@ const kinds = Array.from(
 
         const show =
 
-          (
-            !query ||
-            (entry.dataset.search || "")
-              .includes(query)
+          entryMatchesSearch(
+            entry,
+            tokens
           )
 
           &&
 
-          (
-            !year ||
-            simpleMatch(
-              entry.dataset.year,
-              year.value
-            )
+          listMatch(
+            entry.dataset.objectTypes,
+            objectType?.value
           )
 
           &&
 
-          (
-            !month ||
-            simpleMatch(
-              entry.dataset.month,
-              month.value
-            )
+          listMatch(
+            entry.dataset.creators,
+            creator?.value
           )
 
           &&
 
-          (
-            !weekday ||
-            simpleMatch(
-              entry.dataset.weekday,
-              weekday.value
-            )
+          listMatch(
+            entry.dataset.periods,
+            period?.value
           )
 
           &&
 
-          (
-            !country ||
-            simpleMatch(
-              entry.dataset.country,
-              country.value
-            )
+          listMatch(
+            entry.dataset.themes,
+            theme?.value
           )
 
           &&
 
-          (
-            !city ||
-            simpleMatch(
-              entry.dataset.city,
-              city.value
-            )
+          listMatch(
+            entry.dataset.colors,
+            color?.value
           )
 
           &&
 
-          (
-            !venue ||
-            simpleMatch(
-              entry.dataset.venue,
-              venue.value
-            )
-          )
-
-          &&
-
-          (
-            !collection ||
-            listMatch(
-              entry.dataset.collections,
-              collection.value
-            )
-          )
-
-          &&
-
-          (
-            !kind ||
-            simpleMatch(
-              entry.dataset.kind,
-              kind.value
-            )
-          )
-
-          &&
-
-          (
-            !favorite ||
-            favorite.value === "all" ||
-            entry.dataset.favorite === "true"
+          listMatch(
+            entry.dataset.sourceTypes,
+            sourceType?.value
           );
 
 
@@ -1003,6 +1941,8 @@ const kinds = Array.from(
       });
 
 
+      reorderEntries(tokens);
+
 
       if (noResults) {
 
@@ -1016,118 +1956,80 @@ const kinds = Array.from(
 
 
 
+    /* ------------------------------------------------------
+       EVENTS
+    ------------------------------------------------------ */
+
+    search?.addEventListener(
+      "input",
+      applyArchiveControls
+    );
+
+
     [
-      search,
-      year,
-      month,
-      weekday,
-      country,
-      city,
-      venue,
-      collection,
-      kind,
-      favorite
+      objectType,
+      creator,
+      period,
+      theme,
+      color,
+      sourceType,
+      sort,
     ].forEach((control) => {
 
-
-      if (!control) {
-        return;
-      }
-
-
-      control.addEventListener(
-
-        control instanceof HTMLInputElement
-          ? "input"
-          : "change",
-
-        applyFilters
-
+      control?.addEventListener(
+        "change",
+        applyArchiveControls
       );
 
     });
 
 
 
-    sort?.addEventListener(
-      "change",
+    /* ------------------------------------------------------
+       CLEAR
+    ------------------------------------------------------ */
+
+    clear?.addEventListener(
+      "click",
       () => {
 
 
-        if (!archive) {
-          return;
+        if (search) {
+          search.value = "";
         }
 
 
-        const sorted =
-          [...entries];
+        [
+          objectType,
+          creator,
+          period,
+          theme,
+          color,
+          sourceType,
+        ].forEach((control) => {
 
-
-        sorted.sort((a, b) => {
-
-
-          if (sort.value === "oldest") {
-
-            return (
-              new Date(
-                a.dataset.date || ""
-              ).getTime()
-              -
-              new Date(
-                b.dataset.date || ""
-              ).getTime()
-            );
-
+          if (control) {
+            control.value = "all";
           }
-
-
-          if (sort.value === "az") {
-
-            return (
-              a.dataset.title || ""
-            ).localeCompare(
-              b.dataset.title || ""
-            );
-
-          }
-
-
-          if (sort.value === "za") {
-
-            return (
-              b.dataset.title || ""
-            ).localeCompare(
-              a.dataset.title || ""
-            );
-
-          }
-
-
-          return (
-            new Date(
-              b.dataset.date || ""
-            ).getTime()
-            -
-            new Date(
-              a.dataset.date || ""
-            ).getTime()
-          );
 
         });
 
 
+        if (sort) {
+          sort.value = "newest-added";
+        }
 
-        sorted.forEach((entry) => {
 
-          archive.appendChild(entry);
-
-        });
-
+        applyArchiveControls();
 
       }
     );
 
 
+
+    /* ------------------------------------------------------
+       GRID / INDEX VIEW
+    ------------------------------------------------------ */
 
     const viewButtons =
       document.querySelectorAll<HTMLButtonElement>(
@@ -1182,6 +2084,14 @@ const kinds = Array.from(
 
 
     });
+
+
+
+    /* ------------------------------------------------------
+       INITIAL STATE
+    ------------------------------------------------------ */
+
+    applyArchiveControls();
 
 
   </script>
