@@ -29,14 +29,20 @@ jobs:
       - name: Assign permanent finding numbers
         run: node src/scripts/assign-archive-numbers.mjs
 
+      - name: Assign permanent note numbers
+        run: node src/scripts/assign-note-numbers.mjs
 
-      - name: Save permanent finding numbers
+
+      - name: Save permanent content numbers
         run: |
           if ! git diff --quiet; then
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
             git add src/content/archive
-            git commit -m "assign permanent finding numbers"
+            if [ -d src/content/notes ]; then
+              git add src/content/notes
+            fi
+            git commit -m "assign permanent content numbers"
             git push
           fi
 

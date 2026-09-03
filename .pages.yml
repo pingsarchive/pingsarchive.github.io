@@ -784,6 +784,7 @@ content:
 
     view:
       fields:
+        - noteNumber
         - type
         - date
         - title
@@ -810,6 +811,21 @@ content:
 
     fields:
 
+      # ======================================================
+      # SYSTEM
+      # ======================================================
+
+      - name: noteNumber
+        label: Note No.
+        type: string
+        hidden: true
+        readonly: true
+
+
+      # ======================================================
+      # IDENTITY
+      # ======================================================
+
       - name: type
         label: Type
         type: select
@@ -819,88 +835,122 @@ content:
           placeholder: "Choose a note type"
 
           values:
-            - name: quote
-              label: Quote
+            - name: essay
+              label: Essay
             - name: note
               label: Note
-            - name: thought
-              label: Thought
-            - name: excerpt
-              label: Excerpt
-            - name: link
-              label: Link
-            - name: image
-              label: Image
-            - name: list
-              label: List
-            - name: reference
-              label: Reference
-            - name: question
-              label: Question
-            - name: idea
-              label: Idea
-            - name: observation
-              label: Observation
+            - name: quote
+              label: Quote
             - name: fragment
               label: Fragment
-            - name: other
-              label: Other
+            - name: journal
+              label: Journal
+            - name: research
+              label: Research
+            - name: draft
+              label: Draft
 
       - name: date
-        label: Date Saved
+        label: Date
         type: date
         required: true
+        description: "Date this note was written, recorded, or added to the archive."
 
       - name: title
         label: Title
         type: string
-        description: "Optional. Leave blank for quotes, fragments, images, quick thoughts, etc."
+        description: "Optional for quotes and fragments."
 
-      - name: author
-        label: Author / Creator
+      - name: subtitle
+        label: Subtitle
         type: string
-        description: "Optional. Person, artist, writer, designer, publication, account, etc."
+        description: "Optional secondary title or context."
 
-      - name: sourceName
-        label: Source
-        type: string
-        description: "Optional. Book, article, interview, website, film, publication, etc."
 
-      - name: sourceUrl
-        label: Source URL
-        type: string
-        description: "Optional. Link back to the original source."
+      # ======================================================
+      # WRITING
+      # ======================================================
 
-      - name: image
-        label: Image
-        type: image
-        description: "Optional. Use for screenshots, visual references, image notes, scans, etc."
-
+      - name: body
+        label: Content
+        type: rich-text
+        description: "Your essay, note, quote, fragment, journal entry, research, or draft."
         options:
+          format: markdown
           media: noteImages
+          switcher: true
 
-      - name: location
-        label: Location
-        type: string
-        description: "Optional. Useful for observations, places, events, or things you encountered in person."
 
-      - name: tags
-        label: Tags
+      # ======================================================
+      # CLASSIFICATION
+      # ======================================================
+
+      - name: topics
+        label: Topics / Concepts
         type: string
         list: true
-        description: "Optional. Add whatever tags become useful as your notes grow."
+        description: "Ideas, themes, or subjects connected to this note."
+
+      - name: people
+        label: People
+        type: string
+        list: true
+        description: "People mentioned, discussed, or referenced."
+
+      - name: worksReferenced
+        label: Works Referenced
+        type: string
+        list: true
+        description: "Books, essays, artworks, films, articles, posts, or other works referenced."
+
+      - name: places
+        label: Places
+        type: string
+        list: true
+        description: "Places connected to the writing."
+
+
+      # ======================================================
+      # QUOTE DETAILS
+      # ======================================================
+
+      - name: quoteAuthor
+        label: Quote Author
+        type: string
+        description: "Optional. Use for a saved quote."
+
+      - name: quoteSource
+        label: Quote Source
+        type: string
+        description: "Optional. Book, interview, article, speech, scripture, film, etc."
+
+      - name: quoteUrl
+        label: Quote Source URL
+        type: string
+        description: "Optional source link for the quote."
+
+
+      # ======================================================
+      # REFERENCES
+      # ======================================================
+
+      - name: references
+        label: References
+        type: string
+        list: true
+        description: "Optional sources, citations, links, or reading references."
+
+
+      # ======================================================
+      # WEBSITE
+      # ======================================================
 
       - name: featured
         label: Featured
         type: boolean
         default: false
 
-      - name: body
-        label: Content
-        type: rich-text
-        description: "Write as much or as little as you want."
-
-        options:
-          format: markdown
-          media: noteImages
-          switcher: true
+      - name: private
+        label: Keep Private
+        type: boolean
+        default: false

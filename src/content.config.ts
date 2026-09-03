@@ -460,21 +460,18 @@ const notes = defineCollection({
 
   schema: z.object({
 
+    noteNumber:
+      z.string().optional(),
+
     type:
       z.enum([
-        "quote",
+        "essay",
         "note",
-        "thought",
-        "excerpt",
-        "link",
-        "image",
-        "list",
-        "reference",
-        "question",
-        "idea",
-        "observation",
+        "quote",
         "fragment",
-        "other",
+        "journal",
+        "research",
+        "draft",
       ]).optional(),
 
     date:
@@ -482,6 +479,46 @@ const notes = defineCollection({
 
     title:
       z.string().optional(),
+
+    subtitle:
+      z.string().optional(),
+
+    topics:
+      z.array(
+        z.string()
+      ).default([]),
+
+    people:
+      z.array(
+        z.string()
+      ).default([]),
+
+    worksReferenced:
+      z.array(
+        z.string()
+      ).default([]),
+
+    places:
+      z.array(
+        z.string()
+      ).default([]),
+
+    quoteAuthor:
+      z.string().optional(),
+
+    quoteSource:
+      z.string().optional(),
+
+    quoteUrl:
+      z.string().optional(),
+
+    references:
+      z.array(
+        z.string()
+      ).default([]),
+
+    private:
+      z.boolean().default(false),
 
     author:
       z.string().optional(),
