@@ -3,36 +3,17 @@ archiveNumber: "0004"
 title: 100 Lissajous Curves
 dateFound: 2026-09-02
 originalDate: August 28, 2026
-creator: Philosophy of Physics via X
 coverType: loop
 image: /images/archive/twitter-gif-2093341582137385462.mp4
-gallery:
-  - image: /images/archive/screenshot-2026-09-02-at-14411-pm-1.png
-    caption: original post
-    credit: "@PhilosophyOfPhy via X"
-    sourceUrl: https://x.com/PhilosophyOfPhy/status/2093341582137385462
 archiveDescription: An animated table of Lissajous curves visualizing the
   patterns produced by pairs of perpendicular harmonic motions at different
   frequency ratios. Circular guides along the top and left edges generate a grid
   of continuously changing curves, with each cell representing a different
   combination of frequencies.
-kind: social media post / looping animation / philosophy quote
 reason: a simple mathematical system produces such a wide range of intricate
   forms. I like being able to see the underlying motion and the resulting
   patterns at the same time.
-collections:
-  - internet archive
-  - moving image
-  - philosophy
-tags:
-  - immanuel kant
-  - twitter
-  - philosophy
-  - moving image
-sourceName: Philosophy of Physics via X
-sourceUrl: https://x.com/PhilosophyOfPhy/status/2093341582137385462
 featured: true
-favorite: false
 private: false
 originalDateDetails:
   year: 2019
@@ -47,7 +28,11 @@ seriesProject: Lissajous Curve
 primarySource:
   type: website
   name: William Jordan
-  url: https://github.com/chilledwilba/Lissajous-Curve?utm_source=chatgpt.com
+  url: https://github.com/chilledwilba/Lissajous-Curve
+discovery:
+  type: x/twitter
+  name: Philosophy Of Physics
+  url: https://x.com/PhilosophyOfPhy/status/2093341582137385462
 ---
 A Lissajous curve is produced by combining two perpendicular periodic motions.
 
