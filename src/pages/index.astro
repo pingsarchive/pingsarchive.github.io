@@ -8,11 +8,17 @@ const items = (
     "archive",
     ({ data }) => !data.private
   )
-).sort(
-  (a, b) =>
-    b.data.dateFound.getTime() -
-    a.data.dateFound.getTime()
-);
+).sort((a, b) => {
+  const aNumber = Number(
+    a.data.archiveNumber || 0
+  );
+
+  const bNumber = Number(
+    b.data.archiveNumber || 0
+  );
+
+  return bNumber - aNumber;
+});
 
 const featured =
   items.filter(
