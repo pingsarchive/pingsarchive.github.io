@@ -33,10 +33,10 @@ originalDateDetails:
 creators:
   - name: Michael Ho
     role: Artist
-reason: I saved this for the way the screen sits somewhere between furniture,
-  sculpture, and image. I love the contrast between the carved black frame and
-  the pale, almost skin-like surface, and the way the landscape seems absorbed
-  into the material rather than simply depicted on it.
+reason: For the way the screen sits somewhere between furniture, sculpture, and
+  image. Love the contrast between the carved black frame and the pale, almost
+  skin-like surface, and the way the landscape seems absorbed into the material
+  rather than simply depicted on it.
 primaryObjectType: installation
 secondaryObjectTypes:
   - Folding Screen
