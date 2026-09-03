@@ -1,590 +1,528 @@
-settings:
-  content:
-    merge: true
-
-
-media:
-  - name: images
-    label: Archive Media
-    input: public/images/archive
-    output: /images/archive
-    rename: safe
-    extensions:
-      - jpg
-      - jpeg
-      - png
-      - webp
-      - gif
-      - mp4
-      - webm
-      - mov
-
-  - name: noteImages
-    label: Note Images
-    input: public/images/notes
-    output: /images/notes
-    rename: safe
-    extensions:
-      - jpg
-      - jpeg
-      - png
-      - webp
-      - gif
-
-  - name: documents
-    label: Archive Files
-    input: public/files/archive
-    output: /files/archive
-    rename: safe
-    categories:
-      - document
-      - spreadsheet
-      - compressed
-
-
-content:
-
-  # ==========================================
-  # ARCHIVE
-  # ==========================================
-
-  - name: archive
-    label: Archive
-    type: collection
-    path: src/content/archive
-    format: yaml-frontmatter
-
-    filename:
-      template: "{title}.md"
-      field: false
-
-    view:
-      fields:
-        - archiveNumber
-        - title
-        - dateFound
-        - kind
-        - featured
-
-      primary: title
-
-      sort:
-        - dateFound
-        - title
-
-      search:
-        - title
-        - creator
-        - archiveDescription
-        - location
-        - country
-        - region
-        - city
-        - neighborhood
-        - venue
-        - kind
-        - reason
-
-      default:
-        sort: dateFound
-        order: desc
-
-    fields:
-
-      # AUTOMATIC — NEVER MANUALLY EDITED
-
-      - name: archiveNumber
-        label: Finding No.
-        type: string
-        hidden: true
-        readonly: true
-
+import { defineCollection } from "astro:content";
+import { glob } from "astro/loaders";
+import { z } from "astro/zod";
+
+
+/* ==========================================================
+   REUSABLE SCHEMAS
+========================================================== */
+
+
+/* ----------------------------------------------------------
+   ORIGINAL DATE / ERA
+---------------------------------------------------------- */
+
+const originalDateDetails = z.object({
+
+  year:
+    z.number().int().optional(),
+
+  month:
+    z.enum([
+      "january",
+      "february",
+      "march",
+      "april",
+      "may",
+      "june",
+      "july",
+      "august",
+      "september",
+      "october",
+      "november",
+      "december",
+    ]).optional(),
+
+  day:
+    z.number()
+      .int()
+      .min(1)
+      .max(31)
+      .optional(),
+
+  season:
+    z.enum([
+      "spring",
+      "summer",
+      "autumn",
+      "winter",
+      "spring/summer",
+      "fall/winter",
+    ]).optional(),
 
-      # BASIC INFORMATION
-
-      - name: title
-        label: Title
-        type: string
-        required: true
-
-      - name: dateFound
-        label: Date Found
-        type: date
-        required: true
-
-      - name: originalDate
-        label: Original Date / Era
-        type: string
-        description: "Optional. Example: 1998, c. 1970, early 2000s."
-
-      - name: creator
-        label: Creator
-        type: string
-        description: "Optional. Artist, architect, designer, brand, author, etc."
-
-
-      # COVER MEDIA
-
-      - name: coverType
-        label: Cover Type
-        type: select
-        required: true
-        default: image
-        options:
-          values:
-            - name: image
-              label: Image
-            - name: loop
-              label: GIF / Loop
-            - name: video
-              label: Video
-
-      - name: image
-        label: Cover Media
-        type: file
-        required: true
-        description: "Upload an image, GIF, looping clip, or video."
-        options:
-          media: images
-          extensions:
-            - jpg
-            - jpeg
-            - png
-            - webp
-            - gif
-            - mp4
-            - webm
-            - mov
-
-      - name: videoPoster
-        label: Video Poster Image
-        type: image
-        description: "Optional. Add a still preview image for a true Video cover."
-        options:
-          media: images
-
-      - name: gallery
-        label: Additional Views
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "View {index}: {caption}"
-
-        fields:
-
-          - name: image
-            label: Image
-            type: image
-            required: true
-            options:
-              media: images
-
-          - name: caption
-            label: Caption
-            type: string
-            description: "Optional."
-
-          - name: credit
-            label: Credit
-            type: string
-            description: "Optional."
-
-          - name: sourceUrl
-            label: Image Source URL
-            type: string
-
-
-      # DESCRIPTION
-
-      - name: archiveDescription
-        label: Description
-        type: text
-
-
-      # PLACE
-
-      - name: location
-        label: Location Display
-        type: string
-        description: "Optional. Write the location naturally as you want it shown on the post."
-
-      - name: country
-        label: Country
-        type: string
-
-      - name: region
-        label: Region / State
-        type: string
-
-      - name: city
-        label: City
-        type: string
-
-      - name: neighborhood
-        label: Neighborhood
-        type: string
-
-      - name: venue
-        label: Venue
-        type: string
-
-
-      # ORGANIZATION
-
-      - name: kind
-        label: What Is It?
-        type: string
-        description: "Describe it however you want."
-
-      - name: reason
-        label: Why I Saved It
-        type: string
-        description: "Optional. Write this however you want."
-
-      - name: collections
-        label: Collections
-        type: string
-        list: true
-        description: "Add new collections whenever your archive grows."
-
-      - name: tags
-        label: Tags
-        type: string
-        list: true
-
-      - name: colors
-        label: Colors
-        type: string
-        list: true
-
-
-      # SOURCE
-
-      - name: sourceName
-        label: Source Name
-        type: string
-        description: "Example: my photograph, museum archive, book title."
-
-      - name: sourceUrl
-        label: Original Source URL
-        type: string
-
-
-      # ATTACHMENTS
-
-      - name: attachments
-        label: Attachments
-        type: object
-        list:
-          collapsible:
-            collapsed: true
-            summary: "File {index}: {title}"
-
-        fields:
-
-          - name: file
-            label: File
-            type: file
-            required: true
-            options:
-              media: documents
-
-          - name: title
-            label: File Title
-            type: string
-            required: true
-
-
-      # WEBSITE BEHAVIOR
-
-      - name: featured
-        label: Feature on Homepage
-        type: boolean
-        default: false
-
-      - name: favorite
-        label: Favorite
-        type: boolean
-        default: false
-
-      - name: private
-        label: Keep Private
-        type: boolean
-        default: false
-
-
-      # LONGER WRITING
-
-      - name: body
-        label: Longer Notes
-        type: rich-text
-        options:
-          format: markdown
-          media: images
-          switcher: true
-
-
+  timeOfDay:
+    z.enum([
+      "early morning",
+      "morning",
+      "late morning",
+      "afternoon",
+      "late afternoon",
+      "evening",
+      "night",
+      "late night",
+    ]).optional(),
 
-  # ==========================================
-  # NOTES
-  # FLEXIBLE COMMONPLACE / RESEARCH NOTE SYSTEM
-  # ==========================================
+  qualifier:
+    z.enum([
+      "exact",
+      "circa",
+      "before",
+      "after",
+      "early",
+      "mid",
+      "late",
+      "range",
+      "unknown",
+    ]).optional(),
 
-  - name: notes
-    label: Notes
-    type: collection
-    path: src/content/notes
-    format: yaml-frontmatter
+  endYear:
+    z.number().int().optional(),
 
-    # No title is needed to create a file.
-    # Example:
-    # 2026-09-01-22-45-17-quote.md
+  eraLabel:
+    z.string().optional(),
 
-    filename:
-      template: "{year}-{month}-{day}-{hour}-{minute}-{second}-{type}.md"
-      field: false
+  dateNote:
+    z.string().optional(),
 
+});
 
-    view:
-      fields:
-        - type
-        - date
-        - title
-        - author
-        - featured
 
-      primary: type
+/* ----------------------------------------------------------
+   CREATOR
+---------------------------------------------------------- */
 
-      sort:
-        - date
-        - type
+const creator = z.object({
 
-      search:
-        - type
-        - title
-        - author
-        - sourceName
-        - location
-        - tags
+  name:
+    z.string(),
 
-      default:
-        sort: date
-        order: desc
+  role:
+    z.string().optional(),
 
+});
 
-    fields:
 
-      # ------------------------------------------
-      # WHAT KIND OF NOTE IS THIS?
-      # ------------------------------------------
+/* ----------------------------------------------------------
+   ADDITIONAL MEDIA
+---------------------------------------------------------- */
 
-      - name: type
-        label: Type
-        type: select
-        required: true
-        options:
-          placeholder: "Choose a note type"
-          values:
-            - name: quote
-              label: Quote
+const additionalMediaItem = z.object({
 
-            - name: note
-              label: Note
+  mediaType:
+    z.enum([
+      "image",
+      "loop",
+      "video",
+      "audio",
+      "document",
+    ]),
 
-            - name: thought
-              label: Thought
+  file:
+    z.string(),
 
-            - name: excerpt
-              label: Excerpt
+  caption:
+    z.string().optional(),
 
-            - name: link
-              label: Link
+  credit:
+    z.string().optional(),
 
-            - name: image
-              label: Image
+  sourceUrl:
+    z.string().optional(),
 
-            - name: list
-              label: List
+});
 
-            - name: reference
-              label: Reference
 
-            - name: question
-              label: Question
+/* ----------------------------------------------------------
+   PRIMARY SOURCE
+---------------------------------------------------------- */
 
-            - name: idea
-              label: Idea
+const primarySource = z.object({
 
-            - name: observation
-              label: Observation
+  type:
+    z.string().optional(),
 
-            - name: fragment
-              label: Fragment
+  name:
+    z.string().optional(),
 
-            - name: other
-              label: Other
+  url:
+    z.string().optional(),
 
+});
 
-      # ------------------------------------------
-      # WHEN YOU SAVED IT
-      # ------------------------------------------
 
-      - name: date
-        label: Date Saved
-        type: date
-        required: true
+/* ----------------------------------------------------------
+   DISCOVERY
+---------------------------------------------------------- */
 
+const discovery = z.object({
 
-      # ------------------------------------------
-      # OPTIONAL LABEL
-      # ------------------------------------------
+  type:
+    z.string().optional(),
 
-      - name: title
-        label: Title
-        type: string
-        description: "Optional. Leave blank for quotes, fragments, images, quick thoughts, etc."
+  name:
+    z.string().optional(),
 
+  url:
+    z.string().optional(),
 
-      # ------------------------------------------
-      # AUTHOR / CREATOR
-      # ------------------------------------------
+});
 
-      - name: author
-        label: Author / Creator
-        type: string
-        description: "Optional. Person, artist, writer, designer, publication, account, etc."
 
 
-      # ------------------------------------------
-      # SOURCE
-      # ------------------------------------------
+/* ==========================================================
+   ARCHIVE
+========================================================== */
 
-      - name: sourceName
-        label: Source
-        type: string
-        description: "Optional. Book, article, interview, website, film, publication, etc."
+const archive = defineCollection({
 
-      - name: sourceUrl
-        label: Source URL
-        type: string
-        description: "Optional. Link back to the original source."
+  loader: glob({
+    base: "./src/content/archive",
+    pattern: "**/*.md",
+  }),
 
+  schema: z.object({
 
-      # ------------------------------------------
-      # IMAGE
-      # ------------------------------------------
 
-      - name: image
-        label: Image
-        type: image
-        description: "Optional. Use for screenshots, visual references, image notes, scans, etc."
-        options:
-          media: noteImages
+    /* ======================================================
+       SYSTEM
+    ====================================================== */
 
+    archiveNumber:
+      z.string().optional(),
 
-      # ------------------------------------------
-      # PLACE / CONTEXT
-      # ------------------------------------------
 
-      - name: location
-        label: Location
-        type: string
-        description: "Optional. Useful for observations, places, events, or things you encountered in person."
 
+    /* ======================================================
+       IDENTITY
+    ====================================================== */
 
-      # ------------------------------------------
-      # ORGANIZATION
-      # ------------------------------------------
+    title:
+      z.string(),
 
-      - name: tags
-        label: Tags
-        type: string
-        list: true
-        description: "Optional. Add whatever tags become useful as your notes grow."
+    /*
+      Exact date Ping found/saved the item.
+    */
+    dateFound:
+      z.coerce.date(),
 
+    /*
+      Flexible date system for the original work.
+    */
+    originalDateDetails:
+      originalDateDetails.optional(),
 
-      # ------------------------------------------
-      # WEBSITE
-      # ------------------------------------------
+    creators:
+      z.array(creator).default([]),
 
-      - name: featured
-        label: Featured
-        type: boolean
-        default: false
 
 
-      # ------------------------------------------
-      # THE NOTE ITSELF
-      # ------------------------------------------
+    /* ======================================================
+       WRITING
+    ====================================================== */
 
-      - name: body
-        label: Content
-        type: rich-text
-        description: "Write as much or as little as you want. This can be a quote, thought, list, excerpt, question, caption, link note, or longer piece of writing."
-        options:
-          format: markdown
-          media: noteImages
-          switcher: true
+    archiveDescription:
+      z.string().optional(),
 
+    reason:
+      z.string().optional(),
 
 
-  # ==========================================
-  # COLLECTIONS
-  # ==========================================
 
-  - name: curatedCollections
-    label: Collections
-    type: collection
-    path: src/content/collections
-    format: yaml-frontmatter
+    /* ======================================================
+       CLASSIFICATION
+    ====================================================== */
 
-    filename:
-      template: "{title}.md"
-      field: false
+    primaryObjectType:
+      z.string().optional(),
 
-    view:
-      fields:
-        - title
-        - order
-        - featured
+    secondaryObjectTypes:
+      z.array(
+        z.string()
+      ).default([]),
 
-      primary: title
+    mediums:
+      z.array(
+        z.string()
+      ).default([]),
 
-      sort:
-        - order
-        - title
+    themes:
+      z.array(
+        z.string()
+      ).default([]),
 
-    fields:
 
-      - name: title
-        label: Collection Name
-        type: string
-        required: true
 
-      - name: description
-        label: Description
-        type: text
+    /* ======================================================
+       COLORS
+    ====================================================== */
 
-      - name: coverImage
-        label: Cover Image
-        type: image
-        options:
-          media: images
+    colors:
+      z.array(
+        z.string()
+      ).default([]),
 
-      - name: order
-        label: Display Order
-        type: number
+    colorNotes:
+      z.string().optional(),
 
-      - name: featured
-        label: Featured
-        type: boolean
-        default: false
 
-      - name: body
-        label: Collection Notes
-        type: rich-text
-        options:
-          format: markdown
-          media: images
-          switcher: true
+
+    /* ======================================================
+       SERIES / PROJECT
+    ====================================================== */
+
+    seriesProject:
+      z.string().optional(),
+
+    bodyOfWork:
+      z.string().optional(),
+
+
+
+    /* ======================================================
+       LOCATION
+    ====================================================== */
+
+    locations:
+      z.array(
+        z.string()
+      ).default([]),
+
+
+
+    /* ======================================================
+       COVER MEDIA
+    ====================================================== */
+
+    coverType:
+      z.enum([
+        "image",
+        "loop",
+        "video",
+        "audio",
+      ]).default("image"),
+
+    /*
+      Internal field remains "image" even though
+      Pages CMS labels it Cover Media.
+    */
+    image:
+      z.string(),
+
+    videoPoster:
+      z.string().optional(),
+
+    alt:
+      z.string().optional(),
+
+
+
+    /* ======================================================
+       ADDITIONAL MEDIA
+    ====================================================== */
+
+    additionalMedia:
+      z.array(
+        additionalMediaItem
+      ).default([]),
+
+
+
+    /* ======================================================
+       PROVENANCE
+    ====================================================== */
+
+    primarySource:
+      primarySource.optional(),
+
+    discovery:
+      discovery.optional(),
+
+
+
+    /* ======================================================
+       WEBSITE
+    ====================================================== */
+
+    featured:
+      z.boolean().default(false),
+
+    private:
+      z.boolean().default(false),
+
+
+
+    /* ======================================================
+       TEMPORARY OLD FIELDS
+
+       These are NOT part of the new CMS form.
+
+       They exist only so your current public pages and your
+       not-yet-reedited findings continue working during the
+       transition.
+
+       We will remove this entire section later.
+    ====================================================== */
+
+    originalDate:
+      z.string().optional(),
+
+    creator:
+      z.string().optional(),
+
+    kind:
+      z.string().optional(),
+
+    location:
+      z.string().optional(),
+
+    country:
+      z.string().optional(),
+
+    region:
+      z.string().optional(),
+
+    city:
+      z.string().optional(),
+
+    neighborhood:
+      z.string().optional(),
+
+    venue:
+      z.string().optional(),
+
+    collections:
+      z.array(
+        z.string()
+      ).default([]),
+
+    tags:
+      z.array(
+        z.string()
+      ).default([]),
+
+    favorite:
+      z.boolean().default(false),
+
+    sourceName:
+      z.string().optional(),
+
+    sourceUrl:
+      z.string().optional(),
+
+    gallery:
+      z.array(
+        z.object({
+
+          image:
+            z.string(),
+
+          caption:
+            z.string().optional(),
+
+          credit:
+            z.string().optional(),
+
+          sourceUrl:
+            z.string().optional(),
+
+        })
+      ).default([]),
+
+    attachments:
+      z.array(
+        z.object({
+
+          file:
+            z.string(),
+
+          title:
+            z.string(),
+
+        })
+      ).default([]),
+
+  }),
+
+});
+
+
+
+/* ==========================================================
+   NOTES
+========================================================== */
+
+const notes = defineCollection({
+
+  loader: glob({
+    base: "./src/content/notes",
+    pattern: "**/*.md",
+  }),
+
+  schema: z.object({
+
+    type:
+      z.enum([
+        "quote",
+        "note",
+        "thought",
+        "excerpt",
+        "link",
+        "image",
+        "list",
+        "reference",
+        "question",
+        "idea",
+        "observation",
+        "fragment",
+        "other",
+      ]).optional(),
+
+    date:
+      z.coerce.date(),
+
+    title:
+      z.string().optional(),
+
+    author:
+      z.string().optional(),
+
+    sourceName:
+      z.string().optional(),
+
+    sourceUrl:
+      z.string().optional(),
+
+    image:
+      z.string().optional(),
+
+    location:
+      z.string().optional(),
+
+    tags:
+      z.array(
+        z.string()
+      ).default([]),
+
+    featured:
+      z.boolean().default(false),
+
+    summary:
+      z.string().optional(),
+
+  }),
+
+});
+
+
+
+/* ==========================================================
+   EXPORT
+========================================================== */
+
+export const collections = {
+
+  archive,
+
+  notes,
+
+};
