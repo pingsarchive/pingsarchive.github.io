@@ -1,528 +1,906 @@
-import { defineCollection } from "astro:content";
-import { glob } from "astro/loaders";
-import { z } from "astro/zod";
-
-
-/* ==========================================================
-   REUSABLE SCHEMAS
-========================================================== */
-
-
-/* ----------------------------------------------------------
-   ORIGINAL DATE / ERA
----------------------------------------------------------- */
-
-const originalDateDetails = z.object({
-
-  year:
-    z.number().int().optional(),
-
-  month:
-    z.enum([
-      "january",
-      "february",
-      "march",
-      "april",
-      "may",
-      "june",
-      "july",
-      "august",
-      "september",
-      "october",
-      "november",
-      "december",
-    ]).optional(),
-
-  day:
-    z.number()
-      .int()
-      .min(1)
-      .max(31)
-      .optional(),
-
-  season:
-    z.enum([
-      "spring",
-      "summer",
-      "autumn",
-      "winter",
-      "spring/summer",
-      "fall/winter",
-    ]).optional(),
+settings:
+  content:
+    merge: true
+
+media:
+  - name: images
+    label: Archive Media
+    input: public/images/archive
+    output: /images/archive
+    rename: safe
+    extensions:
+      - jpg
+      - jpeg
+      - png
+      - webp
+      - gif
+      - mp4
+      - webm
+      - mov
+      - mp3
+      - m4a
+      - wav
+      - ogg
+      - flac
+      - pdf
+      - txt
+      - rtf
+      - doc
+      - docx
+      - csv
+      - xls
+      - xlsx
+      - ppt
+      - pptx
+      - zip
+
+  - name: noteImages
+    label: Note Images
+    input: public/images/notes
+    output: /images/notes
+    rename: safe
+    extensions:
+      - jpg
+      - jpeg
+      - png
+      - webp
+      - gif
+
+
+content:
+
+  # ==========================================================
+  # ARCHIVE
+  # ==========================================================
+
+  - name: archive
+    label: Archive
+    type: collection
+    path: src/content/archive
+    format: yaml-frontmatter
+
+    filename:
+      template: "{title}.md"
+      field: false
+
+    view:
+      fields:
+        - archiveNumber
+        - title
+        - dateFound
+        - primaryObjectType
+        - featured
+
+      primary: title
+
+      sort:
+        - dateFound
+        - title
+
+      search:
+        - title
+        - archiveDescription
+        - reason
+        - primaryObjectType
+
+      default:
+        sort: dateFound
+        order: desc
+
+    fields:
+
+      # ======================================================
+      # SYSTEM
+      # ======================================================
+
+      - name: archiveNumber
+        label: Finding No.
+        type: string
+        hidden: true
+        readonly: true
+
 
-  timeOfDay:
-    z.enum([
-      "early morning",
-      "morning",
-      "late morning",
-      "afternoon",
-      "late afternoon",
-      "evening",
-      "night",
-      "late night",
-    ]).optional(),
-
-  qualifier:
-    z.enum([
-      "exact",
-      "circa",
-      "before",
-      "after",
-      "early",
-      "mid",
-      "late",
-      "range",
-      "unknown",
-    ]).optional(),
-
-  endYear:
-    z.number().int().optional(),
-
-  eraLabel:
-    z.string().optional(),
-
-  dateNote:
-    z.string().optional(),
-
-});
-
-
-/* ----------------------------------------------------------
-   CREATOR
----------------------------------------------------------- */
-
-const creator = z.object({
-
-  name:
-    z.string(),
-
-  role:
-    z.string().optional(),
-
-});
-
-
-/* ----------------------------------------------------------
-   ADDITIONAL MEDIA
----------------------------------------------------------- */
-
-const additionalMediaItem = z.object({
-
-  mediaType:
-    z.enum([
-      "image",
-      "loop",
-      "video",
-      "audio",
-      "document",
-    ]),
-
-  file:
-    z.string(),
-
-  caption:
-    z.string().optional(),
-
-  credit:
-    z.string().optional(),
-
-  sourceUrl:
-    z.string().optional(),
-
-});
-
-
-/* ----------------------------------------------------------
-   PRIMARY SOURCE
----------------------------------------------------------- */
-
-const primarySource = z.object({
-
-  type:
-    z.string().optional(),
-
-  name:
-    z.string().optional(),
-
-  url:
-    z.string().optional(),
-
-});
-
-
-/* ----------------------------------------------------------
-   DISCOVERY
----------------------------------------------------------- */
-
-const discovery = z.object({
-
-  type:
-    z.string().optional(),
-
-  name:
-    z.string().optional(),
-
-  url:
-    z.string().optional(),
-
-});
-
-
-
-/* ==========================================================
-   ARCHIVE
-========================================================== */
-
-const archive = defineCollection({
-
-  loader: glob({
-    base: "./src/content/archive",
-    pattern: "**/*.md",
-  }),
-
-  schema: z.object({
-
-
-    /* ======================================================
-       SYSTEM
-    ====================================================== */
-
-    archiveNumber:
-      z.string().optional(),
-
-
-
-    /* ======================================================
-       IDENTITY
-    ====================================================== */
-
-    title:
-      z.string(),
-
-    /*
-      Exact date Ping found/saved the item.
-    */
-    dateFound:
-      z.coerce.date(),
-
-    /*
-      Flexible date system for the original work.
-    */
-    originalDateDetails:
-      originalDateDetails.optional(),
-
-    creators:
-      z.array(creator).default([]),
-
-
-
-    /* ======================================================
-       WRITING
-    ====================================================== */
-
-    archiveDescription:
-      z.string().optional(),
-
-    reason:
-      z.string().optional(),
-
-
-
-    /* ======================================================
-       CLASSIFICATION
-    ====================================================== */
-
-    primaryObjectType:
-      z.string().optional(),
-
-    secondaryObjectTypes:
-      z.array(
-        z.string()
-      ).default([]),
-
-    mediums:
-      z.array(
-        z.string()
-      ).default([]),
-
-    themes:
-      z.array(
-        z.string()
-      ).default([]),
-
-
-
-    /* ======================================================
-       COLORS
-    ====================================================== */
-
-    colors:
-      z.array(
-        z.string()
-      ).default([]),
-
-    colorNotes:
-      z.string().optional(),
-
-
-
-    /* ======================================================
-       SERIES / PROJECT
-    ====================================================== */
-
-    seriesProject:
-      z.string().optional(),
-
-    bodyOfWork:
-      z.string().optional(),
-
-
-
-    /* ======================================================
-       LOCATION
-    ====================================================== */
-
-    locations:
-      z.array(
-        z.string()
-      ).default([]),
-
-
-
-    /* ======================================================
-       COVER MEDIA
-    ====================================================== */
-
-    coverType:
-      z.enum([
-        "image",
-        "loop",
-        "video",
-        "audio",
-      ]).default("image"),
-
-    /*
-      Internal field remains "image" even though
-      Pages CMS labels it Cover Media.
-    */
-    image:
-      z.string(),
-
-    videoPoster:
-      z.string().optional(),
-
-    alt:
-      z.string().optional(),
-
-
-
-    /* ======================================================
-       ADDITIONAL MEDIA
-    ====================================================== */
-
-    additionalMedia:
-      z.array(
-        additionalMediaItem
-      ).default([]),
-
-
-
-    /* ======================================================
-       PROVENANCE
-    ====================================================== */
-
-    primarySource:
-      primarySource.optional(),
-
-    discovery:
-      discovery.optional(),
-
-
-
-    /* ======================================================
-       WEBSITE
-    ====================================================== */
-
-    featured:
-      z.boolean().default(false),
-
-    private:
-      z.boolean().default(false),
-
-
-
-    /* ======================================================
-       TEMPORARY OLD FIELDS
-
-       These are NOT part of the new CMS form.
-
-       They exist only so your current public pages and your
-       not-yet-reedited findings continue working during the
-       transition.
-
-       We will remove this entire section later.
-    ====================================================== */
-
-    originalDate:
-      z.string().optional(),
-
-    creator:
-      z.string().optional(),
-
-    kind:
-      z.string().optional(),
-
-    location:
-      z.string().optional(),
-
-    country:
-      z.string().optional(),
-
-    region:
-      z.string().optional(),
-
-    city:
-      z.string().optional(),
-
-    neighborhood:
-      z.string().optional(),
-
-    venue:
-      z.string().optional(),
-
-    collections:
-      z.array(
-        z.string()
-      ).default([]),
-
-    tags:
-      z.array(
-        z.string()
-      ).default([]),
-
-    favorite:
-      z.boolean().default(false),
-
-    sourceName:
-      z.string().optional(),
-
-    sourceUrl:
-      z.string().optional(),
-
-    gallery:
-      z.array(
-        z.object({
-
-          image:
-            z.string(),
-
-          caption:
-            z.string().optional(),
-
-          credit:
-            z.string().optional(),
-
-          sourceUrl:
-            z.string().optional(),
-
-        })
-      ).default([]),
-
-    attachments:
-      z.array(
-        z.object({
-
-          file:
-            z.string(),
-
-          title:
-            z.string(),
-
-        })
-      ).default([]),
-
-  }),
-
-});
-
-
-
-/* ==========================================================
-   NOTES
-========================================================== */
-
-const notes = defineCollection({
-
-  loader: glob({
-    base: "./src/content/notes",
-    pattern: "**/*.md",
-  }),
-
-  schema: z.object({
-
-    type:
-      z.enum([
-        "quote",
-        "note",
-        "thought",
-        "excerpt",
-        "link",
-        "image",
-        "list",
-        "reference",
-        "question",
-        "idea",
-        "observation",
-        "fragment",
-        "other",
-      ]).optional(),
-
-    date:
-      z.coerce.date(),
-
-    title:
-      z.string().optional(),
-
-    author:
-      z.string().optional(),
-
-    sourceName:
-      z.string().optional(),
-
-    sourceUrl:
-      z.string().optional(),
-
-    image:
-      z.string().optional(),
-
-    location:
-      z.string().optional(),
-
-    tags:
-      z.array(
-        z.string()
-      ).default([]),
-
-    featured:
-      z.boolean().default(false),
-
-    summary:
-      z.string().optional(),
-
-  }),
-
-});
-
-
-
-/* ==========================================================
-   EXPORT
-========================================================== */
-
-export const collections = {
-
-  archive,
-
-  notes,
-
-};
+      # ======================================================
+      # IDENTITY
+      # ======================================================
+
+      - name: title
+        label: Title
+        type: string
+        required: true
+        description: "Use the official title when one exists. Otherwise use a concise descriptive archival title."
+
+      - name: dateFound
+        label: Date Found
+        type: date
+        required: true
+        description: "The exact date you personally encountered or saved this finding."
+
+
+      # ======================================================
+      # ORIGINAL DATE / ERA
+      # ======================================================
+
+      - name: originalDateDetails
+        label: Original Date / Era
+        type: object
+        description: "Optional. Fill only the parts that are known or useful."
+
+        fields:
+
+          - name: year
+            label: Year
+            type: number
+
+          - name: month
+            label: Month
+            type: select
+            options:
+              placeholder: "Select month"
+              values:
+                - name: january
+                  label: January
+                - name: february
+                  label: February
+                - name: march
+                  label: March
+                - name: april
+                  label: April
+                - name: may
+                  label: May
+                - name: june
+                  label: June
+                - name: july
+                  label: July
+                - name: august
+                  label: August
+                - name: september
+                  label: September
+                - name: october
+                  label: October
+                - name: november
+                  label: November
+                - name: december
+                  label: December
+
+          - name: day
+            label: Day
+            type: number
+            options:
+              min: 1
+              max: 31
+
+          - name: season
+            label: Season
+            type: select
+            options:
+              placeholder: "Select season"
+              values:
+                - name: spring
+                  label: Spring
+                - name: summer
+                  label: Summer
+                - name: autumn
+                  label: Autumn
+                - name: winter
+                  label: Winter
+                - name: spring/summer
+                  label: Spring / Summer
+                - name: fall/winter
+                  label: Fall / Winter
+
+          - name: timeOfDay
+            label: Time of Day
+            type: select
+            options:
+              placeholder: "Select time of day"
+              values:
+                - name: early morning
+                  label: Early Morning
+                - name: morning
+                  label: Morning
+                - name: late morning
+                  label: Late Morning
+                - name: afternoon
+                  label: Afternoon
+                - name: late afternoon
+                  label: Late Afternoon
+                - name: evening
+                  label: Evening
+                - name: night
+                  label: Night
+                - name: late night
+                  label: Late Night
+
+          - name: qualifier
+            label: Qualifier
+            type: select
+            options:
+              placeholder: "Select qualifier"
+              values:
+                - name: exact
+                  label: Exact
+                - name: circa
+                  label: Circa
+                - name: before
+                  label: Before
+                - name: after
+                  label: After
+                - name: early
+                  label: Early
+                - name: mid
+                  label: Mid
+                - name: late
+                  label: Late
+                - name: range
+                  label: Range
+                - name: unknown
+                  label: Unknown
+
+          - name: endYear
+            label: End Year
+            type: number
+            description: "Optional. Use for a date range."
+
+          - name: eraLabel
+            label: Era Label
+            type: string
+            description: "Optional custom wording for unusual or imprecise dating."
+
+          - name: dateNote
+            label: Date Note
+            type: text
+            description: "Optional contextual note about the date or time."
+
+
+      # ======================================================
+      # CREATOR(S)
+      # ======================================================
+
+      - name: creators
+        label: Creator(s)
+        type: object
+
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{name} — {role}"
+
+        description: "Add each relevant creator separately."
+
+        fields:
+
+          - name: name
+            label: Name
+            type: string
+            required: true
+
+          - name: role
+            label: Role
+            type: string
+            description: "Optional. Example: Artist, Photographer, Designer, Creative Director, Brand."
+
+
+      # ======================================================
+      # WRITING
+      # ======================================================
+
+      - name: archiveDescription
+        label: Description
+        type: text
+        description: "Optional factual or contextual description of the finding."
+
+      - name: reason
+        label: Why I Saved It
+        type: text
+        description: "Optional. Your own reason for saving it or what you want to remember about it."
+
+
+      # ======================================================
+      # CLASSIFICATION
+      # ======================================================
+
+      - name: primaryObjectType
+        label: Primary Object Type
+        type: select
+        required: true
+        description: "The single main type of object being archived."
+
+        options:
+          placeholder: "Choose primary object type"
+
+          values:
+            - name: painting
+              label: Painting
+            - name: drawing
+              label: Drawing
+            - name: print
+              label: Print
+            - name: photograph
+              label: Photograph
+            - name: sculpture
+              label: Sculpture
+            - name: installation
+              label: Installation
+            - name: architecture
+              label: Architecture
+            - name: interior
+              label: Interior
+            - name: furniture
+              label: Furniture
+            - name: design object
+              label: Design Object
+            - name: design system
+              label: Design System
+            - name: ceramic
+              label: Ceramic
+            - name: textile
+              label: Textile
+            - name: garment
+              label: Garment
+            - name: accessory
+              label: Accessory
+            - name: fashion campaign
+              label: Fashion Campaign
+            - name: advertisement
+              label: Advertisement
+            - name: poster
+              label: Poster
+            - name: graphic
+              label: Graphic
+            - name: book
+              label: Book
+            - name: publication
+              label: Publication
+            - name: essay
+              label: Essay
+            - name: article
+              label: Article
+            - name: letter
+              label: Letter
+            - name: quote
+              label: Quote
+            - name: diagram
+              label: Diagram
+            - name: map
+              label: Map
+            - name: website
+              label: Website
+            - name: social media post
+              label: Social Media Post
+            - name: animation
+              label: Animation
+            - name: video
+              label: Video
+            - name: film
+              label: Film
+            - name: audio
+              label: Audio
+            - name: music
+              label: Music
+            - name: performance
+              label: Performance
+            - name: ephemera
+              label: Ephemera
+            - name: archive material
+              label: Archive Material
+            - name: other
+              label: Other
+
+
+      - name: secondaryObjectTypes
+        label: Secondary Object Types
+        type: string
+        list: true
+        description: "Optional. Add any other useful object classifications."
+
+      - name: mediums
+        label: Medium / Material
+        type: string
+        list: true
+        description: "Optional. Examples: oil on canvas, ceramic tile, printed magazine, digital video."
+
+      - name: themes
+        label: Themes / Concepts
+        type: string
+        list: true
+        description: "Optional. Reuse concepts when possible and add new ones as the archive grows."
+
+
+      # ======================================================
+      # COLOR
+      # ======================================================
+
+      - name: colors
+        label: Colors
+        type: select
+
+        options:
+          multiple: true
+          placeholder: "Select colors"
+
+          values:
+            - name: black
+              label: Black
+            - name: white
+              label: White
+            - name: gray
+              label: Gray
+            - name: silver
+              label: Silver
+            - name: brown
+              label: Brown
+            - name: beige
+              label: Beige
+            - name: cream
+              label: Cream
+            - name: red
+              label: Red
+            - name: orange
+              label: Orange
+            - name: yellow
+              label: Yellow
+            - name: green
+              label: Green
+            - name: blue
+              label: Blue
+            - name: purple
+              label: Purple
+            - name: pink
+              label: Pink
+            - name: multicolor
+              label: Multicolor
+
+      - name: colorNotes
+        label: Color Notes
+        type: string
+        description: "Optional precision such as powder blue, deep cherry red, warm ivory."
+
+
+      # ======================================================
+      # SERIES / PROJECT
+      # ======================================================
+
+      - name: seriesProject
+        label: Series / Project
+        type: string
+        description: "Optional. Example: The Swan, DTILE, Fall/Winter 1999 Campaign."
+
+      - name: bodyOfWork
+        label: Body of Work
+        type: string
+        description: "Optional. Use when the finding belongs to a larger body of work."
+
+
+      # ======================================================
+      # LOCATION
+      # ======================================================
+
+      - name: locations
+        label: Location
+        type: string
+        list: true
+        description: "Optional. Enter locations naturally at whatever level is meaningful."
+
+
+      # ======================================================
+      # COVER MEDIA
+      # ======================================================
+
+      - name: coverType
+        label: Cover Type
+        type: select
+        required: true
+        default: image
+
+        options:
+          values:
+            - name: image
+              label: Image
+            - name: loop
+              label: GIF / Loop
+            - name: video
+              label: Video
+            - name: audio
+              label: Audio
+
+      - name: image
+        label: Cover Media
+        type: file
+        required: true
+        description: "The main media representing this finding."
+
+        options:
+          media: images
+          extensions:
+            - jpg
+            - jpeg
+            - png
+            - webp
+            - gif
+            - mp4
+            - webm
+            - mov
+            - mp3
+            - m4a
+            - wav
+            - ogg
+            - flac
+
+      - name: videoPoster
+        label: Poster / Cover Image
+        type: image
+        description: "Optional. Especially useful for Video or Audio findings."
+
+        options:
+          media: images
+          extensions:
+            - jpg
+            - jpeg
+            - png
+            - webp
+            - gif
+
+
+      # ======================================================
+      # ADDITIONAL MEDIA
+      # ======================================================
+
+      - name: additionalMedia
+        label: Additional Media
+        type: object
+
+        list:
+          collapsible:
+            collapsed: true
+            summary: "{mediaType} — {caption}"
+
+        description: "Optional. Add media in the exact order you want it presented."
+
+        fields:
+
+          - name: mediaType
+            label: Media Type
+            type: select
+            required: true
+
+            options:
+              placeholder: "Choose media type"
+
+              values:
+                - name: image
+                  label: Image
+                - name: loop
+                  label: GIF / Loop
+                - name: video
+                  label: Video
+                - name: audio
+                  label: Audio
+                - name: document
+                  label: Document
+
+          - name: file
+            label: File
+            type: file
+            required: true
+
+            options:
+              media: images
+              extensions:
+                - jpg
+                - jpeg
+                - png
+                - webp
+                - gif
+                - mp4
+                - webm
+                - mov
+                - mp3
+                - m4a
+                - wav
+                - ogg
+                - flac
+                - pdf
+                - txt
+                - rtf
+                - doc
+                - docx
+                - csv
+                - xls
+                - xlsx
+                - ppt
+                - pptx
+                - zip
+
+          - name: caption
+            label: Caption
+            type: text
+
+          - name: credit
+            label: Credit
+            type: string
+
+          - name: sourceUrl
+            label: Media Source URL
+            type: string
+
+
+      # ======================================================
+      # NOTES
+      # ======================================================
+
+      - name: body
+        label: Notes
+        type: rich-text
+        description: "Optional. Personal thoughts, research, quotations, connections, or analysis."
+
+        options:
+          format: markdown
+          media: images
+          switcher: true
+
+
+      # ======================================================
+      # PRIMARY SOURCE
+      # ======================================================
+
+      - name: primarySource
+        label: Primary Source
+        type: object
+        description: "The best or most authoritative source for this finding."
+
+        fields:
+
+          - name: type
+            label: Source Type
+            type: select
+
+            options:
+              placeholder: "Choose source type"
+
+              values:
+                - name: artist / creator
+                  label: Artist / Creator
+                - name: museum
+                  label: Museum
+                - name: gallery
+                  label: Gallery
+                - name: archive
+                  label: Archive
+                - name: library
+                  label: Library
+                - name: brand
+                  label: Brand
+                - name: publication
+                  label: Publication
+                - name: journal
+                  label: Journal
+                - name: book
+                  label: Book
+                - name: website
+                  label: Website
+                - name: database
+                  label: Database
+                - name: other
+                  label: Other
+
+          - name: name
+            label: Source Name
+            type: string
+
+          - name: url
+            label: Source URL
+            type: string
+
+
+      # ======================================================
+      # DISCOVERED VIA
+      # ======================================================
+
+      - name: discovery
+        label: Discovered Via
+        type: object
+        description: "Optional. Preserve the path by which you actually encountered the finding."
+
+        fields:
+
+          - name: type
+            label: Discovered Via Type
+            type: select
+
+            options:
+              placeholder: "Choose discovery type"
+
+              values:
+                - name: instagram
+                  label: Instagram
+                - name: x / twitter
+                  label: X / Twitter
+                - name: tumblr
+                  label: Tumblr
+                - name: pinterest
+                  label: Pinterest
+                - name: tiktok
+                  label: TikTok
+                - name: reddit
+                  label: Reddit
+                - name: youtube
+                  label: YouTube
+                - name: website
+                  label: Website
+                - name: book
+                  label: Book
+                - name: magazine
+                  label: Magazine
+                - name: museum / gallery
+                  label: Museum / Gallery
+                - name: physical encounter
+                  label: Physical Encounter
+                - name: personal photograph
+                  label: Personal Photograph
+                - name: friend / person
+                  label: Friend / Person
+                - name: other
+                  label: Other
+
+          - name: name
+            label: Discovered Via
+            type: string
+            description: "Optional. Account, person, publication, website, place, etc."
+
+          - name: url
+            label: Discovery URL
+            type: string
+
+
+      # ======================================================
+      # WEBSITE
+      # ======================================================
+
+      - name: featured
+        label: Feature on Homepage
+        type: boolean
+        default: false
+
+      - name: private
+        label: Keep Private
+        type: boolean
+        default: false
+
+
+  # ==========================================================
+  # NOTES
+  # ==========================================================
+
+  - name: notes
+    label: Notes
+    type: collection
+    path: src/content/notes
+    format: yaml-frontmatter
+
+    filename:
+      template: "{year}-{month}-{day}-{hour}-{minute}-{second}-{type}.md"
+      field: false
+
+    view:
+      fields:
+        - type
+        - date
+        - title
+        - author
+        - featured
+
+      primary: type
+
+      sort:
+        - date
+        - type
+
+      search:
+        - type
+        - title
+        - author
+        - sourceName
+        - location
+        - tags
+
+      default:
+        sort: date
+        order: desc
+
+    fields:
+
+      - name: type
+        label: Type
+        type: select
+        required: true
+
+        options:
+          placeholder: "Choose a note type"
+
+          values:
+            - name: quote
+              label: Quote
+            - name: note
+              label: Note
+            - name: thought
+              label: Thought
+            - name: excerpt
+              label: Excerpt
+            - name: link
+              label: Link
+            - name: image
+              label: Image
+            - name: list
+              label: List
+            - name: reference
+              label: Reference
+            - name: question
+              label: Question
+            - name: idea
+              label: Idea
+            - name: observation
+              label: Observation
+            - name: fragment
+              label: Fragment
+            - name: other
+              label: Other
+
+      - name: date
+        label: Date Saved
+        type: date
+        required: true
+
+      - name: title
+        label: Title
+        type: string
+        description: "Optional. Leave blank for quotes, fragments, images, quick thoughts, etc."
+
+      - name: author
+        label: Author / Creator
+        type: string
+        description: "Optional. Person, artist, writer, designer, publication, account, etc."
+
+      - name: sourceName
+        label: Source
+        type: string
+        description: "Optional. Book, article, interview, website, film, publication, etc."
+
+      - name: sourceUrl
+        label: Source URL
+        type: string
+        description: "Optional. Link back to the original source."
+
+      - name: image
+        label: Image
+        type: image
+        description: "Optional. Use for screenshots, visual references, image notes, scans, etc."
+
+        options:
+          media: noteImages
+
+      - name: location
+        label: Location
+        type: string
+        description: "Optional. Useful for observations, places, events, or things you encountered in person."
+
+      - name: tags
+        label: Tags
+        type: string
+        list: true
+        description: "Optional. Add whatever tags become useful as your notes grow."
+
+      - name: featured
+        label: Featured
+        type: boolean
+        default: false
+
+      - name: body
+        label: Content
+        type: rich-text
+        description: "Write as much or as little as you want."
+
+        options:
+          format: markdown
+          media: noteImages
+          switcher: true
