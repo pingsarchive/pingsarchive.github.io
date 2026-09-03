@@ -1,6 +1,6 @@
 ---
 archiveNumber: "0004"
-title: genius + independent understanding
+title: 100 Lissajous Curves
 dateFound: 2026-09-02
 originalDate: August 28, 2026
 creator: Philosophy of Physics via X
@@ -11,13 +11,15 @@ gallery:
     caption: original post
     credit: "@PhilosophyOfPhy via X"
     sourceUrl: https://x.com/PhilosophyOfPhy/status/2093341582137385462
-archiveDescription: A Philosophy Of Physics post pairing a looping visual with a
-  statement about genius as the capacity to arrive at and understand ideas
-  independently rather than through instruction. Saved for the distinction it
-  draws between being taught an idea and reconstructing it for oneself.
+archiveDescription: An animated table of Lissajous curves visualizing the
+  patterns produced by pairs of perpendicular harmonic motions at different
+  frequency ratios. Circular guides along the top and left edges generate a grid
+  of continuously changing curves, with each cell representing a different
+  combination of frequencies.
 kind: social media post / looping animation / philosophy quote
-reason: the idea of understanding something by independently arriving at it
-  rather than simply being taught it
+reason: a simple mathematical system produces such a wide range of intricate
+  forms. I like being able to see the underlying motion and the resulting
+  patterns at the same time.
 collections:
   - internet archive
   - moving image
@@ -32,4 +34,21 @@ sourceUrl: https://x.com/PhilosophyOfPhy/status/2093341582137385462
 featured: true
 favorite: false
 private: false
+originalDateDetails:
+  year: 2019
+creators:
+  - name: William Jordan
+    role: Animator
+primaryObjectType: animation
+colors:
+  - multicolor
+colorNotes: rainbow gradient curves on a dark gray grid with white orbital guides
+seriesProject: Lissajous Curve
+primarySource:
+  type: website
+  name: William Jordan
+  url: https://github.com/chilledwilba/Lissajous-Curve?utm_source=chatgpt.com
 ---
+A Lissajous curve is produced by combining two perpendicular periodic motions.
+
+This animation presents multiple frequency combinations simultaneously as a table, making the relationship between the generating motions and the resulting curves visible.
