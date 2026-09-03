@@ -6,16 +6,16 @@ originalDate: "1969"
 creator: Mark Rothko
 coverType: image
 image: /images/archive/hrk8zb9waamheee.png
-archiveDescription: Untitled (1969), a late work on paper by Mark Rothko
-  composed of two softly defined rectangles in muted blue tones. Pale areas of
-  the paper remain visible through the paint, giving the composition an
-  unusually light and airy quality. Made during a period when Rothko was
-  experimenting extensively with acrylic on paper, the work belongs to a body of
-  late paintings that complicates the darker image usually associated with his
-  final years.
+archiveDescription: A 1969 work on paper by Mark Rothko composed of two pale
+  blue-gray rectangular fields separated by a narrow band of exposed paper.
+  Thin, visibly worked layers of acrylic and ink create subtle shifts between
+  cool gray, blue, and the warm cream of the paper, while the irregular edges
+  leave the support visibly present around the painted forms.
 kind: painting on paper / abstract painting / color field painting
-reason: the softness of the blue fields and the way the exposed paper makes the
-  painting feel luminous and almost weightless
+reason: how quiet and almost washed-out it feels. I like the contrast between
+  the cool blue-gray fields and the warm exposed paper, and how the visible
+  brushwork keeps the seemingly simple blocks of color from ever feeling
+  completely flat.
 collections:
   - paintings
 tags:
@@ -23,7 +23,8 @@ tags:
   - paintings
 colors:
   - blue
-  - white
+  - gray
+  - cream
 sourceName: Nasjonalmuseet — Mark Rothko, Untitled, 1969
 sourceUrl: https://www.nasjonalmuseet.no/en/guide/rothko/paintingsonpaper/310/
 featured: false
@@ -40,4 +41,11 @@ mediums:
   - acrylic
   - ink
   - wove paper
+colorNotes: two pale blue-gray fields separated by an exposed cream band, with
+  irregular brushed edges and visible tonal variation
+primarySource:
+  type: museum
+  name: National Gallery of Art
+  url: https://www.nga.gov/artworks/67645-untitled
 ---
+National Gallery of Art accession 1986.43.271. Acrylic and ink on wove paper. 136.53 × 107 cm (53 3/4 × 42 1/8 in.). Gift of The Mark Rothko Foundation, Inc. Included in Mark Rothko: Paintings on Paper, National Gallery of Art / Nasjonalmuseet, 2023–2024, catalogue no. 76.
