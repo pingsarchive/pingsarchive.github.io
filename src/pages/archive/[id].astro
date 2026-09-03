@@ -337,12 +337,6 @@ export async function getStaticPaths() {
             );
 
 
-          score +=
-            overlapCount(
-              item.data.collections,
-              candidate.data.collections
-            ) * 2;
-
 
           return {
             item: candidate,
