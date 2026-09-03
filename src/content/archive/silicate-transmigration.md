@@ -8,11 +8,14 @@ image: /images/archive/07-michael-ho-silicate-transmigration-2026-pigment-latex-
 gallery:
   - image: /images/archive/06-install-mwm.jpg
     caption: overall 187.5 x 310.5 x 3.3 cm unfolded
-archiveDescription: a folding screen made from jade silica, latex, and a found
-  wooden frame. cast from the surfaces of ho’s paintings, the translucent panels
-  hold pigment like traces beneath skin. an object traditionally used to divide
-  and conceal becomes porous—turning landscape, migration, and memory into
-  something that appears to seep through the material itself.
+archiveDescription: "Silicate Transmigration (2026) is a folding-screen
+  installation by Michael Ho made from pigment, latex, and a found wooden frame.
+  The latex panels are cast from the textures of Ho’s paintings, with pigment
+  pushed from the reverse so that it bleeds through the surface, turning the
+  screen into a porous, skin-like threshold between image, object, and
+  landscape. The work was exhibited in Mirrors Within Mirrors at Derosia, New
+  York, from May 14–June 13, 2026. Overall dimensions: 187.5 × 310.5 × 3.3 cm
+  unfolded."
 location: exhibited in Mirrors Within Mirrors at Derosia in New York
 sourceName: Mirrors Within Mirrors
 sourceUrl: https://derosia.nyc/exhibitions/mirrors-within-mirrors
@@ -24,5 +27,38 @@ tags:
   - art pieces
 colors:
   - pink
-  - brown
+originalDateDetails:
+  year: 2026
+  qualifier: exact
+creators:
+  - name: Michael Ho
+    role: Artist
+reason: I saved this for the way the screen sits somewhere between furniture,
+  sculpture, and image. I love the contrast between the carved black frame and
+  the pale, almost skin-like surface, and the way the landscape seems absorbed
+  into the material rather than simply depicted on it.
+primaryObjectType: installation
+secondaryObjectTypes:
+  - Folding Screen
+  - Sculpture
+mediums:
+  - pigment
+  - latex
+  - found wooden fram
+locations:
+  - Derosia, 197 Grand St, 2W, New York, NY 10013
+coverType: image
+additionalMedia:
+  - mediaType: image
+    file: /images/archive/mirrors-within-mirrors-at-gallery-vacancy-at-derosia-new-york6.jpg
+    credit: Derosia
+    sourceUrl: https://derosia.nyc/exhibitions/mirrors-within-mirrors
+  - mediaType: image
+    file: /images/archive/mirrors-within-mirrors-at-gallery-vacancy-at-derosia-new-york3.jpg
+    credit: Derosia
+    sourceUrl: https://derosia.nyc/exhibitions/mirrors-within-mirrors
+primarySource:
+  type: gallery
+  name: Derosia
+  url: https://derosia.nyc/exhibitions/mirrors-within-mirrors
 ---
