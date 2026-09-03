@@ -43,7 +43,7 @@ seriesProject: Cyanometer
 locations:
   - Musée d’histoire des sciences, Geneva, Switzerland
 coverType: image
-image: /images/archive/materielderecherchehorace-benedictdesaussuredeuxiemeschemaducyanometre1788ccollectionmuseedhistoiredessciencesgeneva.jpg
+image: /images/archive/materielderecherchehorace-benedictdesaussuredeuxiemeschemaducyanometre1788ccollectionmuseedhistoiredessciencesgeneva.png
 primarySource:
   type: museum
   name: Musée d’histoire des sciences — Ville de Genève
