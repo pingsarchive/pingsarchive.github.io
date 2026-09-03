@@ -6,15 +6,17 @@ originalDate: "1915"
 creator: Hilma af Klint
 coverType: image
 image: /images/archive/art-hilma-af-klint-group-ix-suw-swan-svanen-no-1-1915.jpg
-archiveDescription: Group IX/SUW, The Swan, No. 1 (1915), an oil painting by
-  Hilma af Klint from The Swan series. A white swan and black swan occupy
-  opposing black-and-white fields, meeting at the center of the composition. The
-  painting is the first work in a series that progressively transforms the swan
-  motif into geometric abstraction.
+archiveDescription: The first work in Hilma af Klint’s The Swan series,
+  completed in 1915 as part of The Paintings for the Temple. Two swans—one black
+  and one white—meet across a divided field, establishing a visual opposition
+  that the series gradually transforms from recognizable imagery into
+  increasingly geometric abstraction.
 location: belongs to the Hilma af Klint Foundation in Stockholm
 kind: painting / symbolic abstraction
-reason: the symmetry of two opposing forms meeting at one exact point, and the
-  use of black and white as both composition and subject
+reason: the extreme simplicity of the composition and the way the two swans
+  function almost like symbols rather than animals. I like how symmetry,
+  opposition, and reflection are used to hold two contrasting forces in one
+  image.
 tags:
   - hilma af klint
   - painting
@@ -26,4 +28,20 @@ sourceUrl: https://commons.wikimedia.org/wiki/File:Hilma_af_Klint_-_1915_-_The_S
 featured: false
 favorite: false
 private: false
+originalDateDetails:
+  year: 1915
+  qualifier: exact
+creators:
+  - name: Hilma af Klint
+    role: Artist
+primaryObjectType: painting
+mediums:
+  - oil paint
+  - canvas
+seriesProject: The Swan
+bodyOfWork: The Paintings for the Temple
+primarySource:
+  type: museum
+  name: Solomon R. Guggenheim Museum
+  url: https://www.guggenheim.org/audio/tag/hilma-af-klint
 ---
