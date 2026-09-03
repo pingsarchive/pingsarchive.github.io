@@ -1108,18 +1108,25 @@ const dateFoundDisplay =
 
                           {
                             media.credit && (
-
-                              <span class="gallery-credit">
-                                {media.credit}
-                              </span>
-
+                              media.sourceUrl ? (
+                                <a
+                                  href={media.sourceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  class="gallery-credit gallery-source"
+                                >
+                                  {media.credit} ↗
+                                </a>
+                              ) : (
+                                <span class="gallery-credit">
+                                  {media.credit}
+                                </span>
+                              )
                             )
                           }
 
-
                           {
-                            media.sourceUrl && (
-
+                            media.sourceUrl && !media.credit && (
                               <a
                                 href={media.sourceUrl}
                                 target="_blank"
@@ -1128,10 +1135,8 @@ const dateFoundDisplay =
                               >
                                 source ↗
                               </a>
-
                             )
                           }
-
                         </figcaption>
 
                       )
