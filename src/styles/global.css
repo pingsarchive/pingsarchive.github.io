@@ -3802,3 +3802,33 @@ img {
   }
 
 }
+/* ==========================================
+   MASONRY FIRST-PAINT STABILITY
+========================================== */
+
+/*
+  Prevent the browser from briefly showing
+  unmeasured cards before masonry has calculated
+  their proper positions.
+*/
+
+.home-masonry,
+.archive-results[data-view="grid"] {
+  visibility: hidden;
+}
+
+
+.home-masonry.masonry-ready,
+.archive-results[data-view="grid"].masonry-ready {
+  visibility: visible;
+}
+
+
+/*
+  Index view does not use masonry positioning,
+  so it should always remain visible.
+*/
+
+.archive-results[data-view="index"] {
+  visibility: visible;
+}

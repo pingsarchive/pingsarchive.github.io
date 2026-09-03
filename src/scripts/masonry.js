@@ -154,6 +154,14 @@ function updateMasonryNow() {
 
     resizeMasonryGrid(grid);
 
+    /*
+      Do not reveal the masonry until its
+      first correct layout has been calculated.
+    */
+    grid.classList.add(
+      "masonry-ready"
+    );
+
   });
 
 }
