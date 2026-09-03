@@ -29,4 +29,15 @@ sourceUrl: https://www.nasjonalmuseet.no/en/guide/rothko/paintingsonpaper/310/
 featured: false
 favorite: false
 private: false
+originalDateDetails:
+  year: 1969
+  qualifier: exact
+creators:
+  - name: Mark Rothko
+    role: Artist
+primaryObjectType: painting
+mediums:
+  - acrylic
+  - ink
+  - wove paper
 ---
