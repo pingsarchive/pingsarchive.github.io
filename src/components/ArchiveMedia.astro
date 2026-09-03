@@ -1,7 +1,7 @@
 ---
 interface Props {
   src: string;
-  coverType?: "image" | "loop" | "video";
+  coverType?: "image" | "loop" | "video" | "audio";
   poster?: string;
   alt?: string;
   title?: string;
@@ -26,15 +26,31 @@ const extension = src
   .pop()
   ?.toLowerCase();
 
-const isVideoFile = ["mp4", "webm", "mov"].includes(
-  extension || ""
-);
+const isVideoFile = [
+  "mp4",
+  "webm",
+  "mov",
+].includes(extension || "");
+
+const isAudioFile = [
+  "mp3",
+  "m4a",
+  "wav",
+  "ogg",
+  "flac",
+].includes(extension || "");
 
 const renderAsLoop =
-  coverType === "loop" && isVideoFile;
+  coverType === "loop" &&
+  isVideoFile;
 
 const renderAsVideo =
-  coverType === "video" && isVideoFile;
+  coverType === "video" &&
+  isVideoFile;
+
+const renderAsAudio =
+  coverType === "audio" &&
+  isAudioFile;
 ---
 
 <div
@@ -47,6 +63,7 @@ const renderAsVideo =
 >
   {
     renderAsLoop ? (
+
       <video
         class="archive-media-element archive-media-loop"
         autoplay
@@ -59,8 +76,11 @@ const renderAsVideo =
       >
         <source src={src} />
       </video>
+
     ) : renderAsVideo ? (
+
       context === "detail" ? (
+
         <video
           class="archive-media-element archive-media-video"
           controls
@@ -71,50 +91,139 @@ const renderAsVideo =
         >
           <source src={src} />
         </video>
+
       ) : (
-        <video
-          class="archive-media-element archive-media-video-preview"
-          muted
-          playsinline
-          preload="metadata"
-          poster={poster}
-          aria-label={`${title} — video`}
-        >
-          <source src={src} />
-        </video>
+
+        poster ? (
+
+          <img
+            class="archive-media-element archive-media-video-poster"
+            src={poster}
+            alt={alt || title}
+            loading={loading}
+          />
+
+        ) : (
+
+          <video
+            class="archive-media-element archive-media-video-preview"
+            muted
+            playsinline
+            preload="metadata"
+            aria-label={`${title} — video`}
+          >
+            <source src={src} />
+          </video>
+
+        )
+
       )
+
+    ) : renderAsAudio ? (
+
+      context === "detail" ? (
+
+        <div class="archive-audio-detail">
+
+          {
+            poster ? (
+              <img
+                class="archive-media-element archive-audio-poster"
+                src={poster}
+                alt={alt || title}
+                loading={loading}
+              />
+            ) : (
+              <div
+                class="archive-audio-placeholder"
+                aria-hidden="true"
+              >
+                <span>AUDIO</span>
+              </div>
+            )
+          }
+
+          <audio
+            class="archive-audio-player"
+            controls
+            preload="metadata"
+            aria-label={title}
+          >
+            <source src={src} />
+          </audio>
+
+        </div>
+
+      ) : (
+
+        poster ? (
+
+          <img
+            class="archive-media-element archive-audio-poster"
+            src={poster}
+            alt={alt || title}
+            loading={loading}
+          />
+
+        ) : (
+
+          <div
+            class="archive-audio-placeholder archive-audio-placeholder-card"
+            aria-label={`${title} — audio`}
+          >
+            <span>AUDIO</span>
+          </div>
+
+        )
+
+      )
+
     ) : (
+
       <img
         class="archive-media-element archive-media-image"
         src={src}
         alt={alt}
         loading={loading}
       />
+
     )
   }
 </div>
 
+
 <script>
   function initializeArchiveLoops() {
+
     const loops = document.querySelectorAll(
       '[data-cover-type="loop"]'
     );
 
     loops.forEach((wrapper) => {
-      const video = wrapper.querySelector("video");
+
+      const video =
+        wrapper.querySelector("video");
 
       if (video) {
+
         video.muted = true;
         video.defaultMuted = true;
         video.loop = true;
         video.playsInline = true;
 
         const tryToPlay = () => {
+
           if (video.paused) {
+
             video.play().catch(() => {
-              // Some mobile browsers may require one tap.
+              /*
+                Some mobile browsers may
+                require one tap.
+              */
             });
+
           }
+
         };
 
         tryToPlay();
@@ -128,28 +237,47 @@ const renderAsVideo =
           "canplay",
           tryToPlay
         );
+
       }
 
-      if (wrapper.dataset.loopInteractionReady === "true") {
+      if (
+        wrapper.dataset
+          .loopInteractionReady === "true"
+      ) {
         return;
       }
 
-      wrapper.dataset.loopInteractionReady = "true";
+      wrapper.dataset
+        .loopInteractionReady = "true";
 
-      wrapper.addEventListener("click", (event) => {
-        /*
-          A GIF / Loop is meant to be viewable in the feed.
-          Do not let a tap on the moving media activate
-          a surrounding archive-card link.
-        */
-        event.preventDefault();
-        event.stopPropagation();
+      wrapper.addEventListener(
+        "click",
+        (event) => {
 
-        if (video && video.paused) {
-          video.play().catch(() => {});
+          /*
+            A GIF / Loop should remain
+            viewable directly in the feed.
+          */
+
+          event.preventDefault();
+          event.stopPropagation();
+
+          if (
+            video &&
+            video.paused
+          ) {
+
+            video
+              .play()
+              .catch(() => {});
+
+          }
+
         }
-      });
+      );
+
     });
+
   }
 
   initializeArchiveLoops();
@@ -159,25 +287,31 @@ const renderAsVideo =
     initializeArchiveLoops
   );
 
-  window.addEventListener("pageshow", () => {
-    initializeArchiveLoops();
-  });
+  window.addEventListener(
+    "pageshow",
+    initializeArchiveLoops
+  );
 
   document.addEventListener(
     "visibilitychange",
     () => {
+
       if (!document.hidden) {
         initializeArchiveLoops();
       }
+
     }
   );
 </script>
 
+
 <style>
+
   .archive-media {
     display: block;
     width: 100%;
   }
+
 
   .archive-media-element {
     display: block;
@@ -186,13 +320,74 @@ const renderAsVideo =
     max-width: 100%;
   }
 
+
   .archive-media-loop,
   .archive-media-video,
   .archive-media-video-preview {
     object-fit: contain;
   }
 
+
   .archive-media-loop {
     cursor: default;
   }
+
+
+  /* ==========================================
+     AUDIO
+  ========================================== */
+
+
+  .archive-audio-detail {
+    width: 100%;
+  }
+
+
+  .archive-audio-poster {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+
+
+  .archive-audio-placeholder {
+    display: flex;
+    width: 100%;
+    min-height: 280px;
+    align-items: center;
+    justify-content: center;
+
+    border:
+      1px solid
+      var(--blue-faint);
+
+    background:
+      var(--blue-ghost);
+
+    color:
+      var(--blue);
+
+    font-family:
+      var(--mono);
+
+    font-size: 9px;
+
+    letter-spacing: 0.12em;
+
+    text-transform: uppercase;
+  }
+
+
+  .archive-audio-placeholder-card {
+    aspect-ratio: 1 / 1;
+    min-height: 0;
+  }
+
+
+  .archive-audio-player {
+    display: block;
+    width: 100%;
+    margin-top: 10px;
+  }
+
 </style>

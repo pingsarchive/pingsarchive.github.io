@@ -4,9 +4,205 @@ import ArchiveMedia from "../../components/ArchiveMedia.astro";
 import { getCollection, render } from "astro:content";
 
 
+/* ==========================================================
+   HELPERS
+========================================================== */
+
+function normalized(values = []) {
+  return values
+    .filter(Boolean)
+    .map((value) =>
+      String(value)
+        .trim()
+        .toLowerCase()
+    );
+}
+
+
+function overlapCount(a = [], b = []) {
+  const left = new Set(normalized(a));
+  const right = normalized(b);
+
+  return right.filter((value) =>
+    left.has(value)
+  ).length;
+}
+
+
+function formatOriginalDate(details) {
+
+  if (!details) {
+    return "";
+  }
+
+  const monthNames = {
+    january: "JAN",
+    february: "FEB",
+    march: "MAR",
+    april: "APR",
+    may: "MAY",
+    june: "JUN",
+    july: "JUL",
+    august: "AUG",
+    september: "SEP",
+    october: "OCT",
+    november: "NOV",
+    december: "DEC",
+  };
+
+
+  const seasonNames = {
+    spring: "SPRING",
+    summer: "SUMMER",
+    autumn: "AUTUMN",
+    winter: "WINTER",
+    "spring/summer": "S/S",
+    "fall/winter": "F/W",
+  };
+
+
+  let dateCore = "";
+
+
+  if (details.eraLabel?.trim()) {
+
+    dateCore =
+      details.eraLabel.trim();
+
+  } else if (
+    details.year &&
+    details.endYear
+  ) {
+
+    dateCore =
+      `${details.year}–${details.endYear}`;
+
+  } else if (details.year) {
+
+    if (
+      details.day &&
+      details.month
+    ) {
+
+      dateCore =
+        `${details.day} ${
+          monthNames[details.month] ||
+          details.month
+        } ${details.year}`;
+
+    } else if (details.month) {
+
+      dateCore =
+        `${
+          monthNames[details.month] ||
+          details.month
+        } ${details.year}`;
+
+    } else if (details.season) {
+
+      dateCore =
+        `${
+          seasonNames[details.season] ||
+          details.season.toUpperCase()
+        } ${details.year}`;
+
+    } else {
+
+      dateCore =
+        String(details.year);
+
+    }
+
+  } else if (details.season) {
+
+    dateCore =
+      seasonNames[details.season] ||
+      details.season.toUpperCase();
+
+  }
+
+
+  const qualifier =
+    details.qualifier;
+
+
+  if (
+    qualifier &&
+    qualifier !== "exact" &&
+    qualifier !== "range" &&
+    qualifier !== "unknown"
+  ) {
+
+    const qualifierLabels = {
+      circa: "C.",
+      before: "BEFORE",
+      after: "AFTER",
+      early: "EARLY",
+      mid: "MID",
+      late: "LATE",
+    };
+
+    const label =
+      qualifierLabels[qualifier];
+
+    if (label) {
+      dateCore =
+        `${label} ${dateCore}`.trim();
+    }
+
+  }
+
+
+  if (
+    qualifier === "unknown" &&
+    !dateCore
+  ) {
+    dateCore = "UNKNOWN";
+  }
+
+
+  if (details.timeOfDay) {
+
+    const time =
+      details.timeOfDay.toUpperCase();
+
+    dateCore =
+      dateCore
+        ? `${dateCore} · ${time}`
+        : time;
+
+  }
+
+
+  return dateCore;
+}
+
+
+
+/* ==========================================================
+   STATIC PATHS
+========================================================== */
+
 export async function getStaticPaths() {
+  
+  function normalized(values = []) {
+    return values
+      .filter(Boolean)
+      .map((value) =>
+        String(value)
+          .trim()
+          .toLowerCase()
+      );
+  }
 
+  function overlapCount(a = [], b = []) {
+    const left = new Set(normalized(a));
+    const right = normalized(b);
 
+    return right.filter((value) =>
+      left.has(value)
+    ).length;
+  }
   const items = (
     await getCollection(
       "archive",
@@ -21,7 +217,6 @@ export async function getStaticPaths() {
 
   return items.map((item, index) => {
 
-
     const previous =
       index < items.length - 1
         ? items[index + 1]
@@ -34,6 +229,14 @@ export async function getStaticPaths() {
         : null;
 
 
+    /* ------------------------------------------------------
+       RELATED FINDINGS
+
+       New metadata is weighted first.
+
+       Old metadata remains usable while older findings
+       wait to be re-edited.
+    ------------------------------------------------------ */
 
     const related =
       items
@@ -45,44 +248,81 @@ export async function getStaticPaths() {
 
         .map((candidate) => {
 
-
           let score = 0;
 
 
-          candidate.data.collections.forEach(
-            (collection) => {
+          /* CREATORS */
+
+          const itemCreators =
+            item.data.creators?.map(
+              (creator) => creator.name
+            ) || [];
+
+          const candidateCreators =
+            candidate.data.creators?.map(
+              (creator) => creator.name
+            ) || [];
+
+          score +=
+            overlapCount(
+              itemCreators,
+              candidateCreators
+            ) * 4;
 
 
-              if (
-                item.data.collections.includes(
-                  collection
-                )
-              ) {
-                score += 3;
-              }
-
-
-            }
-          );
-
-
-          candidate.data.tags.forEach(
-            (tag) => {
-
-
-              if (
-                item.data.tags.includes(tag)
-              ) {
-                score += 1;
-              }
-
-
-            }
-          );
-
+          /* PRIMARY OBJECT TYPE */
 
           if (
-            candidate.data.kind &&
+            item.data.primaryObjectType &&
+            candidate.data.primaryObjectType ===
+              item.data.primaryObjectType
+          ) {
+            score += 3;
+          }
+
+
+          /* THEMES */
+
+          score +=
+            overlapCount(
+              item.data.themes,
+              candidate.data.themes
+            ) * 2;
+
+
+          /* MEDIUM */
+
+          score +=
+            overlapCount(
+              item.data.mediums,
+              candidate.data.mediums
+            );
+
+
+          /* COLORS */
+
+          score +=
+            overlapCount(
+              item.data.colors,
+              candidate.data.colors
+            );
+
+
+          /* LOCATION */
+
+          score +=
+            overlapCount(
+              item.data.locations,
+              candidate.data.locations
+            );
+
+
+          /* ----------------------------------------------
+             TEMPORARY OLD-METADATA RELATEDNESS
+          ---------------------------------------------- */
+
+          if (
+            item.data.kind &&
             candidate.data.kind ===
               item.data.kind
           ) {
@@ -90,20 +330,24 @@ export async function getStaticPaths() {
           }
 
 
-          if (
-            candidate.data.city &&
-            candidate.data.city ===
-              item.data.city
-          ) {
-            score += 1;
-          }
+          score +=
+            overlapCount(
+              item.data.tags,
+              candidate.data.tags
+            );
+
+
+          score +=
+            overlapCount(
+              item.data.collections,
+              candidate.data.collections
+            ) * 2;
 
 
           return {
             item: candidate,
             score,
           };
-
 
         })
 
@@ -140,12 +384,15 @@ export async function getStaticPaths() {
 
     };
 
-
   });
-
 
 }
 
+
+
+/* ==========================================================
+   CURRENT FINDING
+========================================================== */
 
 const {
   item,
@@ -170,7 +417,52 @@ const findingNumber =
   "----";
 
 
-const placeDisplay =
+
+/* ==========================================================
+   DATE
+========================================================== */
+
+const newOriginalDate =
+  formatOriginalDate(
+    item.data.originalDateDetails
+  );
+
+
+const originalDateDisplay =
+  newOriginalDate ||
+  item.data.originalDate ||
+  "";
+
+
+const dateNote =
+  item.data.originalDateDetails
+    ?.dateNote;
+
+
+
+/* ==========================================================
+   CREATORS
+========================================================== */
+
+const creators =
+  item.data.creators?.length
+    ? item.data.creators
+    : item.data.creator
+      ? [
+          {
+            name: item.data.creator,
+            role: undefined,
+          },
+        ]
+      : [];
+
+
+
+/* ==========================================================
+   LOCATION
+========================================================== */
+
+const legacyPlace =
   item.data.location ||
 
   [
@@ -183,22 +475,138 @@ const placeDisplay =
 
     .filter(Boolean)
     .join(", ");
+
+
+const locations =
+  item.data.locations?.length
+    ? item.data.locations
+    : legacyPlace
+      ? [legacyPlace]
+      : [];
+
+
+
+/* ==========================================================
+   OBJECT TYPE
+========================================================== */
+
+const primaryObjectType =
+  item.data.primaryObjectType ||
+  item.data.kind ||
+  "";
+
+
+
+/* ==========================================================
+   ADDITIONAL MEDIA
+
+   New Additional Media is used when present.
+
+   Existing Gallery + Attachments stay visible until that
+   finding is re-edited into the new system.
+========================================================== */
+
+const additionalMedia =
+  item.data.additionalMedia?.length
+    ? item.data.additionalMedia
+    : [
+
+        ...(item.data.gallery || []).map(
+          (photo) => ({
+            mediaType: "image",
+            file: photo.image,
+            caption: photo.caption,
+            credit: photo.credit,
+            sourceUrl: photo.sourceUrl,
+          })
+        ),
+
+        ...(item.data.attachments || []).map(
+          (attachment) => ({
+            mediaType: "document",
+            file: attachment.file,
+            caption: attachment.title,
+            credit: undefined,
+            sourceUrl: undefined,
+          })
+        ),
+
+      ];
+
+
+
+/* ==========================================================
+   SOURCE
+========================================================== */
+
+const primarySource =
+  item.data.primarySource &&
+  (
+    item.data.primarySource.name ||
+    item.data.primarySource.url ||
+    item.data.primarySource.type
+  )
+    ? item.data.primarySource
+    : (
+        item.data.sourceName ||
+        item.data.sourceUrl
+      )
+      ? {
+          type: undefined,
+          name: item.data.sourceName,
+          url: item.data.sourceUrl,
+        }
+      : null;
+
+
+
+/* ==========================================================
+   DISCOVERY
+========================================================== */
+
+const discovery =
+  item.data.discovery &&
+  (
+    item.data.discovery.name ||
+    item.data.discovery.url ||
+    item.data.discovery.type
+  )
+    ? item.data.discovery
+    : null;
+
+
+
+/* ==========================================================
+   FOUND DATE
+
+   UTC prevents a date-only value from appearing as the
+   previous day because of timezone conversion.
+========================================================== */
+
+const dateFoundDisplay =
+  item.data.dateFound.toLocaleDateString(
+    "en-US",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    }
+  );
 ---
 
 <BaseLayout
   title={`${item.data.title} — ping's archive`}
 >
 
-
   <article class="object-file">
 
 
-    <!-- =========================================
+    <!-- ====================================================
          TOP LINE
-    ========================================== -->
+    ===================================================== -->
 
     <div class="object-topline">
-
 
       <a
         href="/archive"
@@ -207,54 +615,47 @@ const placeDisplay =
         ← archive
       </a>
 
-
       <span>
         finding no. {findingNumber}
       </span>
-
 
     </div>
 
 
 
-    <!-- =========================================
+    <!-- ====================================================
          COVER + TITLE
-    ========================================== -->
+    ===================================================== -->
 
     <section class="object-hero">
-
 
       <div class="object-image-wrap">
 
         <ArchiveMedia
-  src={item.data.image}
-  coverType={item.data.coverType}
-  poster={item.data.videoPoster}
-  alt={
-    item.data.alt ||
-    item.data.title
-  }
-  title={item.data.title}
-  context="detail"
-  loading="eager"
-/>
+          src={item.data.image}
+          coverType={item.data.coverType}
+          poster={item.data.videoPoster}
+          alt={
+            item.data.alt ||
+            item.data.title
+          }
+          title={item.data.title}
+          context="detail"
+          loading="eager"
+        />
 
       </div>
 
 
-
       <div class="object-introduction">
-
 
         <p class="object-accession">
           finding no. {findingNumber}
         </p>
 
-
         <h1 class="object-title">
           {item.data.title}
         </h1>
-
 
         {
           item.data.archiveDescription && (
@@ -266,23 +667,21 @@ const placeDisplay =
           )
         }
 
-
       </div>
-
 
     </section>
 
 
 
-    <!-- =========================================
+    <!-- ====================================================
          METADATA
-    ========================================== -->
+    ===================================================== -->
 
     <section class="object-metadata">
 
 
       {
-        item.data.creator && (
+        creators.length > 0 && (
 
           <div class="metadata-row">
 
@@ -290,8 +689,31 @@ const placeDisplay =
               creator
             </span>
 
-            <span class="metadata-value">
-              {item.data.creator}
+            <span class="metadata-value metadata-stack">
+
+              {
+                creators.map(
+                  (creator) => (
+
+                    <span>
+
+                      {creator.name}
+
+                      {
+                        creator.role && (
+                          <small>
+                            {" / "}
+                            {creator.role}
+                          </small>
+                        )
+                      }
+
+                    </span>
+
+                  )
+                )
+              }
+
             </span>
 
           </div>
@@ -300,18 +722,17 @@ const placeDisplay =
       }
 
 
-
       {
-        item.data.originalDate && (
+        originalDateDisplay && (
 
           <div class="metadata-row">
 
             <span class="metadata-label">
-              date
+              original date
             </span>
 
             <span class="metadata-value">
-              {item.data.originalDate}
+              {originalDateDisplay}
             </span>
 
           </div>
@@ -319,6 +740,24 @@ const placeDisplay =
         )
       }
 
+
+      {
+        dateNote && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              date note
+            </span>
+
+            <span class="metadata-value">
+              {dateNote}
+            </span>
+
+          </div>
+
+        )
+      }
 
 
       <div class="metadata-row">
@@ -328,26 +767,103 @@ const placeDisplay =
         </span>
 
         <span class="metadata-value">
-
-          {
-            item.data.dateFound.toLocaleDateString(
-              "en-US",
-              {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              }
-            )
-          }
-
+          {dateFoundDisplay}
         </span>
 
       </div>
 
 
+      {
+        primaryObjectType && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              object type
+            </span>
+
+            <span class="metadata-value">
+              {primaryObjectType}
+            </span>
+
+          </div>
+
+        )
+      }
+
 
       {
-        placeDisplay && (
+        item.data.secondaryObjectTypes
+          ?.length > 0 && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              secondary
+            </span>
+
+            <span class="metadata-value">
+              {
+                item.data
+                  .secondaryObjectTypes
+                  .join(" / ")
+              }
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.mediums
+          ?.length > 0 && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              medium / material
+            </span>
+
+            <span class="metadata-value">
+              {
+                item.data.mediums
+                  .join(" / ")
+              }
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.themes
+          ?.length > 0 && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              themes / concepts
+            </span>
+
+            <span class="metadata-value">
+              {
+                item.data.themes
+                  .join(" / ")
+              }
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        locations.length > 0 && (
 
           <div class="metadata-row">
 
@@ -356,7 +872,7 @@ const placeDisplay =
             </span>
 
             <span class="metadata-value">
-              {placeDisplay}
+              {locations.join(" / ")}
             </span>
 
           </div>
@@ -365,18 +881,21 @@ const placeDisplay =
       }
 
 
-
       {
-        item.data.kind && (
+        item.data.colors
+          ?.length > 0 && (
 
           <div class="metadata-row">
 
             <span class="metadata-label">
-              what is it
+              color
             </span>
 
             <span class="metadata-value">
-              {item.data.kind}
+              {
+                item.data.colors
+                  .join(" / ")
+              }
             </span>
 
           </div>
@@ -384,6 +903,62 @@ const placeDisplay =
         )
       }
 
+
+      {
+        item.data.colorNotes && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              color notes
+            </span>
+
+            <span class="metadata-value">
+              {item.data.colorNotes}
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.seriesProject && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              series / project
+            </span>
+
+            <span class="metadata-value">
+              {item.data.seriesProject}
+            </span>
+
+          </div>
+
+        )
+      }
+
+
+      {
+        item.data.bodyOfWork && (
+
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              body of work
+            </span>
+
+            <span class="metadata-value">
+              {item.data.bodyOfWork}
+            </span>
+
+          </div>
+
+        )
+      }
 
 
       {
@@ -392,7 +967,7 @@ const placeDisplay =
           <div class="metadata-row">
 
             <span class="metadata-label">
-              why saved
+              why i saved it
             </span>
 
             <span class="metadata-value">
@@ -404,168 +979,169 @@ const placeDisplay =
         )
       }
 
-
-
-      {
-        item.data.collections.length > 0 && (
-
-          <div class="metadata-row">
-
-            <span class="metadata-label">
-              collections
-            </span>
-
-            <span class="metadata-value">
-              {item.data.collections.join(" / ")}
-            </span>
-
-          </div>
-
-        )
-      }
-
-
-
-      {
-        item.data.tags.length > 0 && (
-
-          <div class="metadata-row">
-
-            <span class="metadata-label">
-              tags
-            </span>
-
-            <span class="metadata-value">
-              {item.data.tags.join(" / ")}
-            </span>
-
-          </div>
-
-        )
-      }
-
-
-
-      {
-        item.data.colors.length > 0 && (
-
-          <div class="metadata-row">
-
-            <span class="metadata-label">
-              color
-            </span>
-
-            <span class="metadata-value">
-              {item.data.colors.join(" / ")}
-            </span>
-
-          </div>
-
-        )
-      }
-
-
     </section>
 
 
 
-    <!-- =========================================
-         ADDITIONAL VIEWS
-    ========================================== -->
+    <!-- ====================================================
+         ADDITIONAL MEDIA
+    ===================================================== -->
 
     {
-      item.data.gallery.length > 0 && (
+      additionalMedia.length > 0 && (
 
         <section class="object-gallery">
-
 
           <div class="object-section-heading">
 
             <span>
-              additional views
+              additional media
             </span>
 
             <span>
-              {String(item.data.gallery.length).padStart(2, "0")}
+              {
+                String(
+                  additionalMedia.length
+                ).padStart(2, "0")
+              }
             </span>
 
           </div>
 
 
-
-          <div class="object-gallery-grid">
-
+          <div class="object-additional-media">
 
             {
-              item.data.gallery.map(
-                (photo, index) => (
+              additionalMedia.map(
+                (media, index) => (
 
-                  <figure class="gallery-item">
+                  <figure class="additional-media-item">
 
+                    {
+                      media.mediaType ===
+                      "document" ? (
 
-                    <div class="gallery-image">
+                        <a
+                          href={media.file}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          class="additional-document"
+                        >
 
-                      <img
-                        src={photo.image}
-                        alt={
-                          photo.caption ||
-                          item.data.title
-                        }
-                        loading="lazy"
-                      />
-
-                    </div>
-
-
-
-                    <figcaption>
-
-
-                      <span class="gallery-number">
-                        VIEW {String(index + 1).padStart(2, "0")}
-                      </span>
-
-
-                      {
-                        photo.caption && (
-
-                          <span class="gallery-caption">
-                            {photo.caption}
+                          <span>
+                            FILE {
+                              String(
+                                index + 1
+                              ).padStart(2, "0")
+                            }
                           </span>
 
-                        )
-                      }
+                          <strong>
+                            {
+                              media.caption ||
+                              "document"
+                            }
+                          </strong>
 
-
-                      {
-                        photo.credit && (
-
-                          <span class="gallery-credit">
-                            {photo.credit}
+                          <span>
+                            ↗
                           </span>
 
+                        </a>
+
+                      ) : (
+
+                        <div class="additional-media-object">
+
+                          <ArchiveMedia
+                            src={media.file}
+                            coverType={
+                              media.mediaType ===
+                              "image"
+                                ? "image"
+                                : media.mediaType
+                            }
+                            alt={
+                              media.caption ||
+                              item.data.title
+                            }
+                            title={
+                              media.caption ||
+                              item.data.title
+                            }
+                            context="detail"
+                            loading="lazy"
+                          />
+
+                        </div>
+
+                      )
+                    }
+
+
+                    {
+                      (
+                        media.mediaType !==
+                          "document" &&
+                        (
+                          media.caption ||
+                          media.credit ||
+                          media.sourceUrl
                         )
-                      }
+                      ) && (
+
+                        <figcaption>
+
+                          <span class="gallery-number">
+                            MEDIA {
+                              String(
+                                index + 1
+                              ).padStart(2, "0")
+                            }
+                          </span>
 
 
-                      {
-                        photo.sourceUrl && (
+                          {
+                            media.caption && (
 
-                          <a
-                            href={photo.sourceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            class="gallery-source"
-                          >
-                            source ↗
-                          </a>
+                              <span class="gallery-caption">
+                                {media.caption}
+                              </span>
 
-                        )
-                      }
+                            )
+                          }
 
 
-                    </figcaption>
+                          {
+                            media.credit && (
 
+                              <span class="gallery-credit">
+                                {media.credit}
+                              </span>
+
+                            )
+                          }
+
+
+                          {
+                            media.sourceUrl && (
+
+                              <a
+                                href={media.sourceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                class="gallery-source"
+                              >
+                                source ↗
+                              </a>
+
+                            )
+                          }
+
+                        </figcaption>
+
+                      )
+                    }
 
                   </figure>
 
@@ -573,9 +1149,7 @@ const placeDisplay =
               )
             }
 
-
           </div>
-
 
         </section>
 
@@ -584,25 +1158,22 @@ const placeDisplay =
 
 
 
-    <!-- =========================================
-         NOTES — ONLY IF THEY EXIST
-    ========================================== -->
+    <!-- ====================================================
+         NOTES
+    ===================================================== -->
 
     {
       hasNotes && (
 
         <section class="object-notes">
 
-
           <div class="object-section-label">
             notes
           </div>
 
-
           <div class="object-body">
             <Content />
           </div>
-
 
         </section>
 
@@ -611,36 +1182,32 @@ const placeDisplay =
 
 
 
-    <!-- =========================================
-         SOURCE
-    ========================================== -->
+    <!-- ====================================================
+         PRIMARY SOURCE
+    ===================================================== -->
 
     {
-      (
-        item.data.sourceName ||
-        item.data.sourceUrl
-      ) && (
+      primarySource && (
 
         <section class="object-source">
 
-
           <span class="metadata-label">
-            source
+            primary source
           </span>
 
-
           {
-            item.data.sourceUrl ? (
+            primarySource.url ? (
 
               <a
-                href={item.data.sourceUrl}
+                href={primarySource.url}
                 target="_blank"
                 rel="noopener noreferrer"
               >
 
                 {
-                  item.data.sourceName ||
-                  "original source"
+                  primarySource.name ||
+                  primarySource.type ||
+                  "source"
                 }
 
                 {" ↗"}
@@ -650,13 +1217,17 @@ const placeDisplay =
             ) : (
 
               <span>
-                {item.data.sourceName}
+
+                {
+                  primarySource.name ||
+                  primarySource.type
+                }
+
               </span>
 
             )
           }
 
-
         </section>
 
       )
@@ -664,65 +1235,51 @@ const placeDisplay =
 
 
 
-    <!-- =========================================
-         ATTACHMENTS
-    ========================================== -->
+    <!-- ====================================================
+         DISCOVERED VIA
+    ===================================================== -->
 
     {
-      item.data.attachments.length > 0 && (
+      discovery && (
 
-        <section class="object-attachments">
+        <section class="object-source">
 
+          <span class="metadata-label">
+            discovered via
+          </span>
 
-          <div class="object-section-heading">
+          {
+            discovery.url ? (
 
-            <span>
-              attachments
-            </span>
+              <a
+                href={discovery.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
 
-            <span>
-              {String(item.data.attachments.length).padStart(2, "0")}
-            </span>
+                {
+                  discovery.name ||
+                  discovery.type ||
+                  "discovery source"
+                }
 
-          </div>
+                {" ↗"}
 
+              </a>
 
+            ) : (
 
-          <div class="attachment-list">
+              <span>
 
+                {
+                  discovery.name ||
+                  discovery.type
+                }
 
-            {
-              item.data.attachments.map(
-                (attachment, index) => (
+              </span>
 
-                  <a
-                    href={attachment.file}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    class="attachment-row"
-                  >
-
-                    <span class="attachment-number">
-                      FILE {String(index + 1).padStart(2, "0")}
-                    </span>
-
-                    <span class="attachment-title">
-                      {attachment.title}
-                    </span>
-
-                    <span class="attachment-open">
-                      ↗
-                    </span>
-
-                  </a>
-
-                )
-              )
-            }
-
-
-          </div>
-
+            )
+          }
 
         </section>
 
@@ -731,15 +1288,14 @@ const placeDisplay =
 
 
 
-    <!-- =========================================
+    <!-- ====================================================
          RELATED FINDINGS
-    ========================================== -->
+    ===================================================== -->
 
     {
       related.length > 0 && (
 
         <section class="related-section">
-
 
           <div class="object-section-heading">
 
@@ -748,44 +1304,59 @@ const placeDisplay =
             </span>
 
             <span>
-              {String(related.length).padStart(2, "0")}
+              {
+                String(
+                  related.length
+                ).padStart(2, "0")
+              }
             </span>
 
           </div>
 
 
-
           <div class="related-grid">
-
 
             {
               related.map(
                 (relatedItem) => (
 
                   <a
-                    href={`/archive/${relatedItem.id}/`}
+                    href={
+                      `/archive/${relatedItem.id}/`
+                    }
                     class="related-item"
                   >
 
-
                     <div class="related-image">
 
-                      <img
-                        src={relatedItem.data.image}
+                      <ArchiveMedia
+                        src={
+                          relatedItem.data.image
+                        }
+                        coverType={
+                          relatedItem.data
+                            .coverType
+                        }
+                        poster={
+                          relatedItem.data
+                            .videoPoster
+                        }
                         alt={
                           relatedItem.data.alt ||
                           relatedItem.data.title
                         }
+                        title={
+                          relatedItem.data.title
+                        }
+                        context="card"
                         loading="lazy"
                       />
 
                     </div>
 
-
                     <span>
                       {relatedItem.data.title}
                     </span>
-
 
                   </a>
 
@@ -793,9 +1364,7 @@ const placeDisplay =
               )
             }
 
-
           </div>
-
 
         </section>
 
@@ -804,20 +1373,22 @@ const placeDisplay =
 
 
 
-    <!-- =========================================
+    <!-- ====================================================
          PREVIOUS / NEXT
-    ========================================== -->
+    ===================================================== -->
 
     <nav class="object-pagination">
 
-
       <div>
-
 
         {
           previous ? (
 
-            <a href={`/archive/${previous.id}/`}>
+            <a
+              href={
+                `/archive/${previous.id}/`
+              }
+            >
 
               <span class="pagination-label">
                 previous
@@ -838,18 +1409,19 @@ const placeDisplay =
           )
         }
 
-
       </div>
-
 
 
       <div class="pagination-next">
 
-
         {
           next ? (
 
-            <a href={`/archive/${next.id}/`}>
+            <a
+              href={
+                `/archive/${next.id}/`
+              }
+            >
 
               <span class="pagination-label">
                 next
@@ -870,14 +1442,155 @@ const placeDisplay =
           )
         }
 
-
       </div>
-
 
     </nav>
 
-
   </article>
 
-
 </BaseLayout>
+
+
+<style>
+
+  /* Only the pieces introduced by the new metadata system.
+     Existing object-page styling remains in global.css. */
+
+
+  .metadata-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+
+  .metadata-stack > span {
+    display: block;
+  }
+
+
+  .metadata-stack small {
+    font: inherit;
+    font-size: 8px;
+    font-weight: 400;
+    opacity: 0.62;
+  }
+
+
+  .object-additional-media {
+    display: grid;
+
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+
+    gap:
+      70px 22px;
+
+    padding-top: 26px;
+  }
+
+
+  .additional-media-item {
+    min-width: 0;
+    margin: 0;
+  }
+
+
+  .additional-media-object {
+    width: 100%;
+  }
+
+
+  .additional-media-item figcaption {
+    display: grid;
+
+    grid-template-columns:
+      75px
+      minmax(0, 1fr)
+      auto;
+
+    gap: 10px;
+
+    margin-top: 8px;
+    padding-top: 5px;
+
+    border-top:
+      1px solid var(--blue-faint);
+
+    font-size: 7px;
+    line-height: 1.4;
+
+    text-transform: uppercase;
+  }
+
+
+  .additional-document {
+    display: grid;
+
+    grid-template-columns:
+      75px
+      minmax(0, 1fr)
+      20px;
+
+    gap: 12px;
+
+    align-items: baseline;
+
+    padding:
+      12px 0;
+
+    border-top:
+      1px solid var(--blue);
+
+    border-bottom:
+      1px solid var(--blue);
+
+    text-transform: uppercase;
+  }
+
+
+  .additional-document > span:first-child {
+    font-size: 7px;
+  }
+
+
+  .additional-document strong {
+    font-size: 10px;
+    font-weight: 500;
+  }
+
+
+  .additional-document > span:last-child {
+    text-align: right;
+  }
+
+
+  .additional-document:hover strong {
+    text-decoration: underline;
+  }
+
+
+  @media (max-width: 750px) {
+
+    .object-additional-media {
+      grid-template-columns: 1fr;
+      gap: 50px;
+    }
+
+
+    .additional-media-item figcaption {
+      grid-template-columns:
+        65px
+        1fr;
+    }
+
+
+    .gallery-credit,
+    .gallery-source {
+      grid-column: 2;
+      text-align: left;
+    }
+
+  }
+
+</style>
