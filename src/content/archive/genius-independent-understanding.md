@@ -29,10 +29,6 @@ primarySource:
   type: website
   name: William Jordan
   url: https://github.com/chilledwilba/Lissajous-Curve
-discovery:
-  type: x/twitter
-  name: Philosophy Of Physics
-  url: https://x.com/PhilosophyOfPhy/status/2093341582137385462
 ---
 A Lissajous curve is produced by combining two perpendicular periodic motions.
 
