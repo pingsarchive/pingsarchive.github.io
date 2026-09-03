@@ -189,14 +189,44 @@ function isActive(path) {
 
 
         <a
-  href="/random"
-  class:list={[
-    "nav-stamp-link",
-    { "is-current": isActive("/random") }
-  ]}
->
-  i'm feeling lucky ↗
-</a>
+          href="/random"
+          id="lucky-link"
+          data-findings={JSON.stringify(
+            archiveItems.map((item) => `/archive/${item.id}/`)
+          )}
+          class:list={[
+            "nav-stamp-link",
+            { "is-current": isActive("/random") }
+          ]}
+        >
+          i'm feeling lucky ↗
+        </a>
+
+        <script>
+          const luckyLink = document.querySelector("#lucky-link");
+
+          if (luckyLink instanceof HTMLAnchorElement) {
+            luckyLink.addEventListener("click", (event) => {
+              const findings = JSON.parse(
+                luckyLink.dataset.findings || "[]"
+              );
+
+              if (!findings.length) return;
+
+              event.preventDefault();
+
+              const currentPath = window.location.pathname;
+              const choices = findings.filter(
+                (path) => path !== currentPath
+              );
+              const pool = choices.length ? choices : findings;
+              const destination =
+                pool[Math.floor(Math.random() * pool.length)];
+
+              window.location.href = destination;
+            });
+          }
+        </script>
 
 
       </nav>
