@@ -70,14 +70,6 @@ primarySource:
 ---
 Scanned Fashion World documents appearances of the campaign in:
 
-Harper's Bazaar US — September 1999
-
-Vogue UK — September 1999
-
-Vogue Paris — October 1999
-
-Harper's Bazaar US — October 1999
-
-Allure US — October 1999
+Harper's Bazaar US — September 1999 // Vogue UK — September 1999 // Vogue Paris — October 1999 // Harper's Bazaar US — October 1999 // Allure US — October 1999
 
 The source identifies Hervé Haddad as photographer.
