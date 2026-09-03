@@ -1,81 +1,65 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getCollection, render } from "astro:content";
-
+import { getCollection } from "astro:content";
 
 const notes = (
-  await getCollection("notes")
-).sort(
-  (a, b) =>
-    b.data.date.getTime() -
-    a.data.date.getTime()
-);
-
-
-const preparedNotes =
-  await Promise.all(
-    notes.map(async (note) => {
-
-      const { Content } =
-        await render(note);
-
-
-      const lowerTags =
-        note.data.tags.map(
-          (tag) => tag.toLowerCase()
-        );
-
-
-      /*
-       * Older notes may not have the new
-       * Type field yet.
-       */
-
-      const type =
-        note.data.type ||
-        (
-          lowerTags.includes("quote")
-            ? "quote"
-            : "note"
-        );
-
-
-      /*
-       * Your original Moshfegh quote used
-       * the Title field for her name.
-       * For legacy quotes, use that as the
-       * author instead of displaying it
-       * as a title.
-       */
-
-      const author =
-        note.data.author ||
-        (
-          type === "quote"
-            ? note.data.title
-            : undefined
-        );
-
-
-      return {
-        note,
-        Content,
-        type,
-        author,
-      };
-
-    })
+  await getCollection(
+    "notes",
+    ({ data }) => !data.private
+  )
+).sort((a, b) => {
+  const aNumber = Number.parseInt(
+    a.data.noteNumber || "0",
+    10
   );
+
+  const bNumber = Number.parseInt(
+    b.data.noteNumber || "0",
+    10
+  );
+
+  return bNumber - aNumber;
+});
+
+const types = Array.from(
+  new Set(
+    notes
+      .map((note) => note.data.type)
+      .filter(Boolean)
+  )
+).sort();
+
+const topics = Array.from(
+  new Set(
+    notes.flatMap(
+      (note) => note.data.topics || []
+    )
+  )
+).sort();
+
+function displayTitle(note: any) {
+  if (note.data.title) {
+    return note.data.title;
+  }
+
+  if (
+    note.data.type === "quote" &&
+    note.data.quoteAuthor
+  ) {
+    return `Quote — ${note.data.quoteAuthor}`;
+  }
+
+  return "Untitled";
+}
 ---
 
 <BaseLayout title="notes — ping's archive">
 
+  <!-- ======================================================
+       NOTES HEADING
+  ======================================================= -->
 
-  <!-- =========================================
-       NOTES HEADER
-  ========================================== -->
-
-  <section class="page-heading">
+  <section class="page-heading archive-heading">
 
     <div>
 
@@ -84,275 +68,666 @@ const preparedNotes =
       </p>
 
       <h1 class="page-title">
-        writing + observations
+        all writing
       </h1>
 
     </div>
 
 
-    <span class="notes-total-count">
-      {String(notes.length).padStart(4, "0")}
-    </span>
+    <div class="archive-total-count">
+
+      <span class="archive-total-number">
+        {String(notes.length).padStart(4, "0")}
+      </span>
+
+      <span class="archive-total-label">
+        {
+          notes.length === 1
+            ? "entry"
+            : "entries"
+        }
+      </span>
+
+    </div>
 
   </section>
 
 
 
-  <!-- =========================================
-       NOTES FEED
-  ========================================== -->
+  <!-- ======================================================
+       SEARCH / CONTROLS
+  ======================================================= -->
 
-  {
-    preparedNotes.length > 0 ? (
+  <section class="archive-toolbar">
 
-      <section class="notes-feed">
 
-        {
-          preparedNotes.map(
-            ({
-              note,
-              Content,
-              type,
-              author,
-            }) => (
+    <div class="archive-search-row">
 
-              <article
-                class:list={[
-                  "note-entry",
-                  `note-type-${type}`
-                ]}
-              >
+      <label for="notes-search">
+        search
+      </label>
 
+      <input
+        id="notes-search"
+        type="search"
+        placeholder="search title, writing, topic, person, work, place..."
+        autocomplete="off"
+        disabled={notes.length === 0}
+      />
 
-                <!-- TYPE + DATE -->
+    </div>
 
-                <div class="note-entry-meta">
 
-                  <span class="note-type">
-                    {type}
-                  </span>
+    <div class="archive-toolbar-row">
 
 
-                  <time
-                    datetime={
-                      note.data.date.toISOString()
-                    }
-                  >
-                    {
-                      note.data.date.toLocaleDateString(
-                        "en-US",
-                        {
-                          month: "short",
-                          day: "numeric",
-                          year: "numeric",
-                        }
-                      )
-                    }
-                  </time>
+      <!-- VIEW -->
 
-                </div>
+      <div class="view-control">
 
+        <span class="control-label">
+          view
+        </span>
 
+        <button
+          class="view-button"
+          type="button"
+          data-notes-view-button="grid"
+          aria-pressed="false"
+        >
+          grid
+        </button>
 
-                <!-- OPTIONAL TITLE -->
-
-                {
-                  note.data.title &&
-                  type !== "quote" && (
-
-                    <h2 class="note-entry-title">
-                      {note.data.title}
-                    </h2>
-
-                  )
-                }
-
-
-
-                <!-- OPTIONAL IMAGE -->
-
-                {
-                  note.data.image && (
-
-                    <figure class="note-entry-image">
-
-                      <img
-                        src={note.data.image}
-                        alt={
-                          note.data.title ||
-                          `${type} saved ${note.data.date.toLocaleDateString("en-US")}`
-                        }
-                        loading="lazy"
-                      />
-
-                    </figure>
-
-                  )
-                }
-
-
-
-                <!-- CONTENT -->
-
-                <div class="note-entry-body">
-
-                  <Content />
-
-                </div>
-
-
-
-                <!-- QUOTE ATTRIBUTION -->
-
-                {
-                  type === "quote" &&
-                  author && (
-
-                    <div class="note-quote-author">
-                      — {author}
-                    </div>
-
-                  )
-                }
-
-
-
-                <!-- AUTHOR / CREATOR FOR NON-QUOTES -->
-
-                {
-                  type !== "quote" &&
-                  note.data.author && (
-
-                    <div class="note-byline">
-
-                      <span>
-                        creator
-                      </span>
-
-                      <strong>
-                        {note.data.author}
-                      </strong>
-
-                    </div>
-
-                  )
-                }
-
-
-
-                <!-- LOCATION -->
-
-                {
-                  note.data.location && (
-
-                    <div class="note-context-row">
-
-                      <span>
-                        location
-                      </span>
-
-                      <strong>
-                        {note.data.location}
-                      </strong>
-
-                    </div>
-
-                  )
-                }
-
-
-
-                <!-- SOURCE -->
-
-                {
-                  (
-                    note.data.sourceName ||
-                    note.data.sourceUrl
-                  ) && (
-
-                    <div class="note-source-row">
-
-                      <span>
-                        source
-                      </span>
-
-
-                      {
-                        note.data.sourceUrl ? (
-
-                          <a
-                            href={note.data.sourceUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            {
-                              note.data.sourceName ||
-                              "open source"
-                            }
-                            {" ↗"}
-                          </a>
-
-                        ) : (
-
-                          <strong>
-                            {note.data.sourceName}
-                          </strong>
-
-                        )
-                      }
-
-                    </div>
-
-                  )
-                }
-
-
-
-                <!-- TAGS -->
-
-                {
-                  note.data.tags.length > 0 && (
-
-                    <div class="note-entry-tags">
-
-                      {
-                        note.data.tags.map(
-                          (tag) => (
-
-                            <span>
-                              {tag}
-                            </span>
-
-                          )
-                        )
-                      }
-
-                    </div>
-
-                  )
-                }
-
-
-              </article>
-
-            )
-          )
-        }
-
-      </section>
-
-    ) : (
-
-      <div class="empty-state">
-
-        <p>
-          fragments, research, thoughts, and things worth keeping will live here.
-        </p>
+        <button
+          class="view-button is-active"
+          type="button"
+          data-notes-view-button="index"
+          aria-pressed="true"
+        >
+          index
+        </button>
 
       </div>
 
-    )
-  }
 
+      <!-- SORT -->
+
+      <div class="sort-control">
+
+        <label
+          class="control-label"
+          for="notes-sort"
+        >
+          sort
+        </label>
+
+        <select
+          id="notes-sort"
+          disabled={notes.length === 0}
+        >
+
+          <option value="newest-added">
+            newest added
+          </option>
+
+          <option value="oldest-added">
+            oldest added
+          </option>
+
+          <option value="az">
+            a–z
+          </option>
+
+          <option value="za">
+            z–a
+          </option>
+
+        </select>
+
+      </div>
+
+    </div>
+
+
+
+    <!-- ====================================================
+         FILTERS
+    ===================================================== -->
+
+    <details class="archive-filters">
+
+      <summary>
+        filter notes
+      </summary>
+
+
+      <div class="archive-filter-groups">
+
+        <div class="filter-group">
+
+          <span class="filter-group-title">
+            browse
+          </span>
+
+          <div class="filter-grid">
+
+
+            <div class="filter-field">
+
+              <label for="filter-note-type">
+                type
+              </label>
+
+              <select
+                id="filter-note-type"
+                disabled={types.length === 0}
+              >
+
+                <option value="all">
+                  all
+                </option>
+
+                {
+                  types.map((value) => (
+                    <option value={value}>
+                      {value}
+                    </option>
+                  ))
+                }
+
+              </select>
+
+            </div>
+
+
+            <div class="filter-field">
+
+              <label for="filter-note-topic">
+                topic
+              </label>
+
+              <select
+                id="filter-note-topic"
+                disabled={topics.length === 0}
+              >
+
+                <option value="all">
+                  all
+                </option>
+
+                {
+                  topics.map((value) => (
+                    <option value={value}>
+                      {value}
+                    </option>
+                  ))
+                }
+
+              </select>
+
+            </div>
+
+          </div>
+
+        </div>
+
+
+        <div class="filter-actions">
+
+          <button
+            type="button"
+            data-clear-notes
+          >
+            clear
+          </button>
+
+        </div>
+
+      </div>
+
+    </details>
+
+  </section>
+
+
+
+  <!-- ======================================================
+       NOTES
+  ======================================================= -->
+
+  <section
+    class="archive-results"
+    data-notes
+    data-view="index"
+  >
+
+    {
+      notes.map((note) => {
+
+        const noteNumber =
+          note.data.noteNumber || "----";
+
+        const numberValue =
+          Number.parseInt(
+            note.data.noteNumber || "0",
+            10
+          );
+
+        const title =
+          displayTitle(note);
+
+        const type =
+          note.data.type || "note";
+
+        const date =
+          note.data.date;
+
+        const noteTopics =
+          note.data.topics || [];
+
+        const searchValues = [
+          note.data.noteNumber,
+          note.data.title,
+          note.data.subtitle,
+          note.data.type,
+          note.body,
+          ...(note.data.topics || []),
+          ...(note.data.people || []),
+          ...(note.data.worksReferenced || []),
+          ...(note.data.places || []),
+          note.data.quoteAuthor,
+          note.data.quoteSource,
+          ...(note.data.references || []),
+
+          // temporary legacy support
+          note.data.author,
+          note.data.sourceName,
+          note.data.location,
+          ...(note.data.tags || []),
+        ]
+          .filter(Boolean)
+          .join(" ")
+          .toLowerCase();
+
+        return (
+
+          <a
+            href={`/notes/${note.id}/`}
+            class="archive-entry"
+            data-number={String(numberValue)}
+            data-title={title.toLowerCase()}
+            data-search={searchValues}
+            data-note-type={type.toLowerCase()}
+            data-note-topics={
+              noteTopics
+                .map((value) =>
+                  value.toLowerCase()
+                )
+                .join("|")
+            }
+          >
+
+            <div class="archive-entry-information">
+
+              <span class="archive-accession">
+                NO. {noteNumber}
+              </span>
+
+              <h2>
+                {title}
+              </h2>
+
+              <p class="archive-entry-meta">
+                {type}
+              </p>
+
+              <time
+                datetime={date.toISOString()}
+              >
+                {
+                  date.toLocaleDateString(
+                    "en-US",
+                    {
+                      month: "short",
+                      day: "numeric",
+                      year: "numeric",
+                      timeZone: "UTC",
+                    }
+                  )
+                }
+              </time>
+
+            </div>
+
+          </a>
+
+        );
+      })
+    }
+
+  </section>
+
+
+
+  <!-- ======================================================
+       NO RESULTS
+  ======================================================= -->
+
+  <div
+    class="archive-no-results"
+    data-notes-no-results
+    hidden
+  >
+    no notes match your search or filters.
+  </div>
+
+
+
+  <!-- ======================================================
+       SEARCH / FILTER / SORT / VIEW
+  ======================================================= -->
+
+  <script>
+
+    const notesContainer =
+      document.querySelector<HTMLElement>(
+        "[data-notes]"
+      );
+
+    const entries =
+      Array.from(
+        document.querySelectorAll<HTMLElement>(
+          "[data-notes] .archive-entry"
+        )
+      );
+
+    const search =
+      document.querySelector<HTMLInputElement>(
+        "#notes-search"
+      );
+
+    const typeFilter =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-note-type"
+      );
+
+    const topicFilter =
+      document.querySelector<HTMLSelectElement>(
+        "#filter-note-topic"
+      );
+
+    const sort =
+      document.querySelector<HTMLSelectElement>(
+        "#notes-sort"
+      );
+
+    const noResults =
+      document.querySelector<HTMLElement>(
+        "[data-notes-no-results]"
+      );
+
+    const clearButton =
+      document.querySelector<HTMLButtonElement>(
+        "[data-clear-notes]"
+      );
+
+    const viewButtons =
+      Array.from(
+        document.querySelectorAll<HTMLButtonElement>(
+          "[data-notes-view-button]"
+        )
+      );
+
+
+    function normalize(value = "") {
+      return value
+        .toLowerCase()
+        .trim();
+    }
+
+
+    function matchesList(
+      values: string,
+      selected: string
+    ) {
+      if (selected === "all") {
+        return true;
+      }
+
+      return values
+        .split("|")
+        .filter(Boolean)
+        .includes(selected);
+    }
+
+
+    function applyFilters() {
+
+      const query =
+        normalize(search?.value || "");
+
+      const queryTerms =
+        query
+          .split(/\s+/)
+          .filter(Boolean);
+
+      const selectedType =
+        normalize(
+          typeFilter?.value || "all"
+        );
+
+      const selectedTopic =
+        normalize(
+          topicFilter?.value || "all"
+        );
+
+      let visible = 0;
+
+      entries.forEach((entry) => {
+
+        const searchable =
+          entry.dataset.search || "";
+
+        const matchesSearch =
+          queryTerms.every(
+            (term) =>
+              searchable.includes(term)
+          );
+
+        const matchesType =
+          selectedType === "all" ||
+          entry.dataset.noteType ===
+            selectedType;
+
+        const matchesTopic =
+          matchesList(
+            entry.dataset.noteTopics || "",
+            selectedTopic
+          );
+
+        const show =
+          matchesSearch &&
+          matchesType &&
+          matchesTopic;
+
+        entry.hidden = !show;
+
+        if (show) {
+          visible++;
+        }
+
+      });
+
+      if (noResults) {
+        noResults.hidden =
+          visible !== 0 ||
+          entries.length === 0;
+      }
+
+    }
+
+
+    function applySort() {
+
+      if (!notesContainer || !sort) {
+        return;
+      }
+
+      const selected =
+        sort.value;
+
+      const sorted =
+        [...entries].sort((a, b) => {
+
+          const aNumber =
+            Number(
+              a.dataset.number || "0"
+            );
+
+          const bNumber =
+            Number(
+              b.dataset.number || "0"
+            );
+
+          const aTitle =
+            a.dataset.title || "";
+
+          const bTitle =
+            b.dataset.title || "";
+
+          if (
+            selected ===
+            "oldest-added"
+          ) {
+            return aNumber - bNumber;
+          }
+
+          if (selected === "az") {
+            return aTitle.localeCompare(
+              bTitle
+            );
+          }
+
+          if (selected === "za") {
+            return bTitle.localeCompare(
+              aTitle
+            );
+          }
+
+          return bNumber - aNumber;
+
+        });
+
+      sorted.forEach((entry) => {
+        notesContainer.appendChild(entry);
+      });
+
+    }
+
+
+    function setView(view: string) {
+
+      if (!notesContainer) {
+        return;
+      }
+
+      notesContainer.dataset.view = view;
+
+      viewButtons.forEach((button) => {
+
+        const active =
+          button.dataset.notesViewButton ===
+          view;
+
+        button.classList.toggle(
+          "is-active",
+          active
+        );
+
+        button.setAttribute(
+          "aria-pressed",
+          String(active)
+        );
+
+      });
+
+    }
+
+
+    search?.addEventListener(
+      "input",
+      applyFilters
+    );
+
+    typeFilter?.addEventListener(
+      "change",
+      applyFilters
+    );
+
+    topicFilter?.addEventListener(
+      "change",
+      applyFilters
+    );
+
+    sort?.addEventListener(
+      "change",
+      () => {
+        applySort();
+        applyFilters();
+      }
+    );
+
+    clearButton?.addEventListener(
+      "click",
+      () => {
+
+        if (search) {
+          search.value = "";
+        }
+
+        if (typeFilter) {
+          typeFilter.value = "all";
+        }
+
+        if (topicFilter) {
+          topicFilter.value = "all";
+        }
+
+        if (sort) {
+          sort.value =
+            "newest-added";
+        }
+
+        applySort();
+        applyFilters();
+
+      }
+    );
+
+    viewButtons.forEach((button) => {
+
+      button.addEventListener(
+        "click",
+        () => {
+
+          const view =
+            button.dataset
+              .notesViewButton;
+
+          if (view) {
+            setView(view);
+          }
+
+        }
+      );
+
+    });
+
+
+    setView("index");
+    applySort();
+    applyFilters();
+
+  </script>
 
 </BaseLayout>

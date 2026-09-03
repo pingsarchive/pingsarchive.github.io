@@ -1,0 +1,579 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import {
+  getCollection,
+  render,
+  type CollectionEntry,
+} from "astro:content";
+
+export async function getStaticPaths() {
+  const notes = await getCollection(
+    "notes",
+    ({ data }) => !data.private
+  );
+
+  return notes.map((note) => ({
+    params: {
+      id: note.id,
+    },
+    props: {
+      note,
+    },
+  }));
+}
+
+interface Props {
+  note: CollectionEntry<"notes">;
+}
+
+const { note } = Astro.props;
+
+const { Content } =
+  await render(note);
+
+const noteNumber =
+  note.data.noteNumber || "----";
+
+const type =
+  note.data.type || "note";
+
+const title =
+  note.data.title ||
+  (
+    type === "quote" &&
+    note.data.quoteAuthor
+      ? `Quote — ${note.data.quoteAuthor}`
+      : "Untitled"
+  );
+
+const dateDisplay =
+  note.data.date.toLocaleDateString(
+    "en-US",
+    {
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+      timeZone: "UTC",
+    }
+  );
+
+const quoteAuthor =
+  note.data.quoteAuthor ||
+  (
+    type === "quote"
+      ? note.data.author
+      : undefined
+  );
+
+const quoteSource =
+  note.data.quoteSource ||
+  note.data.sourceName;
+
+const quoteUrl =
+  note.data.quoteUrl ||
+  note.data.sourceUrl;
+
+function isUrl(value: string) {
+  return /^https?:\/\//i.test(value);
+}
+---
+
+<BaseLayout title={`${title} — ping's archive`}>
+
+  <article class="note-object">
+
+
+    <!-- ====================================================
+         TOP LINE
+    ===================================================== -->
+
+    <div class="object-topline">
+
+      <a
+        href="/notes"
+        class="object-back"
+      >
+        ← notes
+      </a>
+
+      <span>
+        note no. {noteNumber}
+      </span>
+
+    </div>
+
+
+
+    <!-- ====================================================
+         TITLE
+    ===================================================== -->
+
+    <section class="note-hero">
+
+      <div class="object-introduction">
+
+        <p class="object-accession">
+          note no. {noteNumber}
+        </p>
+
+        <h1 class="object-title">
+          {title}
+        </h1>
+
+        {
+          note.data.subtitle && (
+            <p class="object-summary">
+              {note.data.subtitle}
+            </p>
+          )
+        }
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ====================================================
+         CORE METADATA
+    ===================================================== -->
+
+    <section class="object-metadata">
+
+
+      <div class="metadata-row">
+
+        <span class="metadata-label">
+          type
+        </span>
+
+        <span class="metadata-value">
+          {type}
+        </span>
+
+      </div>
+
+
+      <div class="metadata-row">
+
+        <span class="metadata-label">
+          date
+        </span>
+
+        <time
+          class="metadata-value"
+          datetime={note.data.date.toISOString()}
+        >
+          {dateDisplay}
+        </time>
+
+      </div>
+
+
+      {
+        quoteAuthor && (
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              quote author
+            </span>
+
+            <span class="metadata-value">
+              {quoteAuthor}
+            </span>
+
+          </div>
+        )
+      }
+
+
+      {
+        quoteSource && (
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              quote source
+            </span>
+
+            <span class="metadata-value">
+
+              {
+                quoteUrl ? (
+                  <a
+                    href={quoteUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    {quoteSource} ↗
+                  </a>
+                ) : (
+                  quoteSource
+                )
+              }
+
+            </span>
+
+          </div>
+        )
+      }
+
+
+      {
+        quoteUrl &&
+        !quoteSource && (
+          <div class="metadata-row">
+
+            <span class="metadata-label">
+              quote source
+            </span>
+
+            <span class="metadata-value">
+
+              <a
+                href={quoteUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                source ↗
+              </a>
+
+            </span>
+
+          </div>
+        )
+      }
+
+    </section>
+
+
+
+    <!-- ====================================================
+         WRITING
+    ===================================================== -->
+
+    <section class="note-writing">
+
+      <div class="note-writing-label">
+        content
+      </div>
+
+      <div class="note-writing-body">
+        <Content />
+      </div>
+
+    </section>
+
+
+
+    <!-- ====================================================
+         CLASSIFICATION
+    ===================================================== -->
+
+    {
+      (
+        note.data.topics?.length ||
+        note.data.people?.length ||
+        note.data.worksReferenced?.length ||
+        note.data.places?.length
+      ) && (
+
+        <section class="object-metadata note-classification">
+
+
+          {
+            note.data.topics?.length > 0 && (
+              <div class="metadata-row">
+
+                <span class="metadata-label">
+                  topics / concepts
+                </span>
+
+                <span class="metadata-value">
+                  {
+                    note.data.topics.join(" / ")
+                  }
+                </span>
+
+              </div>
+            )
+          }
+
+
+          {
+            note.data.people?.length > 0 && (
+              <div class="metadata-row">
+
+                <span class="metadata-label">
+                  people
+                </span>
+
+                <span class="metadata-value">
+                  {
+                    note.data.people.join(" / ")
+                  }
+                </span>
+
+              </div>
+            )
+          }
+
+
+          {
+            note.data.worksReferenced
+              ?.length > 0 && (
+              <div class="metadata-row">
+
+                <span class="metadata-label">
+                  works referenced
+                </span>
+
+                <span class="metadata-value">
+                  {
+                    note.data
+                      .worksReferenced
+                      .join(" / ")
+                  }
+                </span>
+
+              </div>
+            )
+          }
+
+
+          {
+            note.data.places?.length > 0 && (
+              <div class="metadata-row">
+
+                <span class="metadata-label">
+                  places
+                </span>
+
+                <span class="metadata-value">
+                  {
+                    note.data.places.join(" / ")
+                  }
+                </span>
+
+              </div>
+            )
+          }
+
+        </section>
+
+      )
+    }
+
+
+
+    <!-- ====================================================
+         REFERENCES
+    ===================================================== -->
+
+    {
+      note.data.references?.length > 0 && (
+
+        <section class="note-references">
+
+          <div class="note-section-label">
+            references
+          </div>
+
+          <ol>
+
+            {
+              note.data.references.map(
+                (reference) => (
+
+                  <li>
+
+                    {
+                      isUrl(reference) ? (
+
+                        <a
+                          href={reference}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          {reference} ↗
+                        </a>
+
+                      ) : (
+
+                        reference
+
+                      )
+                    }
+
+                  </li>
+
+                )
+              )
+            }
+
+          </ol>
+
+        </section>
+
+      )
+    }
+
+
+
+    <!-- ====================================================
+         FOOTER NUMBER
+    ===================================================== -->
+
+    <footer class="note-footer">
+
+      <span>
+        notes
+      </span>
+
+      <span>
+        note no. {noteNumber}
+      </span>
+
+    </footer>
+
+
+  </article>
+
+
+  <style>
+
+    .note-object {
+      width: 100%;
+    }
+
+    .note-hero {
+      padding:
+        clamp(2rem, 5vw, 4.5rem)
+        0;
+      border-bottom:
+        1px solid currentColor;
+    }
+
+    .note-hero .object-introduction {
+      max-width: 920px;
+    }
+
+    .note-writing {
+      display: grid;
+      grid-template-columns:
+        minmax(120px, 0.28fr)
+        minmax(0, 1fr);
+      gap: 2rem;
+      padding:
+        clamp(2rem, 5vw, 5rem)
+        0;
+      border-bottom:
+        1px solid currentColor;
+    }
+
+    .note-writing-label,
+    .note-section-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .note-writing-body {
+      max-width: 760px;
+      font-family: inherit;
+      line-height: 1.75;
+    }
+
+    .note-writing-body :global(p) {
+      margin:
+        0 0 1.4em;
+    }
+
+    .note-writing-body :global(p:last-child) {
+      margin-bottom: 0;
+    }
+
+    .note-writing-body :global(h2),
+    .note-writing-body :global(h3),
+    .note-writing-body :global(h4) {
+      margin:
+        2.4em 0 0.8em;
+      font-size: 1em;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .note-writing-body :global(blockquote) {
+      margin:
+        2em 0;
+      padding-left: 1.25rem;
+      border-left:
+        1px solid currentColor;
+    }
+
+    .note-writing-body :global(ul),
+    .note-writing-body :global(ol) {
+      padding-left: 1.4rem;
+      margin:
+        1.4em 0;
+    }
+
+    .note-writing-body :global(a),
+    .metadata-value a,
+    .note-references a {
+      color: inherit;
+      text-decoration: underline;
+      text-underline-offset: 0.18em;
+    }
+
+    .note-classification {
+      margin-top: 0;
+    }
+
+    .note-references {
+      display: grid;
+      grid-template-columns:
+        minmax(120px, 0.28fr)
+        minmax(0, 1fr);
+      gap: 2rem;
+      padding:
+        2rem 0;
+      border-bottom:
+        1px solid currentColor;
+    }
+
+    .note-references ol {
+      margin: 0;
+      padding-left: 1.4rem;
+    }
+
+    .note-references li + li {
+      margin-top: 0.65rem;
+    }
+
+    .note-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      padding:
+        1rem 0 0;
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    @media (
+      max-width: 700px
+    ) {
+
+      .note-writing,
+      .note-references {
+        grid-template-columns: 1fr;
+        gap: 1.25rem;
+      }
+
+    }
+
+  </style>
+
+</BaseLayout>
