@@ -48,7 +48,7 @@ primarySource:
   type: museum
   name: Musée d’histoire des sciences — Ville de Genève
   url: https://institutions.ville-geneve.ch/fileadmin/user_upload/mhn/images/votre_visite/site_mhs/1_Saussure_2024.pdf
-featured: false
+featured: true
 private: false
 ---
 De Saussure developed the cyanometer as a means of assigning numerical values to variations in the blue of the sky. The observer compared the sky directly with numbered painted samples arranged around the instrument. His earlier cyanometers used fewer shades; later circular versions expanded the scale substantially, extending between white and black. **[[Musée d’histoire des sciences, Geneva ↗]](https://institutions.ville-geneve.ch/fileadmin/user_upload/mhn/documents/Musee_histoire_des_sciences/aide_saussure.pdf)**
