@@ -17,7 +17,7 @@ tags:
   - interviews
 sourceName: Welcome Magazine
 sourceUrl: https://www.welcomejpeg.com/p/re-your-request-for-an-interview
-featured: true
+featured: false
 favorite: false
 private: false
 coverType: image
