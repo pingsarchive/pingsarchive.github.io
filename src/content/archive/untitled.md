@@ -27,7 +27,7 @@ colors:
   - cream
 sourceName: Nasjonalmuseet — Mark Rothko, Untitled, 1969
 sourceUrl: https://www.nasjonalmuseet.no/en/guide/rothko/paintingsonpaper/310/
-featured: false
+featured: true
 favorite: false
 private: false
 originalDateDetails:
