@@ -19,7 +19,7 @@ archiveDescription: "Silicate Transmigration (2026) is a folding-screen
 location: exhibited in Mirrors Within Mirrors at Derosia in New York
 sourceName: Mirrors Within Mirrors
 sourceUrl: https://derosia.nyc/exhibitions/mirrors-within-mirrors
-featured: false
+featured: true
 favorite: false
 private: false
 kind: Pigment, latex, found wooden frame
