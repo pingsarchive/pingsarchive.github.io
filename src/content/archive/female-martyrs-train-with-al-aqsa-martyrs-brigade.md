@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0011"
 title: Female Martyrs Train With Al-Aqsa Martyrs Brigade
 dateFound: 2026-09-04
 originalDateDetails:
