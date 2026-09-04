@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0010"
 title: Cui bono
 dateFound: 2026-09-03
 originalDateDetails:
