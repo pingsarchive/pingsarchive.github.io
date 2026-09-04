@@ -46,7 +46,7 @@ primarySource:
   type: database
   name: Getty Images
   url: https://www.gettyimages.co.uk/detail/news-photo/young-palestinian-female-volunteer-for-the-al-aqsa-martyrs-news-photo/1652135
-featured: true
+featured: false
 private: false
 ---
 Courtney Kealy later discussed these photographs in *Nieman Reports* in an essay about how photojournalistic images can be detached from their original circumstances and interpreted according to a surrounding political argument. She described spending four months preparing for the meeting and deliberately concentrating on small details within the women's appearance and behavior.
