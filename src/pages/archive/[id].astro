@@ -1182,6 +1182,59 @@ const dateFoundDisplay =
 
 
     <!-- ====================================================
+         PRIMARY SOURCE
+    ===================================================== -->
+
+    {
+      primarySource && (
+
+        <section class="object-source">
+
+          <span class="metadata-label">
+            primary source
+          </span>
+
+          {
+            primarySource.url ? (
+
+              <a
+                href={primarySource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+
+                {
+                  primarySource.name ||
+                  primarySource.type ||
+                  "source"
+                }
+
+                {" ↗"}
+
+              </a>
+
+            ) : (
+
+              <span>
+
+                {
+                  primarySource.name ||
+                  primarySource.type
+                }
+
+              </span>
+
+            )
+          }
+
+        </section>
+
+      )
+    }
+
+
+
+    <!-- ====================================================
          DISCOVERED VIA
     ===================================================== -->
 
