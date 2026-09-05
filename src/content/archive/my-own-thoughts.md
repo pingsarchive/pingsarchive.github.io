@@ -35,7 +35,7 @@ additionalMedia:
     sourceUrl: https://helenaminginowicz.com/2022-2/
 primarySource:
   type: website
-  name: https://helenaminginowicz.com/
+  name: Helena Minginowicz
   url: https://helenaminginowicz.com/2022-2/
 featured: false
 private: false
