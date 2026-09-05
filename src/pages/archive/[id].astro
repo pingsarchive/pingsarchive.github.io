@@ -1235,59 +1235,6 @@ const dateFoundDisplay =
 
 
     <!-- ====================================================
-         DISCOVERED VIA
-    ===================================================== -->
-
-    {
-      discovery && (
-
-        <section class="object-source">
-
-          <span class="metadata-label">
-            discovered via
-          </span>
-
-          {
-            discovery.url ? (
-
-              <a
-                href={discovery.url}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-
-                {
-                  discovery.name ||
-                  discovery.type ||
-                  "discovery source"
-                }
-
-                {" ↗"}
-
-              </a>
-
-            ) : (
-
-              <span>
-
-                {
-                  discovery.name ||
-                  discovery.type
-                }
-
-              </span>
-
-            )
-          }
-
-        </section>
-
-      )
-    }
-
-
-
-    <!-- ====================================================
          RELATED FINDINGS
     ===================================================== -->
 

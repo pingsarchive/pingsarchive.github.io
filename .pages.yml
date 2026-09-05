@@ -694,66 +694,6 @@ content:
 
 
       # ======================================================
-      # DISCOVERED VIA
-      # ======================================================
-
-      - name: discovery
-        label: Discovered Via
-        type: object
-        description: "Optional. Preserve the path by which you actually encountered the finding."
-
-        fields:
-
-          - name: type
-            label: Discovered Via Type
-            type: select
-
-            options:
-              placeholder: "Choose discovery type"
-
-              values:
-                - name: instagram
-                  label: Instagram
-                - name: x / twitter
-                  label: X / Twitter
-                - name: tumblr
-                  label: Tumblr
-                - name: pinterest
-                  label: Pinterest
-                - name: tiktok
-                  label: TikTok
-                - name: reddit
-                  label: Reddit
-                - name: youtube
-                  label: YouTube
-                - name: website
-                  label: Website
-                - name: book
-                  label: Book
-                - name: magazine
-                  label: Magazine
-                - name: museum / gallery
-                  label: Museum / Gallery
-                - name: physical encounter
-                  label: Physical Encounter
-                - name: personal photograph
-                  label: Personal Photograph
-                - name: friend / person
-                  label: Friend / Person
-                - name: other
-                  label: Other
-
-          - name: name
-            label: Discovered Via
-            type: string
-            description: "Optional. Account, person, publication, website, place, etc."
-
-          - name: url
-            label: Discovery URL
-            type: string
-
-
-      # ======================================================
       # WEBSITE
       # ======================================================
 
