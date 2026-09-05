@@ -3827,3 +3827,24 @@ img {
 .archive-results[data-view="index"] {
   visibility: visible;
 }
+/* ==========================================================
+   UNIVERSAL FINDING CARD HOVER FADE
+========================================================== */
+
+.masonry-card img,
+.masonry-card video,
+.archive-results[data-view="grid"] .archive-entry img,
+.archive-results[data-view="grid"] .archive-entry video,
+.related-item img,
+.related-item video {
+  transition: opacity 150ms ease;
+}
+
+.masonry-card:hover img,
+.masonry-card:hover video,
+.archive-results[data-view="grid"] .archive-entry:hover img,
+.archive-results[data-view="grid"] .archive-entry:hover video,
+.related-item:hover img,
+.related-item:hover video {
+  opacity: 0.84;
+}
