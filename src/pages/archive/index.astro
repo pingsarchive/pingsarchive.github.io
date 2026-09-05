@@ -1196,18 +1196,13 @@ const sourceTypes =
               </h2>
 
 
-              <p class="archive-entry-meta">
-
-                {
-                  [
-                    primaryType,
-                    cardLocation,
-                  ]
-                    .filter(Boolean)
-                    .join(" / ")
-                }
-
-              </p>
+              {
+                itemCreators.length > 0 && (
+                  <p class="archive-entry-meta">
+                    {itemCreators.join(" + ")}
+                  </p>
+                )
+              }
 
 
               <time

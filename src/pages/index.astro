@@ -94,18 +94,19 @@ const recent =
 
                   {
                     (
-                      item.data.creator ||
-                      item.data.kind
+                      item.data.creators?.length ||
+                      item.data.creator
                     ) && (
 
                       <p>
                         {
-                          [
-                            item.data.creator,
-                            item.data.kind
-                          ]
-                            .filter(Boolean)
-                            .join(" / ")
+                          (
+                            item.data.creators?.length
+                              ? item.data.creators
+                                  .map((creator) => creator.name)
+                                  .filter(Boolean)
+                              : [item.data.creator].filter(Boolean)
+                          ).join(" + ")
                         }
                       </p>
 
@@ -213,18 +214,19 @@ const recent =
 
                   {
                     (
-                      item.data.creator ||
-                      item.data.kind
+                      item.data.creators?.length ||
+                      item.data.creator
                     ) && (
 
                       <p>
                         {
-                          [
-                            item.data.creator,
-                            item.data.kind
-                          ]
-                            .filter(Boolean)
-                            .join(" / ")
+                          (
+                            item.data.creators?.length
+                              ? item.data.creators
+                                  .map((creator) => creator.name)
+                                  .filter(Boolean)
+                              : [item.data.creator].filter(Boolean)
+                          ).join(" + ")
                         }
                       </p>
 

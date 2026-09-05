@@ -1,5 +1,5 @@
 ---
-archiveNumber: "0012"
+archiveNumber: "0011"
 title: Remote Login Is a Lot Like Astral Projection
 dateFound: 2026-09-04
 originalDateDetails:

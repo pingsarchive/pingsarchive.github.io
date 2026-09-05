@@ -1,5 +1,5 @@
 ---
-archiveNumber: "0007"
+archiveNumber: "0006"
 title: Untitled
 dateFound: 2026-09-02
 originalDate: "1969"

@@ -1,5 +1,5 @@
 ---
-archiveNumber: "0009"
+archiveNumber: "0008"
 title: Deuxième schéma du cyanomètre
 dateFound: 2026-09-03
 originalDateDetails:

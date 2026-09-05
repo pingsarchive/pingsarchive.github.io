@@ -1,5 +1,5 @@
 ---
-archiveNumber: "0008"
+archiveNumber: "0007"
 title: Hyatt Centric Gaoxin Xi’an Mural Art
 dateFound: 2026-09-03
 originalDateDetails:
