@@ -641,59 +641,6 @@ content:
 
 
       # ======================================================
-      # PRIMARY SOURCE
-      # ======================================================
-
-      - name: primarySource
-        label: Primary Source
-        type: object
-        description: "The best or most authoritative source for this finding."
-
-        fields:
-
-          - name: type
-            label: Source Type
-            type: select
-
-            options:
-              placeholder: "Choose source type"
-
-              values:
-                - name: artist / creator
-                  label: Artist / Creator
-                - name: museum
-                  label: Museum
-                - name: gallery
-                  label: Gallery
-                - name: archive
-                  label: Archive
-                - name: library
-                  label: Library
-                - name: brand
-                  label: Brand
-                - name: publication
-                  label: Publication
-                - name: journal
-                  label: Journal
-                - name: book
-                  label: Book
-                - name: website
-                  label: Website
-                - name: database
-                  label: Database
-                - name: other
-                  label: Other
-
-          - name: name
-            label: Source Name
-            type: string
-
-          - name: url
-            label: Source URL
-            type: string
-
-
-      # ======================================================
       # DISCOVERED VIA
       # ======================================================
 
