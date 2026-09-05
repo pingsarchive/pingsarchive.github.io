@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0012"
 title: Enlightenment
 dateFound: 2026-09-05
 originalDateDetails:
