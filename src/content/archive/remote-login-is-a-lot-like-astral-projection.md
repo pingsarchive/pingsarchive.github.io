@@ -23,7 +23,7 @@ reason: |-
   unexpected spiritual metaphor. The image makes early internet culture
   feel simultaneously technical, mystical, physical, and strangely
   optimistic about what it meant to inhabit another computer remotely.
-primaryObjectType: book
+primaryObjectType: publication
 mediums:
   - printed illustration
 themes:
