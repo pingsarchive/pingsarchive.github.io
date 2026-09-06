@@ -3867,3 +3867,35 @@ img {
   margin: 0 auto;
   object-fit: contain;
 }
+
+/* ==========================================================
+   FINDING METADATA — PRECISE TOP ALIGNMENT
+========================================================== */
+
+.metadata-row {
+  align-items: start;
+}
+
+.metadata-row .metadata-label {
+  align-self: start;
+  padding-top: 2px;
+}
+
+.metadata-row .metadata-value {
+  align-self: start;
+}
+
+/* Primary source: align small label with top of source name */
+.object-source {
+  align-items: start;
+}
+
+.object-source .metadata-label,
+.object-source > a,
+.object-source > span:not(.metadata-label) {
+  align-self: start;
+}
+
+.object-source .metadata-label {
+  padding-top: 0;
+}
