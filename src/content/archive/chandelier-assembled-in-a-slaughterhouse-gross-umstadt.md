@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0016"
 title: Chandelier Assembled in a Slaughterhouse, Gross-Umstadt
 dateFound: 2026-09-06
 originalDateDetails:
