@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0014"
 title: Reserve Outfit (Visit to Saudi Arabia)
 dateFound: 2026-09-05
 originalDateDetails:
