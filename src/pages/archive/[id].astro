@@ -1397,6 +1397,63 @@ const dateFoundDisplay =
 </BaseLayout>
 
 
+<script>
+  const observedAdditionalMedia = new WeakSet();
+
+  const additionalMediaCaptionObserver =
+    new ResizeObserver(() => {
+      syncAdditionalMediaCaptionWidths();
+    });
+
+  function syncAdditionalMediaCaptionWidths() {
+    document
+      .querySelectorAll(".additional-media-item")
+      .forEach((figure) => {
+        const media = figure.querySelector(
+          ".additional-media-object .archive-media-element"
+        );
+
+        const caption =
+          figure.querySelector("figcaption");
+
+        if (
+          !(media instanceof HTMLElement) ||
+          !(caption instanceof HTMLElement)
+        ) {
+          return;
+        }
+
+        const width =
+          media.getBoundingClientRect().width;
+
+        if (width > 0) {
+          caption.style.width = `${width}px`;
+          caption.style.maxWidth = "100%";
+          caption.style.marginLeft = "auto";
+          caption.style.marginRight = "auto";
+          caption.style.boxSizing = "border-box";
+        }
+
+        if (!observedAdditionalMedia.has(media)) {
+          observedAdditionalMedia.add(media);
+          additionalMediaCaptionObserver.observe(media);
+        }
+      });
+  }
+
+  syncAdditionalMediaCaptionWidths();
+
+  document.addEventListener(
+    "astro:page-load",
+    syncAdditionalMediaCaptionWidths
+  );
+
+  window.addEventListener(
+    "resize",
+    syncAdditionalMediaCaptionWidths
+  );
+</script>
+
 <style>
 
   /* Only the pieces introduced by the new metadata system.
