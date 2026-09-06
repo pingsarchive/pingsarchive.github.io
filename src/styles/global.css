@@ -1730,11 +1730,8 @@ img {
 .related-image img,
 .related-image video {
   display: block;
-  width: auto;
+  width: 100%;
   height: auto;
-  max-width: 100%;
-  max-height: 60vh;
-  margin: 0 auto;
   object-fit: contain;
 }
 
@@ -3857,4 +3854,16 @@ img {
 .related-item:hover img,
 .related-item:hover video {
   opacity: 0.84;
+}
+
+
+/* Additional media on Finding detail pages */
+.additional-media-object .archive-media-detail .archive-media-element {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 60vh;
+  margin: 0 auto;
+  object-fit: contain;
 }
