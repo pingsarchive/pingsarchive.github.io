@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0018"
 title: Corner Houses, Hong Kong
 dateFound: 2026-09-06
 originalDateDetails:
