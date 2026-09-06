@@ -2718,7 +2718,7 @@ img {
    SMALL TABLET
 ---------------------------------------------------------- */
 
-@media (max-width: 800px) {
+@media (max-width: 750px) {
 
   .home-masonry,
   .archive-results[data-view="grid"] {
@@ -3266,7 +3266,7 @@ img {
 
 /* RESPONSIVE */
 
-@media (max-width: 1200px) {
+@media (max-width: 1000px) {
 
   .home-masonry,
   .archive-results[data-view="grid"] {
@@ -3277,7 +3277,7 @@ img {
 }
 
 
-@media (max-width: 800px) {
+@media (max-width: 750px) {
 
   .home-masonry,
   .archive-results[data-view="grid"] {
