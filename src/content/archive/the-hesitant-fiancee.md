@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0019"
 title: The Hesitant Fiancée
 dateFound: 2026-09-06
 originalDateDetails:
