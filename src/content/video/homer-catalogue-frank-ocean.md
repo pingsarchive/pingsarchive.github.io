@@ -1,7 +1,7 @@
 ---
 title: Homer Catalogue - Frank Ocean
 year: "2021"
-client: personal editorial edit
+client: Personal Editorial Edit
 role: "Video Editor "
 video: /videos/homer catalogue frank ocean.mp4
 duration: 00:54
