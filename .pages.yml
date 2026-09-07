@@ -791,8 +791,7 @@ content:
       - name: video
         label: Video
         type: file
-        required: true
-        description: "Upload the web-ready finished edit."
+        description: "Select the web-ready finished edit. You can add this later."
         options:
           media: videoMedia
           extensions:
