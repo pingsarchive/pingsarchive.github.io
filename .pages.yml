@@ -47,6 +47,20 @@ media:
       - gif
 
 
+  - name: videoMedia
+    label: Video Work
+    input: public/videos
+    output: /videos
+    rename: safe
+    extensions:
+      - mp4
+      - webm
+      - mov
+      - jpg
+      - jpeg
+      - png
+      - webp
+
 content:
 
   # ==========================================================
@@ -699,6 +713,150 @@ content:
 
       - name: featured
         label: Feature on Homepage
+        type: boolean
+        default: false
+
+      - name: private
+        label: Keep Private
+        type: boolean
+        default: false
+
+
+  # ==========================================================
+  # VIDEO
+  # ==========================================================
+
+  - name: video
+    label: Video
+    type: collection
+    path: src/content/video
+    format: yaml-frontmatter
+
+    filename:
+      template: "{title}.md"
+      field: false
+
+    view:
+      fields:
+        - title
+        - year
+        - client
+        - role
+        - featured
+
+      primary: title
+
+      sort:
+        - year
+        - title
+
+      search:
+        - title
+        - client
+        - role
+        - description
+        - credits
+
+      default:
+        sort: year
+        order: desc
+
+    fields:
+
+      # IDENTITY
+
+      - name: title
+        label: Project Title
+        type: string
+        required: true
+
+      - name: year
+        label: Year
+        type: string
+        required: true
+        description: "Year the edit or project was completed."
+
+      - name: client
+        label: Client / Project
+        type: string
+        description: "Optional. Brand, publication, artist, campaign, or personal project."
+
+      - name: role
+        label: Role
+        type: string
+        description: "Example: Editor, Video Editor, Creative Direction + Edit."
+
+      # MEDIA
+
+      - name: video
+        label: Video
+        type: file
+        required: true
+        description: "Upload the web-ready finished edit."
+        options:
+          media: videoMedia
+          extensions:
+            - mp4
+            - webm
+            - mov
+
+      - name: poster
+        label: Poster / Thumbnail
+        type: image
+        description: "Optional still image shown before playback."
+        options:
+          media: videoMedia
+          extensions:
+            - jpg
+            - jpeg
+            - png
+            - webp
+
+      # TECHNICAL
+
+      - name: duration
+        label: Duration
+        type: string
+        description: "Example: 00:42 or 1:15."
+
+      - name: aspectRatio
+        label: Aspect Ratio
+        type: select
+        options:
+          placeholder: "Choose aspect ratio"
+          values:
+            - name: "9:16"
+              label: "9:16 — Vertical"
+            - name: "16:9"
+              label: "16:9 — Horizontal"
+            - name: "1:1"
+              label: "1:1 — Square"
+            - name: "4:5"
+              label: "4:5 — Portrait"
+            - name: other
+              label: Other
+
+      # INFORMATION
+
+      - name: description
+        label: Description
+        type: text
+        description: "Optional short description of the edit."
+
+      - name: credits
+        label: Credits
+        type: text
+        description: "Optional collaborators, production credits, footage credits, etc."
+
+      - name: externalUrl
+        label: External Link
+        type: string
+        description: "Optional link to the published project."
+
+      # WEBSITE
+
+      - name: featured
+        label: Featured
         type: boolean
         default: false
 

@@ -1,22 +1,379 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const projects = (await getCollection("video"))
+  .filter((project) => !project.data.private)
+  .sort((a, b) => {
+    const yearA = Number(a.data.year || 0);
+    const yearB = Number(b.data.year || 0);
+
+    return yearB - yearA;
+  });
+
+const projectCount = String(projects.length).padStart(2, "0");
 ---
 
 <BaseLayout title="video — ping's archive">
 
   <section class="page-heading">
+
     <div>
       <p class="page-label">video</p>
-      <h1 class="page-title">editing + moving image</h1>
+
+      <h1 class="page-title">
+        editing + moving image
+      </h1>
     </div>
 
     <p class="page-count">
-      00 projects
+      {projectCount} {projects.length === 1 ? "project" : "projects"}
     </p>
+
   </section>
 
-  <div class="empty-state">
-    <p>selected video editing + moving-image work will live here.</p>
-  </div>
+
+  {
+    projects.length === 0 ? (
+
+      <div class="empty-state">
+        <p>
+          selected video editing + moving-image work will live here.
+        </p>
+      </div>
+
+    ) : (
+
+      <div class="video-index">
+
+        {
+          projects.map((project, index) => (
+
+            <article class="video-project">
+
+              <div class="video-media">
+
+                <video
+                  controls
+                  playsinline
+                  preload="metadata"
+                  poster={project.data.poster || undefined}
+                >
+                  <source src={project.data.video} />
+                </video>
+
+              </div>
+
+
+              <div class="video-meta">
+
+                <p class="video-number">
+                  {String(index + 1).padStart(3, "0")}
+                </p>
+
+
+                <h2 class="video-title">
+                  {project.data.title}
+                </h2>
+
+
+                <div class="video-data">
+
+                  <div>
+                    <span>year</span>
+                    <p>{project.data.year}</p>
+                  </div>
+
+
+                  {
+                    project.data.client && (
+                      <div>
+                        <span>client / project</span>
+                        <p>{project.data.client}</p>
+                      </div>
+                    )
+                  }
+
+
+                  {
+                    project.data.role && (
+                      <div>
+                        <span>role</span>
+                        <p>{project.data.role}</p>
+                      </div>
+                    )
+                  }
+
+
+                  {
+                    project.data.duration && (
+                      <div>
+                        <span>duration</span>
+                        <p>{project.data.duration}</p>
+                      </div>
+                    )
+                  }
+
+
+                  {
+                    project.data.aspectRatio && (
+                      <div>
+                        <span>format</span>
+                        <p>{project.data.aspectRatio}</p>
+                      </div>
+                    )
+                  }
+
+                </div>
+
+
+                {
+                  project.data.description && (
+                    <p class="video-description">
+                      {project.data.description}
+                    </p>
+                  )
+                }
+
+
+                {
+                  project.data.credits && (
+                    <div class="video-credits">
+                      <span>credits</span>
+
+                      <p>
+                        {project.data.credits}
+                      </p>
+                    </div>
+                  )
+                }
+
+
+                {
+                  project.data.externalUrl && (
+                    <a
+                      class="video-external"
+                      href={project.data.externalUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                    >
+                      view original ↗
+                    </a>
+                  )
+                }
+
+              </div>
+
+            </article>
+
+          ))
+        }
+
+      </div>
+
+    )
+  }
 
 </BaseLayout>
+
+
+<style>
+
+  .video-index {
+    width: 100%;
+  }
+
+
+  .video-project {
+    display: grid;
+
+    grid-template-columns:
+      minmax(0, 1fr)
+      minmax(190px, 260px);
+
+    gap: 28px;
+
+    padding:
+      0 0 56px;
+
+    margin:
+      0 0 56px;
+
+    border-bottom:
+      1px solid var(--blue);
+  }
+
+
+  .video-media {
+    min-width: 0;
+  }
+
+
+  .video-media video {
+    display: block;
+
+    width: auto;
+    max-width: 100%;
+    max-height: 78vh;
+
+    background:
+      var(--blue-ghost);
+
+    border:
+      1px solid var(--blue-faint);
+  }
+
+
+  .video-meta {
+    min-width: 0;
+  }
+
+
+  .video-number {
+    margin:
+      0 0 18px;
+
+    font-size: 8px;
+
+    letter-spacing:
+      0.08em;
+  }
+
+
+  .video-title {
+    margin:
+      0 0 25px;
+
+    font-family:
+      var(--mono);
+
+    font-size: 12px;
+    font-weight: 500;
+
+    line-height: 1.3;
+
+    text-transform:
+      uppercase;
+  }
+
+
+  .video-data {
+    border-top:
+      1px solid var(--blue);
+  }
+
+
+  .video-data > div {
+    display: grid;
+
+    grid-template-columns:
+      90px
+      minmax(0, 1fr);
+
+    gap: 12px;
+
+    padding:
+      6px 0;
+
+    border-bottom:
+      1px solid var(--blue-faint);
+  }
+
+
+  .video-data span,
+  .video-credits span {
+    font-size: 7px;
+
+    text-transform:
+      uppercase;
+
+    letter-spacing:
+      0.08em;
+
+    opacity:
+      0.65;
+  }
+
+
+  .video-data p {
+    margin: 0;
+
+    font-size: 8px;
+
+    line-height: 1.4;
+  }
+
+
+  .video-description {
+    margin:
+      24px 0 0;
+
+    font-size: 9px;
+
+    line-height: 1.6;
+  }
+
+
+  .video-credits {
+    margin:
+      24px 0 0;
+  }
+
+
+  .video-credits p {
+    margin:
+      6px 0 0;
+
+    font-size: 8px;
+
+    line-height: 1.5;
+  }
+
+
+  .video-external {
+    display: inline-block;
+
+    margin-top:
+      24px;
+
+    padding-bottom:
+      2px;
+
+    border-bottom:
+      1px solid var(--blue);
+
+    font-size: 8px;
+
+    text-transform:
+      uppercase;
+
+    letter-spacing:
+      0.06em;
+  }
+
+
+  @media (max-width: 750px) {
+
+    .video-project {
+      grid-template-columns:
+        1fr;
+
+      gap:
+        20px;
+
+      margin-bottom:
+        44px;
+
+      padding-bottom:
+        44px;
+    }
+
+
+    .video-meta {
+      max-width:
+        440px;
+    }
+
+  }
+
+</style>

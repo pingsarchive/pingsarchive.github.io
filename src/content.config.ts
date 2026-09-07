@@ -447,6 +447,70 @@ const archive = defineCollection({
 
 
 
+
+/* ==========================================================
+   VIDEO
+========================================================== */
+
+const video = defineCollection({
+
+  loader: glob({
+    base: "./src/content/video",
+    pattern: "**/*.md",
+  }),
+
+  schema: z.object({
+
+    title:
+      z.string(),
+
+    year:
+      z.string(),
+
+    client:
+      z.string().optional(),
+
+    role:
+      z.string().optional(),
+
+    video:
+      z.string(),
+
+    poster:
+      z.string().optional(),
+
+    duration:
+      z.string().optional(),
+
+    aspectRatio:
+      z.enum([
+        "9:16",
+        "16:9",
+        "1:1",
+        "4:5",
+        "other",
+      ]).optional(),
+
+    description:
+      z.string().optional(),
+
+    credits:
+      z.string().optional(),
+
+    externalUrl:
+      z.string().optional(),
+
+    featured:
+      z.boolean().default(false),
+
+    private:
+      z.boolean().default(false),
+
+  }),
+
+});
+
+
 /* ==========================================================
    NOTES
 ========================================================== */
@@ -561,5 +625,7 @@ export const collections = {
   archive,
 
   notes,
+
+  video,
 
 };
