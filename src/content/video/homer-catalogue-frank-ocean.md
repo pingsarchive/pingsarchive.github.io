@@ -1,5 +1,5 @@
 ---
-title: Homer Catalogue - Frank Ocean
+title: Homer Catalogue — Frank Ocean
 year: "2021"
 client: Personal Editorial Edit
 role: "Video Editor "
