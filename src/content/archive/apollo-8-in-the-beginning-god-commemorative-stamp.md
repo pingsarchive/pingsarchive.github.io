@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0020"
 title: Apollo 8 — “In the Beginning God…” Commemorative Stamp
 dateFound: 2026-09-08
 originalDateDetails:
