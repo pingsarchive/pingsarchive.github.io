@@ -32,27 +32,22 @@ image: /images/archive/008fd4tlly1hpmfimfka0j30zo0iggnl.png
 additionalMedia:
   - mediaType: image
     file: /images/archive/008fd4tlly1hpmfildirnj30zo0rm40s.png
-    caption: Mother and Child (母与子) series — selected sculpture
     credit: Han Meilin Art Foundation (韩美林艺术基金会)
     sourceUrl: https://www.weibo.com/ttarticle/p/show?id=2309405033125582602539
   - mediaType: image
     file: /images/archive/008fd4tlly1hpmfj28wcwj311i1antcv.png
-    caption: Mother and Child (母与子) series — selected sculpture
     credit: Han Meilin Art Foundation (韩美林艺术基金会)
     sourceUrl: https://www.weibo.com/ttarticle/p/show?id=2309405033125582602539
   - mediaType: image
     file: /images/archive/008fd4tlly1hpmfj1qge3j30zo0zrdlh.png
-    caption: Mother and Child (母与子) series — selected sculpture
     credit: Han Meilin Art Foundation (韩美林艺术基金会)
     sourceUrl: https://www.weibo.com/ttarticle/p/show?id=2309405033125582602539
   - mediaType: image
     file: /images/archive/008fd4tlly1hpmfilwxt9j30zo0meabr.png
-    caption: Mother and Child (母与子) series — selected sculpture
     credit: Han Meilin Art Foundation (韩美林艺术基金会)
     sourceUrl: https://www.weibo.com/ttarticle/p/show?id=2309405033125582602539
   - mediaType: image
     file: /images/archive/008fd4tlly1hpmfin7anaj30zo0s80vl.png
-    caption: Mother and Child (母与子) series — selected sculpture
     credit: Han Meilin Art Foundation (韩美林艺术基金会)
     sourceUrl: https://www.weibo.com/ttarticle/p/show?id=2309405033125582602539
 primarySource:
