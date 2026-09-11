@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0022"
 title: Nocturnal Bloom
 dateFound: 2026-09-11
 originalDateDetails:
