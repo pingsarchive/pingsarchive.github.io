@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0025"
 title: Instruments of State – China
 dateFound: 2026-09-16
 originalDateDetails:
