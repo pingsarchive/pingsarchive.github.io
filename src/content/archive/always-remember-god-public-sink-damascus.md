@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0027"
 title: Always Remember God — Public Sink, Damascus
 dateFound: 2026-09-16
 originalDateDetails:
