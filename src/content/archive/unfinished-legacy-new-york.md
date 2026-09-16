@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0024"
 title: Unfinished Legacy New York
 dateFound: 2026-09-16
 originalDateDetails:
