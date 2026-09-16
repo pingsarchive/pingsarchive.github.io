@@ -33,7 +33,7 @@ coverType: image
 image: /images/archive/grenadechina.webp
 primarySource:
   type: website
-  name: ustine Smith, The Way of the Gun, Waterhouse & Dodd, 2011
+  name: Justine Smith, The Way of the Gun, Waterhouse & Dodd, 2011
   url: https://www.justinesmith.net/wordpress/wp-content/uploads/2017/05/Catalogue-Way-of-the-Gun.pdf
 featured: false
 private: false
