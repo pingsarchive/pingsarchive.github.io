@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0026"
 title: Volcano Erupting at Night
 dateFound: 2026-09-16
 originalDateDetails:
