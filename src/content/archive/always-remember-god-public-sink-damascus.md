@@ -39,7 +39,7 @@ colors:
 locations:
   - Damascus, Syria
 coverType: image
-image: /images/archive/7825bbe3e1666ab7773b003ea0759e0f.jpg
+image: /images/archive/40d6e8b31d82f243849a532d140a1058-1.jpg
 primarySource:
   type: publication
   name: Victor A. Vicente, The Aesthetics of Motion in Musics for the Mevlana
