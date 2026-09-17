@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0028"
 title: Matriochka Bracelet Bag, Paris–Moscou
 dateFound: 2026-09-17
 originalDateDetails:
