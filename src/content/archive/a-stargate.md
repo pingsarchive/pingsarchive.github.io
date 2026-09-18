@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0029"
 title: A Stargate
 dateFound: 2026-09-18
 originalDateDetails:
