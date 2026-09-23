@@ -1,4 +1,5 @@
 ---
+archiveNumber: "0030"
 title: “I Don’t Smoke” Reversible T-Shirt
 dateFound: 2026-09-23
 originalDateDetails:
