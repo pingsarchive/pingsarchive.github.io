@@ -36,7 +36,7 @@ bodyOfWork: Autumn/Winter 2006 menswear
 locations:
   - Paris, France
 coverType: image
-image: /images/archive/img0911-copy.jpg
+image: /images/archive/img0915.png
 primarySource:
   type: website
   name: archivemess
